@@ -1,7 +1,8 @@
+-- DATABASE SETUP
 CREATE DATABASE CAKEFORDAYS;
 USE CAKEFORDAYS;
 
--- USERS & ADMIN
+-- USERS
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -12,29 +13,25 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- CREATE TABLE admins (
---     admin_id INT PRIMARY KEY AUTO_INCREMENT,
---     username VARCHAR(50) UNIQUE NOT NULL,
---     password_hash VARCHAR(255) NOT NULL
--- );
-
--- PRODUCTS & VARIANTS
+-- PRODUCTS
 CREATE TABLE products (
     product_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    description TEXT NULL,
-    category VARCHAR(50) NULL,
-    price DECIMAL(10,2) NOT NULL ,
+    description TEXT,
+    category VARCHAR(50),
+    price DECIMAL(10,2) NOT NULL,
     stock_quantity INT DEFAULT 0,
-    image_url VARCHAR(255) NULL
+    image_url VARCHAR(255),
+    intended_audience ENUM('human', 'pet', 'POD') NOT NULL DEFAULT 'human'
 );
 
+-- PRODUCT VARIANTS
 CREATE TABLE product_variants (
     variant_id INT PRIMARY KEY AUTO_INCREMENT,
     product_id INT NOT NULL,
     variant_name VARCHAR(50),
     price_adjustment DECIMAL(10,2) DEFAULT 0.00,
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
 -- CUSTOM ORDERS
@@ -42,9 +39,6 @@ CREATE TABLE custom_orders (
     order_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     product_id INT,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(100),
-    phone_number VARCHAR(20),
     event_type VARCHAR(50),
     event_date DATE,
     number_of_servings INT,
@@ -55,21 +49,19 @@ CREATE TABLE custom_orders (
     special_requests TEXT,
     order_status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE SET NULL
 );
 
 -- PAYMENTS
 CREATE TABLE payments (
     payment_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
-    user_id INT NOT NULL,
     payment_method VARCHAR(50),
     amount_paid DECIMAL(10,2),
     payment_status ENUM('paid', 'pending', 'failed') DEFAULT 'pending',
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES custom_orders(order_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (order_id) REFERENCES custom_orders(order_id) ON DELETE CASCADE
 );
 
 -- STANDARD ORDERS
@@ -79,17 +71,18 @@ CREATE TABLE orders (
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10,2),
     status ENUM('pending', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- ORDER ITEMS
 CREATE TABLE order_items (
     order_item_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
 -- SHOPPING CART
@@ -97,16 +90,17 @@ CREATE TABLE shopping_cart (
     cart_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- CART ITEMS
 CREATE TABLE cart_items (
     cart_item_id INT PRIMARY KEY AUTO_INCREMENT,
     cart_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
-    FOREIGN KEY (cart_id) REFERENCES shopping_cart(cart_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (cart_id) REFERENCES shopping_cart(cart_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
 -- REVIEWS
@@ -117,11 +111,11 @@ CREATE TABLE product_reviews (
     rating INT CHECK (rating BETWEEN 1 AND 5),
     review_text TEXT,
     review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
--- REPORTS
+-- SALES REPORTS
 CREATE TABLE sales_reports (
     report_id INT PRIMARY KEY AUTO_INCREMENT,
     date_range_start DATE,
@@ -129,25 +123,53 @@ CREATE TABLE sales_reports (
     total_sales DECIMAL(10,2),
     total_orders INT,
     top_product_id INT,
-    FOREIGN KEY (top_product_id) REFERENCES products(product_id)
+    FOREIGN KEY (top_product_id) REFERENCES products(product_id) ON DELETE SET NULL
+);
+
+-- USER ADDRESSES
+CREATE TABLE user_addresses (
+    address_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    street_address VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    zip_code VARCHAR(20),
+    country VARCHAR(100),
+    is_default BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- WISHLISTS
+CREATE TABLE wishlists (
+    wishlist_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
 -- INDEXES
 CREATE INDEX idx_user_email ON users(email);
-CREATE INDEX idx_order_user ON orders(user_id);
-CREATE INDEX idx_custom_order_status ON custom_orders(order_status);
-
-
-ALTER TABLE products
-ADD COLUMN intended_audience ENUM('human', 'pet', 'POD') NOT NULL DEFAULT 'human';
-
-UPDATE products
-SET intended_audience = 'human'
-WHERE product_id BETWEEN 1 AND 6;
-
-UPDATE products
-SET intended_audience = 'pet'
-WHERE product_id BETWEEN 7 AND 10;
+CREATE INDEX idx_product_category ON products(category);
+CREATE INDEX idx_product_audience ON products(intended_audience);
+CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
+CREATE INDEX idx_custom_orders_user_id ON custom_orders(user_id);
+CREATE INDEX idx_custom_orders_status ON custom_orders(order_status);
+CREATE INDEX idx_payments_order_id ON payments(order_id);
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX idx_shopping_cart_user_id ON shopping_cart(user_id);
+CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX idx_cart_items_product_id ON cart_items(product_id);
+CREATE INDEX idx_product_reviews_user_id ON product_reviews(user_id);
+CREATE INDEX idx_product_reviews_product_id ON product_reviews(product_id);
+CREATE INDEX idx_sales_reports_top_product_id ON sales_reports(top_product_id);
+CREATE INDEX idx_user_addresses_user_id ON user_addresses(user_id);
+CREATE INDEX idx_wishlists_user_id ON wishlists(user_id);
+CREATE INDEX idx_wishlists_product_id ON wishlists(product_id);
 
 -- Insert 5 new cakes related to product_id=1 (Celebration Layer Cake)
 INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)

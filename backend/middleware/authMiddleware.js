@@ -23,3 +23,12 @@ export const authenticateToken = (req,res,next) => {
         next();
     });
 };
+
+export const checkAdmin = (req, res, next) => {
+    // req.user is set by the authenticateToken middleware
+    if (req.user && req.user.role === 'admin') {
+        next(); // User is an admin, so they can proceed
+    } else {
+        res.status(403).json({ message: 'Access denied: Admins only.' });
+    }
+};
