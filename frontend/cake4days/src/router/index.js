@@ -24,8 +24,8 @@ const routes = [
     {path: '/checkout',
       name: 'Checkout',
       component: CheckoutPage // CheckoutPage
-    }
-];
+    },
+    {
     path: '/products',
     name: 'products',
     // route level code-splitting
