@@ -1,21 +1,32 @@
 <template>
     <navbar-comp/>
     <router-view/>
+ <div>
+    <Navbar />
+    <router-view/>
+    <CartSiderbar/>
+  </div>
 </template>
+
 <script>
-import NavbarComp from '@/components/NavbarComp.vue'
-export default{
-  components:{
-    NavbarComp
+import Navbar from './components/Navbar.vue';
+import CartSiderbar from './components/CartSiderbar.vue';
+
+
+export default {
+  components: {
+    Navbar,
+    CartSiderbar
   }
-}
+};
 </script>
+
 <style>
+
 #app {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 
@@ -32,5 +43,7 @@ nav a {
 
 nav a.router-link-exact-active {
   color: #42b983;
+  margin-top: 60px;
 }
 </style>
+
