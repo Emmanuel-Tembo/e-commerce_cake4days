@@ -340,3 +340,7 @@ INSERT INTO product_variants (product_id, variant_name, price_adjustment) VALUES
 (10, 'Box of 12', 57.00),
 (10, 'Extra Peanut Butter', 6.00),
 (10, 'Chocolate Chips', 4.00);
+
+-- ALTER TABLE for custom_orders
+ALTER TABLE custom_orders
+ADD COLUMN full_name VARCHAR(255) NOT NULL AFTER user_id;

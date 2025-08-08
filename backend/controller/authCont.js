@@ -104,3 +104,38 @@ export const login = async (req, res) => {
         res.status(500).json({message: 'Server error during login'});
     }
 };
+
+// ... (your existing code)
+
+export const loginAdmin = async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Please provide username and password' });
+    }
+
+    try {
+        const user = await authMode.findUserbyName(username);
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+
+        // --- NEW CHECK HERE ---
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied: Not an admin' });
+        }
+        // ----------------------
+
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const token = jwt.sign({ userId: user.user_id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(200).json({ token });
+    } catch (e) {
+        console.error('Error during admin login: ', e);
+        res.status(500).json({ message: 'Server error during login' });
+    }
+};

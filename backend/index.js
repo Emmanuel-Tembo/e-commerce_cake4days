@@ -1,7 +1,6 @@
 import express from 'express'
 import { config } from 'dotenv'
 import cors from 'cors'
-import { ProductsCon } from './controller/ProductsCon.js'
 
 config()
 const app = express()
@@ -13,9 +12,15 @@ app.use(express.json());
 
 // Routes
 import authRoutes from './routes/authRoutes.js'
+import Products from './routes/Products.js'
+import customOrderRoutes from './routes/customOrderRoutes.js'; 
+import cartRoutes from './routes/cartRoutes.js';
+
 
 app.use('/auth',authRoutes);
-app.get("/products",ProductsCon)   
+app.use('/products',Products);
+app.use('/', customOrderRoutes);
+app.use('/', cartRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)
