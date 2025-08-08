@@ -15,7 +15,7 @@ export const Delete = async (id) => {
   } catch (error) {
     throw error
   }
-}
+} 
 
 export const Create = async (name,description,category,price,stock_quantity,intended_audience)=>{
   try {

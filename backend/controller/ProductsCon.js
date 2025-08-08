@@ -27,7 +27,7 @@ export const CreateCon = async (req,res) => {
   res.json({
     message: 'Product added successfully'
   })
-}
+} 
 
 export const UpdateCon = async (req,res) => {
     let {id} = req.params;
