@@ -1,7 +1,7 @@
 import express from 'express'
 import { config } from 'dotenv'
 import cors from 'cors'
-import ProductsRoute from './routes/Products.js'
+
 
 config()
 const app = express()
@@ -13,9 +13,9 @@ app.use(express.json());
 
 // Routes
 import authRoutes from './routes/authRoutes.js'
-
+import Products from './routes/Products.js'
 app.use('/auth',authRoutes);
-app.get("/products",ProductsCon)   
+app.use('/products',Products)    
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)
