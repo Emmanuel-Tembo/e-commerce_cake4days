@@ -1,45 +1,52 @@
-
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import CustomOrderPage from '../views/CustomOrderPage.vue';
-import ProfilePage from '../views/ProfilePage.vue';
-import CheckoutPage from '../views/CheckoutPage.vue';
+import signView from '@/views/signView.vue'
+import CatalogueView from '@/views/CatalogueView.vue'
+import CartView from '@/views/CartView.vue'
+import PetTreatsView from '@/views/PetTreatsView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: CustomOrderPage // HomeView
+    component: HomeView
   },
   {
-    path: '/custom-order',
-    name: 'custom-order',
-    component: CustomOrderPage
+    path: '/PetTreats',
+    name: 'PetTreats',
+    component: PetTreatsView
   },
-    {
-      path: '/profile',
-      name: 'Profile',
-      component: ProfilePage // ProfilePage
-    },
-    {path: '/checkout',
-      name: 'Checkout',
-      component: CheckoutPage // CheckoutPage
-    },
-    {
-    path: '/products',
-    name: 'products',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: function () {
-      return import(/* webpackChunkName: "about" */ '../views/ProductsView.vue')
-    }
-  }
+
+  {
+    path: '/sign',
+    name: 'sign',
+    component: signView
+
+  },
+  {
+    path: '/catalogue',
+    name: 'catalogue',
+    component: CatalogueView
+  },
+  {
+    path: '/Cart',
+    name: 'Cart',
+    component: CartView
+  },
+  //  {
+  //    path: '/about',
+  //    name: 'about',
+  // //   // route level code-splitting
+  // //   // this generates a separate chunk (about.[hash].js) for this route
+  // //   // which is lazy-loaded when the route is visited.
+  //    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+  // }
 ]
 
+
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(process.env.BASE_URL),
   routes
-});
+})
 
 export default router

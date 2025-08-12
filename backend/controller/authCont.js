@@ -76,19 +76,18 @@ export const register = async (req,res) => {
     }
 }
 
-
-// A placeholder for what your login function might look like
+// LOGIN (now uses email)
 export const login = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
-        return res.status(400).json({message: 'Please provide username and password'});
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Please provide email and password' });
     }
 
     try {
-        const user = await authMode.findUserbyName(username);
+        const user = await authMode.findUserByEmail(email);
         if (!user) {
-            return res.status(401).json({ message: 'User not found' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password_hash);
@@ -96,46 +95,74 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ userId: user.user_id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(
+            { userId: user.user_id, username: user.username, role: user.role }, 
+            JWT_SECRET, 
+            { expiresIn: '1h' }
+        );
 
-        res.status(200).json({ token });
+        res.cookie('auth_token', token, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 3600000 
+        });
+
+        res.status(200).json({ message: 'Login successful' });
     } catch (e) {
         console.error('Error during login: ', e);
-        res.status(500).json({message: 'Server error during login'});
+        res.status(500).json({ message: 'Server error during login' });
     }
 };
 
-// ... (your existing code)
-
+// ADMIN LOGIN (now uses email)
 export const loginAdmin = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
-        return res.status(400).json({ message: 'Please provide username and password' });
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Please provide email and password' });
     }
 
     try {
-        const user = await authMode.findUserbyName(username);
+        // Find user by email
+        const user = await authMode.findUserByEmail(email);
         if (!user) {
-            return res.status(401).json({ message: 'User not found' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // --- NEW CHECK HERE ---
+        // Check for admin role
         if (user.role !== 'admin') {
             return res.status(403).json({ message: 'Access denied: Not an admin' });
         }
-        // ----------------------
-
+        
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ userId: user.user_id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(
+            { userId: user.user_id, username: user.username, role: user.role }, 
+            JWT_SECRET, 
+            { expiresIn: '1h' }
+        );
 
-        res.status(200).json({ token });
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 3600000
+        });
+
+        res.status(200).json({ message: 'Admin login successful' });
     } catch (e) {
         console.error('Error during admin login: ', e);
         res.status(500).json({ message: 'Server error during login' });
     }
 };
+
+// NEW LOGOUT FUNCTION
+export const logout = (req, res) => {
+    res.clearCookie('auth_token');
+    res.status(200).json({ message: 'Logout successful' });
+};
+
