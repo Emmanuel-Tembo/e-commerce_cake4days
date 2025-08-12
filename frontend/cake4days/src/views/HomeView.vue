@@ -152,7 +152,7 @@ export default {
     },
     goToSignup() {
       console.log('Account icon clicked - redirecting to signup...');
-    this.$router.push('/signup');
+    this.$router.push('/sign');
     }
   }
 }

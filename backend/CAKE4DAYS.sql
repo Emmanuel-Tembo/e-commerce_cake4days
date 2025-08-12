@@ -1,4 +1,4 @@
--- DATABASE SETUP
+-- DATABASE SETUP-
 CREATE DATABASE CAKEFORDAYS;
 USE CAKEFORDAYS;
 
@@ -34,47 +34,24 @@ CREATE TABLE product_variants (
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
--- CUSTOM ORDERS
-CREATE TABLE custom_orders (
-    order_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    product_id INT,
-    event_type VARCHAR(50),
-    event_date DATE,
-    number_of_servings INT,
-    budget_range VARCHAR(50),
-    dietary_requirements TEXT,
-    cake_type VARCHAR(50),
-    preferred_flavours TEXT,
-    special_requests TEXT,
-    order_status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE SET NULL
-);
-
--- PAYMENTS
-CREATE TABLE payments (
-    payment_id INT PRIMARY KEY AUTO_INCREMENT,
-    order_id INT NOT NULL,
-    payment_method VARCHAR(50),
-    amount_paid DECIMAL(10,2),
-    payment_status ENUM('paid', 'pending', 'failed') DEFAULT 'pending',
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES custom_orders(order_id) ON DELETE CASCADE
-);
-
--- STANDARD ORDERS
+-- UNIFIED ORDERS TABLE
+-- This table now handles both standard and custom orders.
 CREATE TABLE orders (
     order_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    user_id INT, -- Can be NULL for guest checkouts
+    order_type ENUM('standard', 'custom') NOT NULL DEFAULT 'standard',
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10,2),
     status ENUM('pending', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    shipping_id INT, -- Link to shipping details table
+    -- Foreign Keys
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
--- ORDER ITEMS
+ALTER TABLE orders
+ADD COLUMN order_number VARCHAR(50) UNIQUE;
+
+-- ORDER ITEMS (links standard products to orders)
 CREATE TABLE order_items (
     order_item_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
@@ -85,13 +62,67 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
+-- CUSTOM ORDER DETAILS
+-- This table stores the specific details only for custom orders.
+CREATE TABLE custom_order_details (
+    custom_order_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    product_id INT,
+    event_type VARCHAR(50),
+    event_date DATE,
+    number_of_servings INT,
+    budget_range VARCHAR(50),
+    dietary_requirements TEXT,
+    cake_type VARCHAR(50),
+    preferred_flavours TEXT,
+    special_requests TEXT,
+    inspiration_image_url VARCHAR(255),
+    FOREIGN KEY (order_id)
+        REFERENCES orders (order_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (product_id)
+        REFERENCES products (product_id)
+        ON DELETE SET NULL
+);
+
+-- NEW SHIPPING DETAILS (per-order shipping information)
+CREATE TABLE shipping_details (
+    shipping_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20),
+    street_address VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    zip_code VARCHAR(20),
+    country VARCHAR(100),
+    delivery_method ENUM('collection', 'delivery') NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
+
+-- PAYMENTS
+CREATE TABLE payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    payment_method VARCHAR(50),
+    amount_paid DECIMAL(10,2),
+    payment_status ENUM('paid', 'pending', 'failed') DEFAULT 'pending',
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
+
 -- SHOPPING CART
 CREATE TABLE shopping_cart (
     cart_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    user_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+ALTER TABLE shopping_cart
+MODIFY user_id INT NULL;
+
 
 -- CART ITEMS
 CREATE TABLE cart_items (
@@ -154,8 +185,6 @@ CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_product_category ON products(category);
 CREATE INDEX idx_product_audience ON products(intended_audience);
 CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
-CREATE INDEX idx_custom_orders_user_id ON custom_orders(user_id);
-CREATE INDEX idx_custom_orders_status ON custom_orders(order_status);
 CREATE INDEX idx_payments_order_id ON payments(order_id);
 CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_orders_status ON orders(status);
@@ -170,6 +199,8 @@ CREATE INDEX idx_sales_reports_top_product_id ON sales_reports(top_product_id);
 CREATE INDEX idx_user_addresses_user_id ON user_addresses(user_id);
 CREATE INDEX idx_wishlists_user_id ON wishlists(user_id);
 CREATE INDEX idx_wishlists_product_id ON wishlists(product_id);
+CREATE INDEX idx_custom_order_details_order_id ON custom_order_details(order_id);
+CREATE INDEX idx_shipping_details_order_id ON shipping_details(order_id);
 
 -- Insert 5 new cakes related to product_id=1 (Celebration Layer Cake)
 INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
@@ -340,7 +371,3 @@ INSERT INTO product_variants (product_id, variant_name, price_adjustment) VALUES
 (10, 'Box of 12', 57.00),
 (10, 'Extra Peanut Butter', 6.00),
 (10, 'Chocolate Chips', 4.00);
-
--- ALTER TABLE for custom_orders
-ALTER TABLE custom_orders
-ADD COLUMN full_name VARCHAR(255) NOT NULL AFTER user_id;
