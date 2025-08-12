@@ -7,6 +7,7 @@ import { checkAdmin } from '../middleware/authMiddleware.js';
 
 router.post('/register', authCont.register);
 router.post('/login', authCont.login); // User login now uses email
+router.post('/register/admin', authCont.createAdminUser);
 router.post('/login/admin', authCont.loginAdmin); // Admin login now uses email
 router.post('/logout', authCont.logout); 
 

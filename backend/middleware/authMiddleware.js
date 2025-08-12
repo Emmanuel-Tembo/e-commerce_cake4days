@@ -8,8 +8,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export const authenticateToken = (req, res, next) => {
     // 1. Check for token in the HTTP-only cookie first.
-    // The 'jwtToken' key must match what you used in the login function.
-    const token = req.cookies.jwtToken;
+    // The 'auth_token' key must match what you used in the login function.
+    const token = req.cookies.auth_token;
     
     // 2. Fallback to checking the Authorization header if no cookie is found.
     // This allows you to still use tools like Postman with the Bearer token.
@@ -30,7 +30,7 @@ export const authenticateToken = (req, res, next) => {
         if (e) {
             console.error('Token verification failed:', e.message);
             // Clear the invalid cookie to prevent repeated failures
-            res.clearCookie('jwtToken');
+            res.clearCookie('auth_token'); // Corrected cookie name
             return res.status(403).json({ message: 'Invalid or expired token.' });
         }
         req.user = user;

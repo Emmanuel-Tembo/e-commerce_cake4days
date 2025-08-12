@@ -14,25 +14,18 @@ export const register = async (req,res) => {
     const{username,email,password} = req.body;
 
     if(!username || !email || !password){
-        return res.status(400).json({message: "Please put something in!!!!   "})
+        return res.status(400).json({message: "Please put something in!!!!   "})
     }
     
     try {
-        // const existingId = await authMode.findUserById(emp_id);
-        // if (existingId){
-        //     return res.status(409).json({messge: "Eployee ID already exists"})
-        // }
-
         const existingUsername = await authMode.findUserbyName(username);
         if (existingUsername){
             return res.status(409).json({message: "Username already exists"})
         }
 
-        // Alowing registration 
-        // first HASH PASSWORD
         const Hashpassword = await bcrypt.hash(password, SALT_ROUNDS)
-        // THEN CREATE THE USER
-        const userId = await authMode.createUser(username,email,Hashpassword);
+        // Note: We now pass the 'user' role explicitly
+        const userId = await authMode.createUser(username,email,Hashpassword, 'user');
         res.status(200).json({
             message: "USER CREATED SUCCESSFULLY!!",
             userId
@@ -43,14 +36,14 @@ export const register = async (req,res) => {
         let errorMessage = 'Unexpected server error during registration';
         let statusCode = 500;
 
-         if (e.code) {
+        if (e.code) {
             switch (e.code) {
                 case 'ER_DUP_ENTRY':
                     statusCode = 409;
                     if (e.sqlMessage && e.sqlMessage.includes('for key \'users.username\'')){
                         errorMessage = 'Username already taken.';
-                    } else if (e.sqlMessage && e.sqlMessage.includes('for key \'users.emp_id\'')) {
-                        errorMessage = 'Employee ID is already registered.';
+                    } else if (e.sqlMessage && e.sqlMessage.includes('for key \'users.email\'')){
+                        errorMessage = 'Email address already registered.';
                     } else {
                         errorMessage = 'A record with this information already exists.';
                     }
@@ -75,6 +68,33 @@ export const register = async (req,res) => {
         res.status(statusCode).json({message: errorMessage});
     }
 }
+
+export const createAdminUser = async (req, res) => {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: "Please provide username, email, and password." });
+    }
+
+    try {
+        const existingUsername = await authMode.findUserbyName(username);
+        if (existingUsername) {
+            return res.status(409).json({ message: "Username already exists." });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        // Note: We now pass the 'admin' role explicitly
+        const userId = await authMode.createUser(username, email, hashedPassword, 'admin');
+
+        res.status(201).json({
+            message: "Admin user created successfully.",
+            userId
+        });
+    } catch (e) {
+        console.error('Error during admin user creation:', e);
+        res.status(500).json({ message: 'Server error during admin user creation.' });
+    }
+};
 
 // LOGIN (now uses email)
 export const login = async (req, res) => {

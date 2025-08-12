@@ -1,13 +1,22 @@
 import express from 'express'
 import { config } from 'dotenv'
 import cors from 'cors'
+import cookieParser from 'cookie-parser';
 
 
 config()
 const app = express()
 const PORT = process.env.PORT || 9090
  
-app.use(cors());
+// Configure CORS to allow your frontend's origin and credentials
+// This is the fix for your CORS error.
+const corsOptions = {
+    origin: 'http://localhost:8080',
+    credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
