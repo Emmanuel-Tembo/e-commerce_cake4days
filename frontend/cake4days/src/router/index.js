@@ -4,6 +4,8 @@ import signView from '@/views/signView.vue'
 import CatalogueView from '@/views/CatalogueView.vue'
 import CartView from '@/views/CartView.vue'
 import PetTreatsView from '@/views/PetTreatsView.vue'
+import userpage from '@/views/userpage.vue'
+import AdminPage from '@/views/AdminPage.vue'
 
 const routes = [
   {
@@ -33,6 +35,16 @@ const routes = [
     name: 'Cart',
     component: CartView
   },
+  {
+    path: '/Users',
+    name: 'Users',
+    component: userpage
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminPage
+  }
   //  {
   //    path: '/about',
   //    name: 'about',

@@ -22,7 +22,10 @@
         </div>
       </div>
 
-
+      <div v-if="errorMessage" class="error-message-box">
+          {{ errorMessage }}
+      </div>
+      
       <form
         v-if="activeTab === 'signup'"
         @submit.prevent="handleSubmit('signup')"
@@ -35,12 +38,12 @@
               type="text"
               class="form-input"
               placeholder="Full Name"
-              v-model.trim="signup.firstName"
+              v-model.trim="signup.username"
               required
             />
-            <div v-if="errors.signup.firstName" class="error-message">
+            <div v-if="errors.signup.username" class="error-message">
               <span>⚠️</span>
-              <span>{{ errors.signup.firstName }}</span>
+              <span>{{ errors.signup.username }}</span>
             </div>
           </div>
         </div>
@@ -87,7 +90,9 @@
           </div>
         </div>
 
-        <button type="submit" class="submit-btn">Create Account</button>
+        <button type="submit" class="submit-btn" :disabled="isLoading">
+            {{ isLoading ? 'Creating...' : 'Create Account' }}
+        </button>
       </form>
 
       <!-- Login Form -->
@@ -102,7 +107,7 @@
             type="email"
             class="form-input"
             placeholder="EMAIL"
-            v-model.trim="login.email"
+            v-model.trim="loginForm.email"
             required
           />
           <div v-if="errors.login.email" class="error-message">
@@ -116,7 +121,7 @@
             type="password"
             class="form-input"
             placeholder="PASSWORD"
-            v-model="login.password"
+            v-model="loginForm.password"
             required
           />
           <div v-if="errors.login.password" class="error-message">
@@ -129,10 +134,11 @@
           <a href="#forgot" @click.prevent="forgotPassword">Forgot your password?</a>
         </div>
 
-        <button type="submit" class="submit-btn">Log In</button>
+        <button type="submit" class="submit-btn" :disabled="isLoading">
+          {{ isLoading ? 'Logging in...' : 'Log In' }}
+        </button>
       </form>
 
-     
       <div class="divider">
         <span>OR LOG IN WITH</span>
       </div>
@@ -152,113 +158,138 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+import { useRouter } from 'vue-router';
+
 export default {
   name: 'AuthPage',
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
   data() {
     return {
       activeTab: 'signup',
       signup: {
-        firstName: '',
-        lastName: '',
+        username: '',
         email: '',
         password: '',
         confirmPassword: ''
       },
-      login: {
+      loginForm: {
         email: '',
         password: ''
       },
       errors: {
         signup: {},
         login: {}
-      }
-    }
+      },
+      isLoading: false,
+      errorMessage: null,
+    };
   },
   methods: {
+    ...mapActions(['login', 'register']),
+    
     validateEmail(email) {
-      // Simple email regex
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      return re.test(email)
+      if (typeof email !== 'string') {
+        return false;
+      }
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email.trim());
     },
+    
     clearErrors() {
-      this.errors.signup = {}
-      this.errors.login = {}
+      this.errors.signup = {};
+      this.errors.login = {};
+      this.errorMessage = null;
     },
-    handleSubmit(formType) {
-      this.clearErrors()
-
+    
+    async handleSubmit(formType) {
+      this.clearErrors();
+      this.isLoading = true;
+      
+      let valid = true;
       if (formType === 'signup') {
-        let valid = true
-        if (!this.signup.firstName) {
-          this.errors.signup.firstName = 'First Name is required.'
-          valid = false
-        }
-        if (!this.signup.lastName) {
-          this.errors.signup.lastName = 'Last Name is required.'
-          valid = false
+        // Validation logic for signup form
+        if (!this.signup.username) {
+            this.errors.signup.username = 'Username is required.';
+            valid = false;
         }
         if (!this.signup.email) {
-          this.errors.signup.email = 'Email is required.'
-          valid = false
+            this.errors.signup.email = 'Email is required.';
+            valid = false;
         } else if (!this.validateEmail(this.signup.email)) {
-          this.errors.signup.email = 'Email is invalid.'
-          valid = false
+            this.errors.signup.email = 'Email is invalid.';
+            valid = false;
         }
         if (!this.signup.password) {
-          this.errors.signup.password = 'Password is required.'
-          valid = false
+            this.errors.signup.password = 'Password is required.';
+            valid = false;
         }
         if (!this.signup.confirmPassword) {
-          this.errors.signup.confirmPassword = 'Please confirm your password.'
-          valid = false
+            this.errors.signup.confirmPassword = 'Please confirm your password.';
+            valid = false;
         } else if (this.signup.password !== this.signup.confirmPassword) {
-          this.errors.signup.confirmPassword = 'Passwords do not match.'
-          valid = false
+            this.errors.signup.confirmPassword = 'Passwords do not match.';
+            valid = false;
         }
 
         if (valid) {
-          alert('Signup successful!\n' + JSON.stringify(this.signup, null, 2))
-          // Proceed with signup logic (API calls etc)
-          // Reset form:
-          this.signup.firstName = ''
-          this.signup.lastName = ''
-          this.signup.email = ''
-          this.signup.password = ''
-          this.signup.confirmPassword = ''
+          try {
+            await this.register({
+                username: this.signup.username,
+                email: this.signup.email,
+                password: this.signup.password,
+            });
+            this.errorMessage = 'Account created successfully! Please log in.';
+            this.activeTab = 'login';
+            // Reset form
+            this.signup.username = '';
+            this.signup.email = '';
+            this.signup.password = '';
+            this.signup.confirmPassword = '';
+          } catch (e) {
+            this.errorMessage = e.response?.data?.message || 'Failed to create account.';
+          }
         }
       } else {
-        // login form validation
-        let valid = true
-        if (!this.login.email) {
-          this.errors.login.email = 'Email is required.'
-          valid = false
-        } else if (!this.validateEmail(this.login.email)) {
-          this.errors.login.email = 'Email is invalid.'
-          valid = false
+        // Validation logic for login form
+        if (!this.loginForm.email) {
+            this.errors.login.email = 'Email is required.';
+            valid = false;
+        } else if (!this.validateEmail(this.loginForm.email)) {
+            this.errors.login.email = 'Email is invalid.';
+            valid = false;
+            // Add this line to see the email being validated
+      console.log('Email to validate:', `"${this.loginForm.email}"`); 
         }
-        if (!this.login.password) {
-          this.errors.login.password = 'Password is required.'
-          valid = false
+        if (!this.loginForm.password) {
+            this.errors.login.password = 'Password is required.';
+            valid = false;
         }
 
         if (valid) {
-          alert('Login successful!\n' + JSON.stringify(this.login, null, 2))
-          // Proceed with login logic (API calls etc)
-          // Reset form:
-          this.login.email = ''
-          this.login.password = ''
+          try {
+            await this.login(this.loginForm);
+            this.router.push('/Users');
+          } catch (e) {
+            this.errorMessage = e.response?.data?.message || 'Login failed. Please check your credentials.';
+          }
         }
       }
+      this.isLoading = false;
     },
+    
     forgotPassword() {
-      alert('Redirect to password recovery or show modal.')
+      this.errorMessage = 'Password recovery not yet implemented.';
     },
+    
     socialLogin(provider) {
-      alert(`Logging in with ${provider}`)
-      // Implement social login logic here
+      this.errorMessage = `Social login with ${provider} not yet implemented.`;
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
