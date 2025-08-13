@@ -6,6 +6,7 @@ import CartView from '@/views/CartView.vue'
 import PetTreatsView from '@/views/PetTreatsView.vue'
 import userpage from '@/views/userpage.vue'
 import AdminPage from '@/views/AdminPage.vue'
+import AdminSignIn from '@/views/AdminSignIn.vue'
 
 const routes = [
   {
@@ -44,6 +45,11 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: AdminPage
+  },
+  {
+    path: '/sign/admin',
+    name: 'AdminSign',
+    component: AdminSignIn
   }
   //  {
   //    path: '/about',

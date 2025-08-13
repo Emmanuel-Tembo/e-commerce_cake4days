@@ -272,7 +272,7 @@ export default {
         if (valid) {
           try {
             await this.login(this.loginForm);
-            this.router.push('/Users');
+            this.router.push('/');
           } catch (e) {
             this.errorMessage = e.response?.data?.message || 'Login failed. Please check your credentials.';
           }
