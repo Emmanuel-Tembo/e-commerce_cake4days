@@ -143,7 +143,21 @@ h1 {
   flex-direction: column;
   gap: 4px;
 }
+.cart-icon{
+  position: relative;
 
+}
+.cart-count{
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #FF4136;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75em;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 .qty-controls {
   display: flex;
   align-items: center;
