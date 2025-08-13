@@ -23,12 +23,14 @@
             </button>
           </div>
           <div class="header-icons">
+            <router-link to="/sign">
             <div class="icon user-icon" title="Account" @click="goToSignup" style="cursor: pointer;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
             </div>
+            </router-link>
             <div class="icon cart-icon" title="Shopping Cart">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="8" cy="21" r="1"></circle>
@@ -46,7 +48,12 @@
     <Navbar /> 
 
     <section class="hero" :style="{ backgroundImage: getHeroBackground() }">
-      <div class="hero-background"></div>
+      <div class="hero-background">
+        <div class="hero-side hero-left">
+          <!-- <img src="@/assets/cake.png" alt="cake"/> -->
+          
+        </div>
+      </div>
       <div class="hero-content">
         <div class="hero-box">
           <h2 class="hero-title">
@@ -57,6 +64,10 @@
             From birthday cakes to puppy cupcakes - we've got delicious treats 
             for the whole family. Premium ingredients, made fresh daily.
           </p>
+          <!-- <div class="hero-side hero-right">
+      <img src="@/assets/cookies.png" alt="Cookies" />
+      <div class="tag tag-right">Freshly Baked</div>
+    </div> -->
           <button class="cta" @click="viewProducts">
             <span>Shop All Treats</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
