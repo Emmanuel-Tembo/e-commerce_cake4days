@@ -24,4 +24,42 @@ export const createUser = async (username, email, Hashpassword,role) => {
  * as it allows you to get the unique identifier for the new record.
  */
 
-   
+export const updateUserPassword = async (userId, hashedPassword) => {
+    await pool.query(
+        'UPDATE users SET password_hash = ? WHERE user_id = ?',
+        [hashedPassword, userId]
+    );
+};
+
+// Add new functions here
+export const updateUserPasswordAndClearToken = async (userId, hashedPassword) => {
+    await pool.query(
+        'UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE user_id = ?',
+        [hashedPassword, userId]
+    );
+};   
+
+
+export const saveResetToken = async (userId, resetToken, expiry) => {
+    // Save the expiry as a simple timestamp (milliseconds)
+    await pool.query(
+        'UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE user_id = ?',
+        [resetToken, expiry, userId]
+    );
+};
+
+export const findUserByResetToken = async (token) => {
+    const [rows] = await pool.query(
+        'SELECT * FROM users WHERE reset_token = ?',
+        [token]
+    );
+
+    const user = rows[0];
+
+    // Check expiry here in the application logic
+    if (user && user.reset_token_expiry > Date.now()) {
+        return user;
+    }
+
+    return null; // Return null if the user isn't found or the token is expired
+};

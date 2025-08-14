@@ -13,6 +13,10 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE users
+ADD reset_token VARCHAR(255) NULL,
+ADD reset_token_expiry DATETIME NULL;
+
 -- PRODUCTS
 CREATE TABLE products (
     product_id INT PRIMARY KEY AUTO_INCREMENT,

@@ -2,104 +2,34 @@
     <div class="main-content">
         <div class="auth-container">
             <div class="auth-header">
-                        <div class="auth-tabs">
-                <!-- <button
-                    class="auth-tab"
-                    :class="{ active: activeTab === 'signup' }"
-                    @click="activeTab = 'signup'"
-                    type="button"
-                >
-                    SIGN UP
-                </button> -->
-                <button
-                    class="auth-tab"
-                    :class="{ active: activeTab === 'login' }"
-                    @click="activeTab = 'login'"
-                    type="button"
-                >
-                    LOG IN
-                </button>
+                <div class="auth-tabs">
+                    <button
+                        class="auth-tab"
+                        :class="{ active: activeTab === 'login' }"
+                        @click="setActiveTab('login')"
+                        type="button"
+                    >
+                        ADMIN LOGIN
+                    </button>
                 </div>
             </div>
 
-            <div v-if="errorMessage" class="error-message-box">
+            <div v-if="errorMessage" class="error-message-box mb-4">
                 {{ errorMessage }}
             </div>
-
-            <!-- <form
-        v-if="activeTab === 'signup'"
-        @submit.prevent="handleSubmit('signup')"
-        class="form-container"
-        novalidate
-      >
-        <div class="form-row">
-          <div class="form-group">
-            <input
-              type="text"
-              class="form-input"
-              placeholder="Full Name"
-              v-model.trim="signup.username"
-              required
-            />
-            <div v-if="errors.signup.username" class="error-message">
-              <span>⚠️</span>
-              <span>{{ errors.signup.username }}</span>
+            <div v-if="successMessage" class="success-message-box mb-4">
+                {{ successMessage }}
             </div>
-          </div>
-        </div>
 
-        <div class="form-group">
-          <input
-            type="email"
-            class="form-input"
-            placeholder="EMAIL"
-            v-model.trim="signup.email"
-            required
-          />
-          <div v-if="errors.signup.email" class="error-message">
-            <span>⚠️</span>
-            <span>{{ errors.signup.email }}</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <input
-            type="password"
-            class="form-input"
-            placeholder="PASSWORD"
-            v-model="signup.password"
-            required
-          />
-          <div v-if="errors.signup.password" class="error-message">
-            <span>⚠️</span>
-            <span>{{ errors.signup.password }}</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <input
-            type="password"
-            class="form-input"
-            placeholder="CONFIRM PASSWORD"
-            v-model="signup.confirmPassword"
-            required
-          />
-          <div v-if="errors.signup.confirmPassword" class="error-message">
-            <span>⚠️</span>
-            <span>{{ errors.signup.confirmPassword }}</span>
-          </div>
-        </div>
-
-        <button type="submit" class="submit-btn" :disabled="isLoading">
-            {{ isLoading ? 'Creating...' : 'Create Account' }}
-        </button>
-      </form> -->
-
-            <!-- Login Form -->
-            <form v-else @submit.prevent="handleSubmit('login')" class="form-container" novalidate>
+            <form v-if="activeTab === 'login'" @submit.prevent="handleSubmit" class="form-container" novalidate>
                 <div class="form-group">
-                    <input type="email" class="form-input" placeholder="EMAIL" v-model.trim="loginForm.email"
-                        required />
+                    <input
+                        type="email"
+                        class="form-input"
+                        placeholder="EMAIL"
+                        v-model.trim="loginForm.email"
+                        required
+                    />
                     <div v-if="errors.login.email" class="error-message">
                         <span>⚠️</span>
                         <span>{{ errors.login.email }}</span>
@@ -107,8 +37,13 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="password" class="form-input" placeholder="PASSWORD" v-model="loginForm.password"
-                        required />
+                    <input
+                        type="password"
+                        class="form-input"
+                        placeholder="PASSWORD"
+                        v-model="loginForm.password"
+                        required
+                    />
                     <div v-if="errors.login.password" class="error-message">
                         <span>⚠️</span>
                         <span>{{ errors.login.password }}</span>
@@ -116,7 +51,7 @@
                 </div>
 
                 <div class="forgot-password">
-                    <a href="#forgot" @click.prevent="forgotPassword">Forgot your password?</a>
+                    <a href="#forgot" @click.prevent="setActiveTab('forgot')">Forgot your password?</a>
                 </div>
 
                 <button type="submit" class="submit-btn" :disabled="isLoading">
@@ -124,20 +59,28 @@
                 </button>
             </form>
 
-            <div class="divider">
-                <span>OR LOG IN WITH</span>
-            </div>
-
-            <div class="social-login">
-                <button class="social-btn" @click="socialLogin('google')" type="button">
-                    <div class="social-icon google">G</div>
-                    <span>Google</span>
+            <form v-if="activeTab === 'forgot'" @submit.prevent="handleForgotPassword" class="form-container" novalidate>
+                <p class="text-sm text-gray-600 mb-4">Enter your email address and we'll send you a link to reset your password.</p>
+                <div class="form-group">
+                    <input
+                        type="email"
+                        class="form-input"
+                        placeholder="EMAIL"
+                        v-model.trim="forgotForm.email"
+                        required
+                    />
+                    <div v-if="errors.forgot.email" class="error-message">
+                        <span>⚠️</span>
+                        <span>{{ errors.forgot.email }}</span>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn" :disabled="isLoading">
+                    {{ isLoading ? 'Sending...' : 'Send Reset Link' }}
                 </button>
-                <button class="social-btn" @click="socialLogin('facebook')" type="button">
-                    <div class="social-icon facebook">f</div>
-                    <span>Facebook</span>
-                </button>
-            </div>
+                <div class="text-center mt-4">
+                    <a href="#" @click.prevent="setActiveTab('login')" class="text-sm text-blue-500 hover:underline">Back to Login</a>
+                </div>
+            </form>
         </div>
     </div>
 </template>
@@ -147,7 +90,7 @@ import { mapActions } from 'vuex';
 import { useRouter } from 'vue-router';
 
 export default {
-    name: 'AuthPage',
+    name: 'AdminLogin',
     setup() {
         const router = useRouter();
         return { router };
@@ -155,27 +98,24 @@ export default {
     data() {
         return {
             activeTab: 'login',
-            //   signup: {
-            //     username: '',
-            //     email: '',
-            //     password: '',
-            //     confirmPassword: ''
-            //   },
             loginForm: {
                 email: '',
                 password: ''
             },
+            forgotForm: {
+                email: ''
+            },
             errors: {
-                signup: {},
-                login: {}
+                login: {},
+                forgot: {},
             },
             isLoading: false,
             errorMessage: null,
-            isAdminLogin: false,
+            successMessage: null, // NEW: for success messages like "email sent"
         };
     },
     methods: {
-        ...mapActions(['login']),
+        ...mapActions(['loginAdmin', 'forgotPassword']),
 
         validateEmail(email) {
             if (typeof email !== 'string') {
@@ -185,96 +125,68 @@ export default {
             return re.test(email.trim());
         },
 
-        clearErrors() {
-            this.errors.signup = {};
-            this.errors.login = {};
-            this.errorMessage = null;
+        setActiveTab(tab) {
+            this.activeTab = tab;
+            this.clearMessages();
         },
 
-        async handleSubmit(formType) {
-            this.clearErrors();
+        clearMessages() {
+            this.errors.login = {};
+            this.errors.forgot = {};
+            this.errorMessage = null;
+            this.successMessage = null;
+        },
+
+        async handleSubmit() {
+            this.clearMessages();
             this.isLoading = true;
 
             let valid = true;
-            if (formType === 'loginForm') {
-                //     // Validation logic for signup form
-                //     if (!this.signup.username) {
-                //         this.errors.signup.username = 'Username is required.';
-                //         valid = false;
-                //     }
-                //     if (!this.signup.email) {
-                //         this.errors.signup.email = 'Email is required.';
-                //         valid = false;
-                //     } else if (!this.validateEmail(this.signup.email)) {
-                //         this.errors.signup.email = 'Email is invalid.';
-                //         valid = false;
-                //     }
-                //     if (!this.signup.password) {
-                //         this.errors.signup.password = 'Password is required.';
-                //         valid = false;
-                //     }
-                //     if (!this.signup.confirmPassword) {
-                //         this.errors.signup.confirmPassword = 'Please confirm your password.';
-                //         valid = false;
-                //     } else if (this.signup.password !== this.signup.confirmPassword) {
-                //         this.errors.signup.confirmPassword = 'Passwords do not match.';
-                //         valid = false;
-                //     }
+            if (!this.loginForm.email) {
+                this.errors.login.email = 'Email is required.';
+                valid = false;
+            } else if (!this.validateEmail(this.loginForm.email)) {
+                this.errors.login.email = 'Email is invalid.';
+                valid = false;
+            }
+            if (!this.loginForm.password) {
+                this.errors.login.password = 'Password is required.';
+                valid = false;
+            }
 
-                //     if (valid) {
-                //       try {
-                //         await this.register({
-                //             username: this.signup.username,
-                //             email: this.signup.email,
-                //             password: this.signup.password,
-                //         });
-                //         this.errorMessage = 'Account created successfully! Please log in.';
-                //         this.activeTab = 'login';
-                //         // Reset form
-                //         this.signup.username = '';
-                //         this.signup.email = '';
-                //         this.signup.password = '';
-                //         this.signup.confirmPassword = '';
-                //       } catch (e) {
-                //         this.errorMessage = e.response?.data?.message || 'Failed to create account.';
-                //       }
-                //     }
-                //   } else {
-
-                // Validation logic for login form
-                if (!this.loginForm.email) {
-                    this.errors.login.email = 'Email is required.';
-                    valid = false;
-                } else if (!this.validateEmail(this.loginForm.email)) {
-                    this.errors.login.email = 'Email is invalid.';
-                    valid = false;
-                    // Add this line to see the email being validated
-                    console.log('Email to validate:', `"${this.loginForm.email}"`);
-                }
-                if (!this.loginForm.password) {
-                    this.errors.login.password = 'Password is required.';
-                    valid = false;
-                }
-
-                if (valid) {
-                    try {
-                        await this.login(this.loginForm);
-                        this.router.push('/Users');
-                    } catch (e) {
-                        this.errorMessage = e.response?.data?.message || 'Login failed. Please check your credentials.';
-                    }
+            if (valid) {
+                try {
+                    await this.loginAdmin(this.loginForm);
+                    this.router.push('/admin');
+                } catch (e) {
+                    this.errorMessage = e.response?.data?.message || 'Login failed. Please check your credentials.';
                 }
             }
             this.isLoading = false;
         },
 
-        forgotPassword() {
-            this.errorMessage = 'Password recovery not yet implemented.';
-        },
+        async handleForgotPassword() {
+            this.clearMessages();
+            this.isLoading = true;
 
-        socialLogin(provider) {
-            this.errorMessage = `Social login with ${provider} not yet implemented.`;
-        }
+            if (!this.forgotForm.email || !this.validateEmail(this.forgotForm.email)) {
+                this.errors.forgot.email = 'Please enter a valid email address.';
+                this.isLoading = false;
+                return;
+            }
+
+            try {
+                // The forgotPassword action returns the success message
+                const message = await this.forgotPassword(this.forgotForm.email);
+                this.successMessage = message; // Store the success message
+                this.forgotForm.email = ''; // Clear the input field
+            } catch (e) {
+                // This catch block will only be reached if the API call fails
+                this.errorMessage = e.response?.data?.message || 'An unexpected error occurred. Please try again.';
+            } finally {
+                this.isLoading = false;
+            }
+        },
     }
 };
 </script>
@@ -298,6 +210,23 @@ export default {
     align-items: center;
     padding: 40px 20px;
     font-family: 'Poppins', sans-serif;
+}
+
+.error-message-box {
+    background-color: #fef2f2;
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #fca5a5;
+    margin-bottom: 1rem;
+}
+.success-message-box {
+    background-color: #ecfdf5;
+    color: #10b981;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #6ee7b7;
+    margin-bottom: 1rem;
 }
 
 .auth-container {

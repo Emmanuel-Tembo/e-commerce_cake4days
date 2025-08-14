@@ -7,6 +7,7 @@ import PetTreatsView from '@/views/PetTreatsView.vue'
 import userpage from '@/views/userpage.vue'
 import AdminPage from '@/views/AdminPage.vue'
 import AdminSignIn from '@/views/AdminSignIn.vue'
+import ResetPassword from '@/views/ResetPassword.vue'
 
 const routes = [
   {
@@ -50,6 +51,11 @@ const routes = [
     path: '/sign/admin',
     name: 'AdminSign',
     component: AdminSignIn
+  },
+  {
+    path: '/reset-password',
+    name: 'resetPassword',
+    component: ResetPassword
   }
   //  {
   //    path: '/about',

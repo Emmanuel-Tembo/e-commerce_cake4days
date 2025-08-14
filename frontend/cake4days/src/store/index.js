@@ -91,6 +91,29 @@ export default createStore({
       }
       return null;
     },
+    // NEW ACTION to request a password reset email
+    async forgotPassword({ commit }, email) {
+      try {
+        const response = await axios.post('/auth/forgot-password', { email });
+        return response.data.message;
+      } catch (e) {
+        console.error('Forgot password request failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    },
+    
+    // UPDATED ACTION to send the new password and token in the request body
+    async resetPassword({ commit }, payload) {
+      // The payload now contains the token and newPassword
+      const { token, newPassword } = payload;
+      try {
+        const response = await axios.post(`/auth/reset-password`, { token, newPassword });
+        return response.data.message;
+      } catch (e) {
+        console.error('Password reset failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    },
   },
   modules: {}
 })
