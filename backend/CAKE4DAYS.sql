@@ -22,6 +22,8 @@ ALTER TABLE users
 ADD reset_token VARCHAR(255) NULL,
 ADD reset_token_expiry DATETIME NULL;
 
+ALTER TABLE users MODIFY reset_token_expiry BIGINT;
+
 -- PRODUCTS
 CREATE TABLE products (
     product_id INT PRIMARY KEY AUTO_INCREMENT,
