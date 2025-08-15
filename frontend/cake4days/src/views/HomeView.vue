@@ -1,56 +1,5 @@
 <template>
-  <div class="cake-website">
-    <div class="container-fluid" :style="{ backgroundImage: getHeaderBackground() }">
-      <header class="top-header">
-        <div class="logo">
-          <h1 class="logo-text">CAKE FOR DAYS</h1>
-          <p class="logo-tagline">Cakes & Pet Treats</p>
-        </div>
-        <div class="header-actions">
-          <div class="search-container">
-            <input 
-              type="text" 
-              class="search-bar" 
-              placeholder="Search cakes, pet treats & more..." 
-              v-model="searchQuery"
-              @keyup.enter="handleSearch"
-            />
-            <button class="search-btn" @click="handleSearch">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-              </svg>
-            </button>
-          </div>
-          <div class="header-icons">
-            <div class="icon user-icon" title="Account" @click="HandleProfileClick" style="cursor: pointer;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </div>
-              <!-- v-if="isLoggedIn" use if code breaks -->
-              <ProfileModal
-                  :user-data="profileDetails"
-                  :is-visible="isModalVisible"
-                  @close-modal="isModalVisible= false"
-              />
-            <div class="icon cart-icon" title="Shopping Cart">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="8" cy="21" r="1"></circle>
-                <circle cx="19" cy="21" r="1"></circle>
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57L23 6H6"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </header>
-
-
-    </div>
-  
     <Navbar /> 
-    
     <section class="hero" :style="{ backgroundImage: getHeroBackground() }">
       <div class="hero-background">
         <div class="hero-side hero-left">
@@ -94,73 +43,61 @@
         </div>
       </div>
     </section>
-  </div>
 </template>
 
 <script>
 import Navbar from '../components/NavbarComp.vue';
-import { mapGetters } from 'vuex';
 import ProfileModal from '@/components/ProfileModal.vue';
+import { mapGetters } from 'vuex';
+import { useCartStore } from '@/store/cart';
 
 export default {
   name: 'CakeForDaysWebsite',
   components: {
     Navbar,
-    ProfileModal
+    ProfileModal,
   },
   data() {
     return {
       searchQuery: '',
       isModalVisible: false,
       backgroundImage: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><pattern id="cakes" patternUnits="userSpaceOnUse" width="80" height="80"><rect width="80" height="80" fill="%23F9D6D5" opacity="0.1"/><circle cx="20" cy="20" r="8" fill="%23CD853F" opacity="0.3"/><rect x="35" y="15" width="10" height="10" fill="%238B5A3C" opacity="0.3"/><circle cx="60" cy="25" r="6" fill="%23DEB887" opacity="0.4"/><rect x="15" y="45" width="8" height="15" fill="%23CD853F" opacity="0.3"/><circle cx="45" cy="55" r="5" fill="%238B5A3C" opacity="0.4"/><rect x="65" y="50" width="6" height="8" fill="%23DEB887" opacity="0.3"/></pattern></defs><rect width="100%25" height="100%25" fill="url(%23cakes)"/></svg>',
-      // Header background (can be different from hero)
-      // headerBackgroundImage: 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=1200&h=400&fit=crop',
-      // Alternative header background options (uncomment any one to use):
-      // headerBackgroundImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&h=400&fit=crop', 
       headerBackgroundImage: 'https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=1200&h=400&fit=crop', 
-      // headerBackgroundImage: 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=1200&h=400&fit=crop',
-      // headerBackgroundImage: '', // No header background image
-      
-      // Alternative background options for hero section:
-      // backgroundImage: 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=800&h=600&fit=crop',
-      // backgroundImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&h=600&fit=crop', 
-      // backgroundImage: 'https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=800&h=600&fit=crop', 
-      // backgroundImage: '', // No background image (just gradients)
     }
   },
   computed: {
-    ...mapGetters(['isLoggedin','user']),
-    profileDetails(){
-      return this.user
+    ...mapGetters(['isLoggedIn', 'user']), // Corrected 'isLoggedin' to 'isLoggedIn'
+    profileDetails() {
+      return this.user;
+    },
+    // Pinia Getter: Accessing the totalItems from the cart store
+    totalItems() {
+      const cartStore = useCartStore();
+      return cartStore.totalItems;
     },
   },
   methods: {
+    // Pinia Action: Calling the toggleCart action from the store
+    toggleCart() {
+      const cartStore = useCartStore();
+      cartStore.toggleCart();
+    },
     handleSearch() {
       if (this.searchQuery.trim()) {
         console.log('Searching for:', this.searchQuery);
-        
+        this.$router.push({ name: 'catalogue', query: { q: this.searchQuery } });
       }
-    },
-    navigate(section) {
-      console.log('Navigating to:', section);
-      
     },
     viewProducts() {
       console.log('Viewing all products...');
-      
-    //   if(category === 'human'){
-    //     this.$router.push('/catalogue');
-    //   }else if (category === 'pet'){
-    //     this.$router.push('/pet-treats');
-    //   }
-  },
-    viewHumanCakes() {
-      console.log(`Viewing Human cakes...`);
       this.$router.push('/catalogue');
     },
-    viewPetTreats(){
-      console.log('Viewing pet treats...');
-      this,this.$router.push('/pet-treats');
+    viewCategory(category) {
+      if (category === 'human') {
+        this.$router.push({ name: 'catalogue', query: { category: 'human' } });
+      } else if (category === 'pet') {
+        this.$router.push({ name: 'PetTreats', query: { category: 'pet' } });
+      }
     },
     getHeroBackground() {
       if (!this.backgroundImage) {
@@ -175,16 +112,14 @@ export default {
       return `linear-gradient(rgba(139, 90, 60, 0.85), rgba(160, 82, 45, 0.85)), url('${this.headerBackgroundImage}')`;
     },
     HandleProfileClick() {
-      console.log('Account icon clicked - redirecting to signup...');
-    if (this.isLoggedIn) {
+      if (this.isLoggedIn) {
         this.isModalVisible = true;
       } else {
-        // If not logged in, redirect to the auth page with the 'signup' tab active
-        this.$router.push({ name: 'sign', query: { tab: 'signup' } });
+        this.$router.push({ name: 'sign' });
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
