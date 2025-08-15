@@ -28,6 +28,8 @@ import cartRoutes from './routes/cartRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import salesReportRoutes from './routes/salesReportRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+
 
 
 app.use('/auth',authRoutes);
@@ -37,6 +39,7 @@ app.use('/', cartRoutes);
 app.use('/', wishlistRoutes);
 app.use('/', reviewRoutes);
 app.use('/', salesReportRoutes);
+app.use('/user', profileRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)

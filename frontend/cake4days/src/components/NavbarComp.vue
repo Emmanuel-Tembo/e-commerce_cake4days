@@ -1,6 +1,7 @@
 <template>
     
-      <nav class="nav-bar">
+      <div class="container">
+        <nav class="nav-bar">
         <router-link to="/about">About</router-link>
         <router-link to="/contact">Contact</router-link>
         <router-link to="/custom-order">Custom Order</router-link>
@@ -9,8 +10,8 @@
         <router-link to="/catalogue">Products</router-link>
         <router-link to="sign">signup</router-link>
         <router-link to="/PetTreats">PetTreats</router-link>
-        
       </nav>
+      </div>
    
 </template>
 <style>
@@ -18,6 +19,9 @@
   padding: 20px;
   text-align: center;
 }
+ nav {
+    padding: 30px;
+  }
 nav a {
   font-weight: bold;
   color: #2c3e50;

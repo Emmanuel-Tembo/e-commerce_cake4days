@@ -14,6 +14,7 @@ export default createStore({
   },
   getters: {
     currentUser: (state) => state.user,
+    isLoggedIn: state => !!state.token, // checks if a token exists
   },
   mutations: {
     setAuth(state, userPayload) {

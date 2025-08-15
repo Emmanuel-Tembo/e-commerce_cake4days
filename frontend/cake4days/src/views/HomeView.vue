@@ -23,14 +23,18 @@
             </button>
           </div>
           <div class="header-icons">
-            <router-link to="/sign">
-            <div class="icon user-icon" title="Account" @click="goToSignup" style="cursor: pointer;">
+            <div class="icon user-icon" title="Account" @click="HandleProfileClick" style="cursor: pointer;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
             </div>
-            </router-link>
+              <!-- v-if="isLoggedIn" use if code breaks -->
+              <ProfileModal
+                  :user-data="profileDetails"
+                  :is-visible="isModalVisible"
+                  @close-modal="isModalVisible= false"
+              />
             <div class="icon cart-icon" title="Shopping Cart">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="8" cy="21" r="1"></circle>
@@ -46,7 +50,7 @@
     </div>
   
     <Navbar /> 
-
+    
     <section class="hero" :style="{ backgroundImage: getHeroBackground() }">
       <div class="hero-background">
         <div class="hero-side hero-left">
@@ -95,16 +99,19 @@
 
 <script>
 import Navbar from '../components/NavbarComp.vue';
+import { mapGetters } from 'vuex';
+import ProfileModal from '@/components/ProfileModal.vue';
 
 export default {
   name: 'CakeForDaysWebsite',
   components: {
-    Navbar
+    Navbar,
+    ProfileModal
   },
   data() {
     return {
       searchQuery: '',
-
+      isModalVisible: false,
       backgroundImage: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><pattern id="cakes" patternUnits="userSpaceOnUse" width="80" height="80"><rect width="80" height="80" fill="%23F9D6D5" opacity="0.1"/><circle cx="20" cy="20" r="8" fill="%23CD853F" opacity="0.3"/><rect x="35" y="15" width="10" height="10" fill="%238B5A3C" opacity="0.3"/><circle cx="60" cy="25" r="6" fill="%23DEB887" opacity="0.4"/><rect x="15" y="45" width="8" height="15" fill="%23CD853F" opacity="0.3"/><circle cx="45" cy="55" r="5" fill="%238B5A3C" opacity="0.4"/><rect x="65" y="50" width="6" height="8" fill="%23DEB887" opacity="0.3"/></pattern></defs><rect width="100%25" height="100%25" fill="url(%23cakes)"/></svg>',
       // Header background (can be different from hero)
       // headerBackgroundImage: 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=1200&h=400&fit=crop',
@@ -120,6 +127,12 @@ export default {
       // backgroundImage: 'https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=800&h=600&fit=crop', 
       // backgroundImage: '', // No background image (just gradients)
     }
+  },
+  computed: {
+    ...mapGetters(['isLoggedin','user']),
+    profileDetails(){
+      return this.user
+    },
   },
   methods: {
     handleSearch() {
@@ -161,9 +174,14 @@ export default {
       }
       return `linear-gradient(rgba(139, 90, 60, 0.85), rgba(160, 82, 45, 0.85)), url('${this.headerBackgroundImage}')`;
     },
-    goToSignup() {
+    HandleProfileClick() {
       console.log('Account icon clicked - redirecting to signup...');
-    this.$router.push('/sign');
+    if (this.isLoggedIn) {
+        this.isModalVisible = true;
+      } else {
+        // If not logged in, redirect to the auth page with the 'signup' tab active
+        this.$router.push({ name: 'sign', query: { tab: 'signup' } });
+      }
     }
   }
 }
@@ -173,13 +191,12 @@ export default {
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-.cake-website {
-  font-family: 'Poppins', sans-serif;
+/* .cake-website {
   margin: 0;
   padding: 0;
   min-height: 100vh;
   background: linear-gradient(135deg, #FAF0E6 0%, #F5E6D3 100%);
-}
+} */
 
 .container {
   position: relative;

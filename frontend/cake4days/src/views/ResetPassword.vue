@@ -115,7 +115,6 @@ export default {
                     
                     // Display success message and redirect
                     alert(message + ' You can now log in with your new password.');
-                    this.$router.push('/sign/admin');
                 } catch (e) {
                     console.error('Password reset failed:', e);
                     // Display server error message to the user
