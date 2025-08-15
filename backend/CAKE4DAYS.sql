@@ -16,6 +16,11 @@ CREATE TABLE users (
 ALTER TABLE users
 ADD reset_token VARCHAR(255) NULL,
 ADD reset_token_expiry DATETIME NULL;
+ALTER TABLE users MODIFY reset_token_expiry BIGINT;
+
+ALTER TABLE users
+ADD reset_token VARCHAR(255) NULL,
+ADD reset_token_expiry DATETIME NULL;
 
 -- PRODUCTS
 CREATE TABLE products (
