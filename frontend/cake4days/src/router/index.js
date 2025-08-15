@@ -8,31 +8,27 @@ import userpage from '@/views/userpage.vue'
 import AdminPage from '@/views/AdminPage.vue'
 import AdminSignIn from '@/views/AdminSignIn.vue'
 import ResetPassword from '@/views/ResetPassword.vue'
-import { createRouter, createWebHistory } from 'vue-router'; 
-// import HomeView from '../views/HomeView.vue';
-import CustomOrderPage from '../views/CustomOrderPage.vue';
-import ProfilePage from '../views/ProfilePage.vue';
-import CheckoutPage from '../views/CheckoutPage.vue';
-import Dashboard from '../views/Dashboard.vue';
+import CustomOrderPage from '../views/CustomOrderPage.vue'
+// import ProfilePage from '../views/ProfilePage.vue'
+import CheckoutPage from '../views/CheckoutPage.vue'
+import Dashboard from '../views/Dashboard.vue'
 
-const router = [
+// This array defines all your routes
+const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView,
-    // component: CustomOrderPage
+    component: HomeView
   },
   {
     path: '/PetTreats',
     name: 'PetTreats',
     component: PetTreatsView
   },
-
   {
     path: '/sign',
     name: 'sign',
     component: signView
-
   },
   {
     path: '/catalogue',
@@ -64,11 +60,11 @@ const router = [
     name: 'resetPassword',
     component: ResetPassword
   },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: ProfilePage
-  },
+  // {
+  //   path: '/profile',
+  //   name: 'Profile',
+  //   component: ProfilePage
+  // },
   {
     path: '/checkout',
     name: 'Checkout',
@@ -78,28 +74,23 @@ const router = [
     path: '/admin/dashboard',
     name: 'Dashboard',
     component: Dashboard
+  },
+  // {
+  //   path: '/about',
+  //   name: 'about',
+  //   component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+  // },
+  {
+    path: '/custom-order',
+    name: 'customOrder',
+    component: CustomOrderPage
   }
-  //  {
-  //    path: '/about',
-  //    name: 'about',
-  // //   // route level code-splitting
-  // //   // this generates a separate chunk (about.[hash].js) for this route
-  // //   // which is lazy-loaded when the route is visited.
-  //    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  // }
-]
+];
 
-
-// const router = createRouter({
-//   history: createWebHistory(process.env.BASE_URL),
-  
-// ];
-
-// const router = createRouter({
-//   // This line requires the createWebHistory import to be present
-//   history: createWebHistory(),
-//   routes
-// })
+// Create the router instance with the history mode and routes
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes
+});
 
 export default router;
-

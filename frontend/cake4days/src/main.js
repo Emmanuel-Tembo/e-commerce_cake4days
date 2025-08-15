@@ -1,25 +1,23 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'; // Import the Vuex store
 import { createApp } from 'vue';
-import { createPinia } from 'pinia'; // Import createPinia
 import App from './App.vue';
 import router from './router';
-//styles
+import store from './store'; // Import the Vuex store
+import { createPinia } from 'pinia'; // Import createPinia
+
+// styles
 import './assets/index.css';
 // import '@fortawesome/fontawesome-free/css/all.css';
 
-const app = createApp(App) // Create the app instance
+// Create the main Vue app instance
+const app = createApp(App);
 
-app.use(store) // Register the Vuex store with the Vue app
-app.use(router) // Register the router
+// Create the Pinia store instance
+const pinia = createPinia();
 
-app.mount('#app') // Mount the app
-// const app = createApp(App); // Create the app instance
-//const pinia = createPinia(); // Create the Pinia instance
+// Register the necessary plugins with the app
+app.use(store); // Vuex store
+app.use(pinia); // Pinia store
+app.use(router); // Vue Router
 
-//app.use(pinia) // Register Pinia with the Vue app
-app.use(router) ;// Register the router
-app.use(createPinia());
-app.mount('#app'); // Mount the app
+// Mount the app to the DOM
+app.mount('#app');
