@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 
 export const useCartStore = defineStore('cart', {
-  state: () => ({
-    isCartOpen: false,
+  state: () => ({ 
     cartItems: [],
+    isCartOpen: false
   }),
   getters: {
     totalItems: (state) => state.cartItems.reduce((acc, item) => acc + item.quantity, 0),

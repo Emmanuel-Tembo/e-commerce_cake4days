@@ -90,6 +90,7 @@ export default {
 
 <style scoped>
 /* You can add your form-related styles here */
+
 .form-group {
     margin-bottom: 1rem;
 }

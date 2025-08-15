@@ -4,7 +4,7 @@
     <main class="content-wrapper">
       <h1 class="page-title">Create Your Dream Cake</h1>
       <OrderForm />
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-5">
         <ProductCard
           v-for="product in products"
           :key="product.id"
@@ -61,20 +61,34 @@ export default {
 <style scoped>
 .custom-order-page {
   font-family: 'Poppins', sans-serif;
-  background-color: #fcf8f6; 
+  background-color: #e9deae; 
   min-height: 100vh;
+  padding: 2rem;
 }
 
 .content-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  background: linear-gradient(#d38328, #f49d9dd5);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(255, 238, 0, 0.927);
+  color: #333;
 }
 
 .page-title {
   text-align: center;
-  color: #333;
+  color: #ffeb38;
   font-size: 2.5rem;
   margin-bottom: 2rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(255, 0, 162, 0.899);
+  font-family: 'Poppins', cu;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
 }
 </style>
