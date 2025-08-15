@@ -8,12 +8,19 @@ import userpage from '@/views/userpage.vue'
 import AdminPage from '@/views/AdminPage.vue'
 import AdminSignIn from '@/views/AdminSignIn.vue'
 import ResetPassword from '@/views/ResetPassword.vue'
+import { createRouter, createWebHistory } from 'vue-router'; 
+// import HomeView from '../views/HomeView.vue';
+import CustomOrderPage from '../views/CustomOrderPage.vue';
+import ProfilePage from '../views/ProfilePage.vue';
+import CheckoutPage from '../views/CheckoutPage.vue';
+import Dashboard from '../views/Dashboard.vue';
 
-const routes = [
+const router = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    // component: CustomOrderPage
   },
   {
     path: '/PetTreats',
@@ -56,6 +63,21 @@ const routes = [
     path: '/reset-password',
     name: 'resetPassword',
     component: ResetPassword
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: ProfilePage
+  },
+  {
+    path: '/checkout',
+    name: 'Checkout',
+    component: CheckoutPage
+  },
+  {
+    path: '/admin/dashboard',
+    name: 'Dashboard',
+    component: Dashboard
   }
   //  {
   //    path: '/about',
@@ -68,9 +90,16 @@ const routes = [
 ]
 
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+// const router = createRouter({
+//   history: createWebHistory(process.env.BASE_URL),
+  
+// ];
 
-export default router
+// const router = createRouter({
+//   // This line requires the createWebHistory import to be present
+//   history: createWebHistory(),
+//   routes
+// })
+
+export default router;
+
