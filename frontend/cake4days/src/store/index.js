@@ -1,27 +1,120 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
 
+// Set a base URL for all API requests to make them cleaner
+axios.defaults.baseURL = 'http://localhost:9090'; 
+// Set this header so cookies are sent with every request
+axios.defaults.withCredentials = true;
+
 export default createStore({
   state: {
-    products:[],
+    user: null, 
+    isAuthenticated: false, 
+    isAdmin: false, 
   },
   getters: {
+    currentUser: (state) => state.user,
+    isLoggedIn: state => !!state.token, // checks if a token exists
   },
   mutations: {
-    setFetchProducts(state,products){
-      state.products = products
-    }
+    setAuth(state, userPayload) {
+      state.user = userPayload;
+      state.isAuthenticated = true;
+      state.isAdmin = userPayload.role === 'admin';
+    },
+    clearAuth(state) {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.isAdmin = false;
+    },
   },
   actions: {
-    async fetchProducts({ commit }) {
+    // NEW ACTION to handle user registration
+    async register({ commit }, credentials) {
       try {
-        const res = await axios.get('http://localhost:9090/products')
-        commit('setFetchProducts', res.data.data)
-      } catch (error) {
-        return error
+        const response = await axios.post('/auth/register', credentials);
+        console.log('Registration successful:', response.data.message);
+        // After successful registration, you might want to automatically log the user in
+        // or redirect them to the login page.
+        // For now, we'll just return true.
+        return true; 
+      } catch (e) {
+        console.error('Registration failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    },
+
+    async login({ commit }, credentials) {
+      try {
+        const response = await axios.post('/auth/login', credentials);
+        console.log('Login successful:', response.data.message);
+        await this.dispatch('checkAuth');
+        return true; 
+      } catch (e) {
+        console.error('Login failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    },
+    
+    async loginAdmin({ commit }, credentials) {
+      try {
+        const response = await axios.post('/auth/login/admin', credentials);
+        console.log('Admin login successful:', response.data.message);
+        await this.dispatch('checkAuth');
+        return true;
+      } catch (e) {
+        console.error('Admin login failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    },
+
+    async logout({ commit }) {
+      try {
+        await axios.post('/auth/logout');
+        commit('clearAuth');
+      } catch (e) {
+        console.error('Logout failed:', e);
+        commit('clearAuth');
+      }
+    },
+
+    async checkAuth({ commit }) {
+      try {
+        const response = await axios.get('/auth/protected');
+        const user = response.data.user;
+        if (user) {
+          commit('setAuth', user);
+          return user;
+        }
+      } catch (e) {
+        console.log('User not authenticated:', e.response?.data?.message || 'Token is invalid or expired.');
+        commit('clearAuth');
+      }
+      return null;
+    },
+    // NEW ACTION to request a password reset email
+    async forgotPassword({ commit }, email) {
+      try {
+        const response = await axios.post('/auth/forgot-password', { email });
+        return response.data.message;
+      } catch (e) {
+        console.error('Forgot password request failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    },
+    
+    // UPDATED ACTION to send the new password and token in the request body
+    async resetPassword({ commit }, payload) {
+      // The payload now contains the token and newPassword
+      const { token, newPassword } = payload;
+      try {
+        const response = await axios.post(`/auth/reset-password`, { token, newPassword });
+        return response.data.message;
+      } catch (e) {
+        console.error('Password reset failed:', e.response?.data?.message || e.message);
+        throw e;
       }
     },
   },
-  modules: {
-  }
+  modules: {}
 })

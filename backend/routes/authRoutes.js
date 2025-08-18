@@ -1,13 +1,19 @@
 import express from 'express'
-const router = express.Router();    
+const router = express.Router();
 
 import * as authCont from '../controller/authCont.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { checkAdmin } from '../middleware/authMiddleware.js';
 
 router.post('/register', authCont.register);
-router.post('/login', authCont.login); // Your existing user login route
-router.post('/login/admin', authCont.loginAdmin); // NEW admin login route
+router.post('/login', authCont.login);
+router.post('/register/admin', authCont.createAdminUser);
+router.post('/login/admin', authCont.loginAdmin);
+router.post('/logout', authCont.logout);
+router.post('/forgot-password', authCont.forgotPassword);
+
+// Corrected route to handle the token from the request body
+router.post('/reset-password', authCont.resetPassword);
 
 router.get('/protected', authenticateToken, (req, res) => {
     res.status(200).json({
@@ -16,15 +22,7 @@ router.get('/protected', authenticateToken, (req, res) => {
     });
 });
 
-// . Frontend Implementation
-// On your frontend, your two login pages will simply send their requests to different endpoints.
-// The User Login page will send credentials to /auth/login.
-// The Admin Login page will send credentials to /auth/login/admin.
-
-
-// An example of a route that only admins can access
 router.post('/admin/create-product', authenticateToken, checkAdmin, (req, res) => {
-    // Your code to create a product here
     res.status(200).json({ message: 'Product created successfully by admin!' });
 });
 

@@ -11,7 +11,12 @@
       <div class="flex-1 overflow-y-auto p-6 space-y-4">
         <div v-if="cartItems.length > 0">
           <div v-for="item in cartItems" :key="item.id" class="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-0">
-            </div>
+             <img :src="item.image" :alt="item.name" class="w-16 h-16 object-cover rounded" />
+             <div class="flex-1">
+             <h3 class="font-semibold">{{ item.name }}</h3>
+             <p class="text-sm text-gray-500">R{{ item.price.toFixed(2) }}</p>
+           </div>
+          </div>
         </div>
         <p v-else class="text-center text-gray-500">Your cart is empty.</p>
       </div>
@@ -19,7 +24,7 @@
       <div class="p-6 bg-gray-50 border-t border-gray-200">
         <div class="flex justify-between items-center mb-4 text-xl font-bold text-gray-800">
           <span>Subtotal:</span>
-          <span>R{{ subtotal.toFixed(2) }}</span>
+          <span>R{{subtotal ? subtotal.toFixed(2) : '0.00'}}</span>
         </div>
         <div class="grid gap-2">
           <button @click="toggleCart" class="w-full bg-gray-200 text-gray-800 px-4 py-3 rounded-full font-semibold hover:bg-gray-300">
@@ -53,6 +58,7 @@ export default {
       isCartOpen,
       cartItems,
       subtotal,
+      totalItems,  
       toggleCart,
       removeFromCart,
       increaseQuantity,
