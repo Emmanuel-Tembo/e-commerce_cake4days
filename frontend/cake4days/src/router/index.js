@@ -12,6 +12,10 @@ import CustomOrderPage from '../views/CustomOrderPage.vue'
 // import ProfilePage from '../views/ProfilePage.vue'
 import CheckoutPage from '../views/CheckoutPage.vue'
 import Dashboard from '../views/Dashboard.vue'
+import merchView from '@/views/merchView.vue'
+import aboutView from '@/views/aboutView.vue'
+
+
 
 // This array defines all your routes
 const routes = [
@@ -21,9 +25,19 @@ const routes = [
     component: HomeView
   },
   {
+    path: '/about',
+    name: 'about',
+    component: aboutView
+  },
+  {
     path: '/PetTreats',
     name: 'PetTreats',
     component: PetTreatsView
+  },
+ {
+    path: '/merch',
+    name: 'merch',
+    component: merchView
   },
   {
     path: '/sign',
@@ -77,6 +91,8 @@ const routes = [
     component: CustomOrderPage
   }
 ];
+    
+
 
 // Create the router instance with the history mode and routes
 const router = createRouter({

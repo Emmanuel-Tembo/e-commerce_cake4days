@@ -1,5 +1,5 @@
 <template>
-  <Navbar />
+  <!-- <Navbar /> -->
   <div class="flex min-h-screen bg-gray-100 font-sans">
     <!-- Mobile Sidebar Button -->
     <button
@@ -228,7 +228,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import Navbar from '@/components/Navbar.vue';
 
 const router = useRouter();
 const route = useRoute();

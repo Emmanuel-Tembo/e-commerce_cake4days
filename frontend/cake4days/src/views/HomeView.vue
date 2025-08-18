@@ -2,48 +2,52 @@
   <NavComp />
   <Navbar />
   <section class="hero" :style="{ backgroundImage: getHeroBackground() }">
-    <div class="hero-background">
-      <div class="hero-side hero-left">
-        </div>
-    </div>
-    <div class="hero-content">
-      <div class="hero-box">
-        <h2 class="hero-title">
-          Sweet Treats For <span class="highlight">Everyone</span><br>
-          You & Your Pets
-        </h2>
-        <p class="hero-subtitle">
-          From birthday cakes to puppy cupcakes - we've got delicious treats
-          for the whole family. Premium ingredients, made fresh daily.
-        </p>
-        <button class="cta" @click="viewProducts">
-          <span>Shop All Treats</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14"></path>
-            <path d="m12 5 7 7-7 7"></path>
-          </svg>
-        </button>
+            <div class="hero-background">
+              <div class="floating-elements">
+                <div class="floating-cake">🎂</div>
+                <div class="floating-cupcake">🧁</div>
+                <div class="floating-cookie">🍪</div>
+                <div class="floating-paw">🐾</div>
+                <div class="floating-dog">🐕</div>
+              </div>
+              <div class="hero-side hero-left">
+                <!-- <img src="@/assets/cake.png" alt="cake"/> -->
 
-        <div class="category-buttons">
-          <button class="category-btn human" @click="viewCategory('human')">
-            <span>🎂</span>
-            Human Cakes
-          </button>
-          <button class="category-btn pet" @click="viewCategory('pet')">
-            <span>🐕</span>
-            Pet Treats
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
+              </div>
+            </div>
+            <div class="hero-content">
+              <div class="hero-box">
+                <h2 class="hero-title">
+                  Sweet Treats For <span class="highlight">Everyone</span><br>
+                  You & Your Pets
+                </h2>
+                <p class="hero-subtitle">
+                  From birthday cakes to puppy cupcakes - we've got delicious treats
+                  for the whole family. Premium ingredients, made fresh daily.
+                </p>
+
+                <div class="category-buttons">
+                  <button class="category-btn human" @click="viewCategory('human')">
+                    <span>🎂</span>
+                    Cakes
+                  </button>
+                  <button class="category-btn pet" @click="viewPetTreats">
+                    <span>🐕</span>
+                    Pet Treats
+                  </button>
+                  
+                </div>
+              </div>
+            </div>
+
+          </section>
 </template>
 
 <script>
 import Navbar from '../components/NavbarComp.vue';
 import ProfileModal from '@/components/ProfileModal.vue';
-import { mapGetters } from 'vuex';
-import { useCartStore } from '@/store/cart';
+// import { mapGetters } from 'vuex';
+// import { useCartStore } from '@/store/cart';
 import NavComp from '@/components/NavComp.vue';
 
 export default {
@@ -55,27 +59,35 @@ export default {
   },
   data() {
     return {
-      // You don't use searchQuery or headerBackgroundImage in this component's template.
-      // They are only used in NavComp, so they should be defined there.
+      
       isModalVisible: false,
       backgroundImage: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><pattern id="cakes" patternUnits="userSpaceOnUse" width="80" height="80"><rect width="80" height="80" fill="%23F9D6D5" opacity="0.1"/><circle cx="20" cy="20" r="8" fill="%23CD853F" opacity="0.3"/><rect x="35" y="15" width="10" height="10" fill="%238B5A3C" opacity="0.3"/><circle cx="60" cy="25" r="6" fill="%23DEB887" opacity="0.4"/><rect x="15" y="45" width="8" height="15" fill="%23CD853F" opacity="0.3"/><circle cx="45" cy="55" r="5" fill="%238B5A3C" opacity="0.4"/><rect x="65" y="50" width="6" height="8" fill="%23DEB887" opacity="0.3"/></pattern></defs><rect width="100%25" height="100%25" fill="url(%23cakes)"/></svg>',
     }
   },
   computed: {
-    
+
   },
   methods: {
-   
+
     viewProducts() {
       console.log('Viewing all products...');
       this.$router.push('/catalogue');
     },
     viewCategory(category) {
-      if (category === 'human') {
-        this.$router.push({ name: 'catalogue', query: { category: 'human' } });
-      } else if (category === 'pet') {
-        this.$router.push({ name: 'PetTreats', query: { category: 'pet' } });
+
+      if(category === 'human'){
+        this.$router.push('/catalogue');
+      }else if (category === 'pet'){
+        this.$router.push('/PetTreats');
       }
+  },
+    viewCakes() {
+      console.log(`Viewing cakes...`);
+      this.$router.push('/catalogue');
+    },
+    viewPetTreats(){
+      console.log('Viewing pet treats...');
+      this.$router.push('/PetTreats');
     },
     getHeroBackground() {
       if (!this.backgroundImage) {
@@ -88,12 +100,175 @@ export default {
 </script>
 
 <style scoped>
-/* Unnecessary styles removed */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* All of the styling for the NavComp was removed as it is not needed here. */
-/* The styles for the hero section, which are used in this component, are kept. */
+.cake-website {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  /* min-height: 100vh; */
+  background: linear-gradient(135deg, #FAF0E6 0%, #F5E6D3 100%);
+}
+
+.container-fluid {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+
+}
+
+.container {
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 60%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background-color: #f19bbd;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  left: 0;
+  right: auto;
+}
+
+.logo {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.logo-text {
+  font-family: 'Pacifico', cursive;
+  color: #d23c67;
+  font-size: 2.2rem;
+  margin-bottom: 0;
+  letter-spacing: 2px;
+  text-shadow: none;
+}
+
+.logo-tagline {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 400;
+  margin-top: -8px;
+  letter-spacing: 1px;
+  text-transform: none;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-bar {
+  padding: 12px 50px 12px 20px;
+  border-radius: 50px;
+  border: none;
+  width: 300px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #4B2E2B;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+  outline: none;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.search-bar::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.search-btn {
+  position: absolute;
+  right: 5px;
+  background: #8B5A3C;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+  background: #A0522D;
+  transform: scale(1.1);
+}
+
+.header-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.icon {
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.icon:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+
+
 .hero {
   display: flex;
   justify-content: center;
@@ -113,11 +288,108 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
+  /* background-image:
     radial-gradient(circle at 20% 80%, rgba(205, 133, 63, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(222, 184, 135, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(139, 90, 60, 0.1) 0%, transparent 30%);
+  background-image: linear-gradient(-45deg, #F9D6D5, #F5E6D3, #F5E6D3, #DEB887, #CD853F);
+  background-size: 400% 400%;
+  animation: gradientsBG 15s ease infinite;  */
   pointer-events: none;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floating-cake,
+.floating-cupcake,
+.floating-cookie,
+.floating-paw,
+.floating-dog {
+  position: absolute;
+  font-size: 30px;
+  opacity: 0.15;
+  animation: float 15s linear infinite;
+  z-index: 1;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1));
+}
+
+.floating-cake {
+  top: 10%;
+  left: -50px;
+  animation-delay: 0s;
+  font-size: 40px;
+}
+
+.floating-cupcake {
+  top: 30%;
+  left: -50px;
+  animation-delay: 3s;
+  font-size: 35px;
+}
+
+.floating-cookie {
+  top: 50%;
+  left: -50px;
+  animation-delay: 6s;
+  font-size: 30px;
+
+}
+
+.floating-paw {
+  top: 70%;
+  left: -50px;
+  animation-delay: 9s;
+  font-size: 25px;
+}
+
+.floating-dog {
+  top: 85%;
+  left: -50px;
+  animation-delay: 12s;
+  font-size: 30px;
+}
+
+@keyframes float {
+  0% {
+    transform: translateX(-50px) translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.15;
+  }
+
+  90% {
+    opacity: 0.15;
+  }
+
+  100% {
+    transform: translateX(calc(100vw + 50px)) translateY(-50px) rotate(360deg);
+    opacity: 0;
+  }
 }
 
 .hero-content {
@@ -165,6 +437,13 @@ export default {
   }
 }
 
+
+.hero {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #ffe5ec 0%, #ff6b8b 100%);
+  /* PetTreatsView color palette */
+}
+
 .hero-title {
   font-size: 3.2rem;
   font-weight: 600;
@@ -195,10 +474,12 @@ export default {
   z-index: 2;
 }
 
+
 .cta {
   margin-top: 20px;
-  background: linear-gradient(135deg, #DEB887 0%, #CD853F 100%);
-  color: #4A4A4A;
+  background: #ff6b8b;
+  /* Coral pink */
+  color: white;
   padding: 18px 40px;
   border: none;
   border-radius: 50px;
@@ -212,11 +493,11 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 15px 40px rgba(222, 184, 135, 0.4);
+  box-shadow: 0 15px 40px rgba(255, 107, 139, 0.2);
   position: relative;
   z-index: 2;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #ffe5ec;
 }
 
 .cta::before {
@@ -234,10 +515,11 @@ export default {
   left: 100%;
 }
 
+
 .cta:hover {
-  background: linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%);
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 25px 60px rgba(222, 184, 135, 0.5);
+  background: #d23c67;
+  /* Dark pink hover */
+  box-shadow: 0 25px 60px rgba(255, 107, 139, 0.3);
 }
 
 .cta svg {
