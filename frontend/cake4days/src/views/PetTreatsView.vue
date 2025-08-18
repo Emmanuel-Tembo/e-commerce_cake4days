@@ -103,6 +103,8 @@
 <script>
 import NavbarComp from '@/components/NavbarComp.vue';
 import NavComp from '@/components/NavComp.vue';
+import { useCartStore } from '@/store/cart';
+import { storeToRefs } from 'pinia';
 
 export default {
     name: 'PetTreatsView',
@@ -110,6 +112,27 @@ export default {
         NavComp,
         NavbarComp,
     },
+    setup(){
+        const cartStore = useCartStore();
+
+        const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
+
+        const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity } = cartStore;
+
+        return {
+              // Expose all necessary state and actions to the template
+              cartItems,
+              totalItems,
+              subtotal,
+              isCartOpen,
+              toggleCart,
+              removeFromCart,
+              increaseQuantity,
+              decreaseQuantity,
+              cartStore, // <--- EXPOSE THE CART STORE HERE
+            };
+    },
+
     data() {
         return {
             searchTerm: '',

@@ -92,51 +92,47 @@
 
 <script>
 import NavComp from '@/components/NavComp.vue';
+import { useCartStore } from '@/store/cart';
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+
 export default {
   components: {
     NavComp,
   },
-  data() {
-    return {
-      cartItems: [
-        // Sample data - replace with your actual cart items
-        { id: 1, name: 'Birthday Bone Cake', type: 'Dog Cakes', price: 300, image: 'https://www.cakesforpets.fr/cdn/shop/files/GateauOSAnniversairebleuensemble.jpg?v=1740342583&width=360', quantity: 1 },
-        { id: 2, name: 'Salmon Kitty Cake', type: 'Cat Cakes', price: 500, image: 'https://www.allrecipes.com/thmb/Os1uL1-9PAkhAC8qXPksBUQEt6k=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/AR-265170-birthday-cake-for-your-cat-DDMFS-4x3-Beauty-6aa665121db148d0ae60b741551f8fe5.jpg', quantity: 2 }
-      ],
-      discountCode: '',
-      discountApplied: false
-    }
+  setup(){
+    const cartStore = useCartStore();
+    const { cartItems, subtotal } = storeToRefs(cartStore);
+
+    const { increaseQuantity, decreaseQuantity, removeFromCart } = cartStore;
+
+    const discountCode = ref('');
+        const discountApplied = ref(false);
+
+        const applyDiscount = () => {
+             // Your discount logic here
+             if (discountCode.value === 'PETLOVE20') {
+                 discountApplied.value = true;
+                 alert('20% discount applied!');
+             } else {
+                 alert('Invalid discount code');
+             }
+        };
+
+        return {
+            // Expose Pinia state and actions to the template
+            cartItems,
+            cartTotal: subtotal, // Use the subtotal getter as cartTotal
+            increaseQuantity,
+            decreaseQuantity,
+            removeFromCart,
+
+            // Expose local state and methods
+            discountCode,
+            applyDiscount,
+            discountApplied
+        };
   },
-  computed: {
-    cartTotal() {
-      return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    }
-  },
-  methods: {
-    increaseQuantity(id) {
-      const item = this.cartItems.find(item => item.id === id);
-      if (item) item.quantity++;
-    },
-    decreaseQuantity(id) {
-      const item = this.cartItems.find(item => item.id === id);
-      if (item && item.quantity > 1) {
-        item.quantity--;
-      } else {
-        this.removeFromCart(id);
-      }
-    },
-    removeFromCart(id) {
-      this.cartItems = this.cartItems.filter(item => item.id !== id);
-    },
-    applyDiscount() {
-      if (this.discountCode === 'PETLOVE20') {
-        this.discountApplied = true;
-        alert('20% discount applied!');
-      } else {
-        alert('Invalid discount code');
-      }
-    }
-  }
 }
 </script>
 

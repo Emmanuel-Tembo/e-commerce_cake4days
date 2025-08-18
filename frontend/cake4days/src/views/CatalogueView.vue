@@ -174,12 +174,36 @@
 <script>
 import NavbarComp from '@/components/NavbarComp.vue';
 import NavComp from '@/components/NavComp.vue';
+import { useCartStore } from '@/store/cart';
+import { storeToRefs } from 'pinia';
 
 export default {
   name: 'CakeCatalog',
   components: {
     NavComp,
     NavbarComp,
+  },
+  setup(){
+    const cartStore = useCartStore();
+
+    // Use storeToRefs to get reactive references to state properties
+    const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
+
+    // Get actions directly from the store
+    const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity } = cartStore;
+
+    return {
+      // Expose all necessary state and actions to the template
+      cartItems,
+      totalItems,
+      subtotal,
+      isCartOpen,
+      toggleCart,
+      removeFromCart,
+      increaseQuantity,
+      decreaseQuantity,
+      cartStore, // <--- EXPOSE THE CART STORE HERE
+    };
   },
   data() {
     return {
@@ -195,7 +219,7 @@ export default {
         { value: 'mini', label: 'Mini Cakes' }
       ],
       cakes: [
-        { id: 1, name: 'Chocolate Delight', category: 'birthday', price: 25.00, description: 'Rich chocolate cake with creamy frosting', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Classic-Chocolate.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains nuts, dairy' },
+          { id: 1, name: 'Chocolate Delight', category: 'birthday', price: 25.00, description: 'Rich chocolate cake with creamy frosting', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Classic-Chocolate.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains nuts, dairy' },
         { id: 2, name: 'Vanilla Dream', category: 'wedding', price: 30.00, description: 'Classic vanilla cake with buttercream icing', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/08/Untitled-design-3.png', serves: 10, preparationTime: '3 hours', allergens: 'Contains dairy' },
         { id: 3, name: 'Red Velvet Bliss', category: 'custom', price: 28.50, description: 'Moist red velvet cake with cream cheese frosting', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Red-Velvet-1024x1024.jpg', serves: 6, preparationTime: '1.5 hours', allergens: 'Contains gluten, dairy' },
         { id: 4, name: 'Lemon Zest', category: 'seasonal', price: 22.00, description: 'Refreshing lemon cake with citrus glaze', image: 'https://tessasbakery.co.za/wp-content/uploads/2015/06/New_Lemon_Mer-1-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten' },
@@ -204,22 +228,20 @@ export default {
         {id: 7, name: 'Blue Velvet', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Blue-Velvet-Cakes-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
         {id: 8, name: 'Chai Latte Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Chai_Cake-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
         {id: 9, name: 'Chocolate Caramel Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_ChocCar-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Death By Chocolate Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Death-by-Chocolate-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Let It Go', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2017/04/4-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Dusty Rose', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-DUSTYROSE-1-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Blush Pink Fun-Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-PINK-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Mini Lunchbox', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: '', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Pink Rose Cascade Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://ohmycake.co.za/wp-content/uploads/2024/04/Pink-rose-cascade-cake-768x768.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Sprinkle Baby Gift Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-10.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Oreo Mini Gift Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-5-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Nutella Mini Gift Cake ', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-7-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Vegan Oreo Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Vegan_Oreo-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Orea New York Baked CheeseCake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/09/Untitled-design.zip-3-1-669x669.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Unicorn Fun Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-UNICORNS-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 6, name: 'Strawberry Fun Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2025/07/New-Product-Shots-Products-6.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        
-        // Add more cakes as needed
-      ]
+        {id: 10, name: 'Death By Chocolate Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Death-by-Chocolate-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 11, name: 'Let It Go', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2017/04/4-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 12, name: 'Dusty Rose', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-DUSTYROSE-1-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 13, name: 'Blush Pink Fun-Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-PINK-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 14, name: 'Mini Lunchbox', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: '', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 15, name: 'Pink Rose Cascade Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://ohmycake.co.za/wp-content/uploads/2024/04/Pink-rose-cascade-cake-768x768.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 16, name: 'Sprinkle Baby Gift Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-10.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 17, name: 'Oreo Mini Gift Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-5-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 18, name: 'Nutella Mini Gift Cake ', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-7-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 19, name: 'Vegan Oreo Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Vegan_Oreo-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 20, name: 'Orea New York Baked CheeseCake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/09/Untitled-design.zip-3-1-669x669.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 21, name: 'Unicorn Fun Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-UNICORNS-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+        {id: 22, name: 'Strawberry Fun Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2025/07/New-Product-Shots-Products-6.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
+    ]
     }
   },
   computed: {
@@ -275,8 +297,8 @@ export default {
       this.selectedCake = null;
     },
     addToCart(cake) {
-      // Implement your cart functionality here
-      this.$emit('add-to-cart', cake);
+      // Now this works because this.cartStore is exposed by setup()
+      this.cartStore.addToCart(cake)
       this.closeModal();
     }
   }

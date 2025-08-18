@@ -101,6 +101,8 @@
 <script>
 import NavbarComp from '@/components/NavbarComp.vue';
 import NavComp from '@/components/NavComp.vue';
+import { useCartStore } from '@/store/cart';
+import { storeToRefs } from 'pinia';
 
 export default {
   components: {
@@ -108,6 +110,28 @@ export default {
     NavbarComp,
   },
   name: 'MerchPage',
+  setup(){
+    const cartStore = useCartStore();
+
+    // Use storeToRefs to get reactive references to state properties
+    const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
+
+    // Get actions directly from the store
+    const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity } = cartStore;
+
+    return {
+      // Expose all necessary state and actions to the template
+      cartItems,
+      totalItems,
+      subtotal,
+      isCartOpen,
+      toggleCart,
+      removeFromCart,
+      increaseQuantity,
+      decreaseQuantity,
+      cartStore, // <--- EXPOSE THE CART STORE HERE
+    };
+  },
   data() {
     return {
       selectedCategory: 'All',
