@@ -20,7 +20,7 @@ export const DeleteCon = async(req,res)=> {
         return error
     }
 }
-
+  
 export const CreateCon = async (req,res) => {
   let {name,description,category,price,stock_quantity,intended_audience} = req.body
   await Create(name,description,category,price,stock_quantity,intended_audience)
