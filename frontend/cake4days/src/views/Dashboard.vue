@@ -1,4 +1,5 @@
 <template>
+  <Navbar />
   <div class="flex min-h-screen bg-gray-100 font-sans">
     <!-- Mobile Sidebar Button -->
     <button
@@ -85,7 +86,9 @@
       <!-- Top Navigation -->
       <nav class="bg-white shadow-lg p-4 flex justify-between items-center z-30">
         <div class="flex items-center space-x-6">
-          <a href="#" class="text-gray-600 hover:text-indigo-500 transition-colors duration-200 font-semibold">PRODUCTS</a>
+          <router-link to="/catalogue">
+            <a href="#" class="text-gray-600 hover:text-indigo-500 transition-colors duration-200 font-semibold">PRODUCTS</a>
+          </router-link>
           <a href="#" class="text-gray-600 hover:text-indigo-500 transition-colors duration-200 font-semibold">MERCH</a>
           <a href="#" class="text-gray-600 hover:text-indigo-500 transition-colors duration-200 font-semibold">PET TREATS</a>
         </div>
@@ -224,6 +227,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import Navbar from '@/components/Navbar.vue';
+
+const router = useRouter();
+const route = useRoute();
 
 // State management using Vue's ref
 const isSidebarOpen = ref(false);
@@ -295,7 +303,16 @@ const fetchDashboardData = async () => {
 };
 
 onMounted(() => {
-  fetchDashboardData();
+    // Check for the token in localStorage instead of the URL
+    const token = localStorage.getItem('adminToken');
+
+    if (!token) {
+        // If no token is found, redirect to the login page
+        router.push('/sign/admin');
+    } else {
+        console.log("Token found in localStorage. User is authenticated.");
+        fetchDashboardData();
+    }
 });
 </script>
 

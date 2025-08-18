@@ -60,11 +60,6 @@ const routes = [
     name: 'resetPassword',
     component: ResetPassword
   },
-  // {
-  //   path: '/profile',
-  //   name: 'Profile',
-  //   component: ProfilePage
-  // },
   {
     path: '/checkout',
     name: 'Checkout',
@@ -73,13 +68,9 @@ const routes = [
   {
     path: '/admin/dashboard',
     name: 'Dashboard',
-    component: Dashboard
+    component: Dashboard,
+    meta: { requiresAuth: true }
   },
-  // {
-  //   path: '/about',
-  //   name: 'about',
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  // },
   {
     path: '/custom-order',
     name: 'customOrder',

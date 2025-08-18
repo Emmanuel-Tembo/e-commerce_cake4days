@@ -2,21 +2,20 @@
   <div id="app">
 
     <!-- <router-view/>  -->
-    <Navbar />
+    <!-- <Navbar /> -->
     <router-view/>
     <CartSidebar/>
   </div>
 </template>
 
 <script>
-import Navbar from './components/Navbar.vue';
+// import Navbar from './components/Navbar.vue';
 import CartSidebar from './components/CartSidebar.vue';
 
 
 export default {
   components: {
-    // Navbar
-    Navbar,
+    // Navbar,
     CartSidebar,
   }
 };

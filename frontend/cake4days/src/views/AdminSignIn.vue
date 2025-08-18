@@ -114,6 +114,7 @@ export default {
             successMessage: null, // NEW: for success messages like "email sent"
         };
     },
+    
     methods: {
         ...mapActions(['loginAdmin', 'forgotPassword']),
 
@@ -155,14 +156,20 @@ export default {
             }
 
             if (valid) {
-                try {
-                    await this.loginAdmin(this.loginForm);
-                    this.router.push('/admin');
-                } catch (e) {
-                    this.errorMessage = e.response?.data?.message || 'Login failed. Please check your credentials.';
-                }
-            }
-            this.isLoading = false;
+        try {
+            // Assuming your loginAdmin action returns the token
+            const response = await this.loginAdmin(this.loginForm);
+            
+            // Save the token to localStorage
+            localStorage.setItem('adminToken', response.token); 
+
+            // Redirect to the dashboard without a query parameter
+            this.router.push('/admin/dashboard');
+        } catch (e) {
+            this.errorMessage = e.response?.data?.message || 'Login failed. Please check your credentials.';
+        }
+    }
+        this.isLoading = false;
         },
 
         async handleForgotPassword() {
