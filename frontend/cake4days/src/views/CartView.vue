@@ -1,41 +1,136 @@
 <template>
-  <div class="cart-container">
-    <h1>Your Shopping Cart</h1>
-    <table class="cart-table">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th></th>
-          <th>Price</th>
-          <th>Quantity</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in cartItems" :key="item.id">
-          <td>
-            <img :src="item.imageUrl" alt="" class="cart-img" />
-          </td>
-          <td>
-            <div class="cart-product-info">
-              <div>{{ item.name }}</div>
-              
+  <div class="container-fluid">
+    <header class="modern-header">
+      <div class="header-content">
+        <div class="logo">
+          <h1 class="logo-text">CAKE FOR DAYS</h1>
+          <h2 class="logo-tagline">Pet Treats</h2>
+        </div>
+        <div class="header-actions">
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-bar"
+              placeholder="Search Cakes..."
+              v-model="searchInput"
+              @keyup.enter="performSearch"
+            />
+            <button class="search-btn" @click="performSearch">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="header-icons" style="display: flex; gap: 10px; align-items: center;">
+            <router-link to="/sign" class="icon-link">
+              <div class="icon user-icon" title="Account">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+            </router-link>
+            <div class="icon cart-icon" title="Shopping Cart" @click="goToCart" style="position: relative;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="8" cy="21" r="1"></circle>
+                <circle cx="19" cy="21" r="1"></circle>
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57L23 6H6"></path>
+              </svg>
+              <span v-if="cartItems.length > 0" class="cart-badge" style="position: absolute; top: 2px; right: 2px;">{{ cartItems.length }}</span>
             </div>
-          </td>
-          <td>R{{ item.price.toFixed(2) }}</td>
-            <td>
-            <div class="qty-controls">
-              <button @click="decrement(item)" :disabled="item.quantity <= 1">-</button>
-              <input type="text" :value="item.quantity" readonly />
-              <button @click="increment(item)">+</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="cart-page">
+    <!-- Empty Cart State -->
+    <div v-if="cartItems.length === 0" class="empty-cart">
+      <img src="https://www.cakesforpets.fr/cdn/shop/files/CakeetDonutsAnniversaireroseboite.jpg?v=1745331300&width=360" 
+           alt="Empty cart" class="empty-cart-image" />
+      <h3>Your cart is empty!</h3>
+      <p>Looks like you haven't added any tasty treats yet</p>
+      <button @click="$router.push('/')" class="browse-btn">
+        Browse Treats
+      </button>
+    </div>
+
+    <!-- Cart with Items -->
+    <div v-else class="cart-container">
+      <div class="cart-items">
+        <h2 class="cart-title">Your Cart <span>({{ cartItems.length }})</span></h2>
+        
+        <div v-for="item in cartItems" :key="item.id" class="cart-item">
+          <img :src="item.image" :alt="item.name" class="item-image" />
+          
+          <div class="item-details">
+            <h3>{{ item.name }}</h3>
+            <p class="item-type">{{ item.type }}</p>
+            
+            <div class="quantity-controls">
+              <button @click="decreaseQuantity(item.id)" class="qty-btn">−</button>
+              <span class="quantity">{{ item.quantity }}</span>
+              <button @click="increaseQuantity(item.id)" class="qty-btn">+</button>
             </div>
-          </td>
-          <td>R{{ (item.price * item.quantity).toFixed(2) }}</td>
-        </tr>
-      </tbody>
-    </table>
+            
+            <p class="item-price">R{{ (item.price * item.quantity).toFixed(2) }}</p>
+            <button @click="removeFromCart(item.id)" class="remove-btn">
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="order-summary">
+        <h2>Order Summary</h2>
+        
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>R{{ cartTotal.toFixed(2) }}</span>
+        </div>
+        
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span class="free-shipping">Free 🎉</span>
+        </div>
+        
+        <div class="discount-section">
+          <input 
+            type="text" 
+            placeholder="Discount code" 
+            v-model="discountCode"
+            class="discount-input"
+          >
+          <button @click="applyDiscount" class="apply-btn">Apply</button>
+        </div>
+        
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>R{{ cartTotal.toFixed(2) }}</span>
+        </div>
+        
+        <button class="checkout-btn">Proceed to Checkout</button>
+        
+        <p class="continue-shopping" @click="$router.push('/')">
+          ← Continue Shopping
+        </p>
+        
+        <div class="trust-badges">
+          <div class="badge">
+            <i class="fas fa-truck"></i>
+            <span>Free Shipping</span>
+          </div>
+          <div class="badge">
+            <i class="fas fa-lock"></i>
+            <span>Secure Checkout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
   </div>
-  <button>CHECK OUT</button>
 </template>
 
 <script>
@@ -43,141 +138,425 @@ export default {
   data() {
     return {
       cartItems: [
-        {
-          id: 1,
-          name: "Pink phone case",
-          imageUrl: "https://img.kwcdn.com/product/fancy/e1f2b3fc-805c-49db-8669-6afbebc5ddb2.jpg?imageView2/2/w/800/q/70/format/webp",
-          price: 40.99,
-          quantity: 1
-        },
-        {
-          id: 2,
-          name: "Minnie Mouse phone case",
-          imageUrl: "https://img.kwcdn.com/product/open/74218433ad654dc2902cb2b9e6445fc4-goods.jpeg?imageView2/2/w/800/q/70/format/webp",
-          price: 45.00,
-          quantity: 1
-        },
-        {
-          id: 3,
-          name: "Heart phone case",
-          imageUrl: "https://img.kwcdn.com/product/fancy/1c003e15-b967-4a2d-a24b-4029d662e760.jpg?imageView2/2/w/800/q/70/format/webp",
-          price: 29.95,
-          quantity: 1
-        }
-      ]
-    };
+        // Sample data - replace with your actual cart items
+        { id: 1, name: 'Birthday Bone Cake', type: 'Dog Cakes', price: 300, image: 'https://www.cakesforpets.fr/cdn/shop/files/GateauOSAnniversairebleuensemble.jpg?v=1740342583&width=360', quantity: 1 },
+        { id: 2, name: 'Salmon Kitty Cake', type: 'Cat Cakes', price: 500, image: 'https://www.allrecipes.com/thmb/Os1uL1-9PAkhAC8qXPksBUQEt6k=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/AR-265170-birthday-cake-for-your-cat-DDMFS-4x3-Beauty-6aa665121db148d0ae60b741551f8fe5.jpg', quantity: 2 }
+      ],
+      discountCode: '',
+      discountApplied: false
+    }
   },
-  created() {
-  const query = this.$route.query;
-
-  if (query.id) {
-    this.cartItems = [
-      {
-        id: parseInt(query.id),
-        name: query.name,
-        price: parseFloat(query.price),
-        quantity: parseInt(query.quantity),
-        imageUrl: query.imageUrl
-      }
-    ];
-}
-    },
-    
-
+  computed: {
+    cartTotal() {
+      return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    }
+  },
   methods: {
-    increment(item) {
-      item.quantity++;
+    increaseQuantity(id) {
+      const item = this.cartItems.find(item => item.id === id);
+      if (item) item.quantity++;
     },
-    decrement(item) {
-      if (item.quantity > 1) item.quantity--;
+    decreaseQuantity(id) {
+      const item = this.cartItems.find(item => item.id === id);
+      if (item && item.quantity > 1) {
+        item.quantity--;
+      } else {
+        this.removeFromCart(id);
+      }
     },
-    removeItem(id) {
+    removeFromCart(id) {
       this.cartItems = this.cartItems.filter(item => item.id !== id);
+    },
+    applyDiscount() {
+      if (this.discountCode === 'PETLOVE20') {
+        this.discountApplied = true;
+        alert('20% discount applied!');
+      } else {
+        alert('Invalid discount code');
+      }
     }
   }
-};
+}
 </script>
 
 <style scoped>
-.cart-container {
-  background: #f5bbe2;
-  border: 1px solid #5e0202;
-  border-radius: 20px;
-  padding: 32px;
-  margin: 24px auto;
-  max-width: 900px;
+.cart-page {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
-h1 {
+
+.empty-cart {
   text-align: center;
-  font-weight: 400;
-  margin-bottom: 32px;
+  padding: 3rem 0;
 }
-.cart-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #faf8f4;
+
+.empty-cart-image {
+  max-width: 300px;
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
 }
-.cart-table th,
-.cart-table td {
-  padding: 16px 8px;
-  text-align: left;
+
+.empty-cart h3 {
+  color: #d23c67;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+  .modern-header {
+    background-color: #f19bbd;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    width: 100%;
+    left: 0;
+    right: auto;
+  }
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+  }
+  
+  .logo-text {
+    font-family: 'Pacifico', cursive;
+    color: #d23c67;
+    font-size: 2.2rem;
+    margin-bottom: 0;
+    letter-spacing: 2px;
+  }
+  
+  .logo-tagline {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 400;
+    margin-top: -8px;
+    letter-spacing: 1px;
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .search-container {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 25px;
+    box-shadow: 0 2px 8px rgba(210, 60, 103, 0.08);
+    padding: 4px 12px 4px 18px;
+    margin-right: 10px;
+  }
+  
+  .search-bar {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: transparent;
+    padding: 8px 0;
+    width: 180px;
+  }
+  
+  .search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 8px;
+    color: #d23c67;
+    transition: color 0.2s;
+  }
+  
+  .search-btn:hover {
+    color: #ff6b8b;
+  }
+  
+  .header-icons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .icon {
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(210, 60, 103, 0.08);
+    padding: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .icon:hover {
+    box-shadow: 0 4px 16px rgba(210, 60, 103, 0.15);
+  }
+  
+  .cart-badge {
+      background: #d23c67;
+      color: #fff;
+      border-radius: 50%;
+      padding: 2px 7px;
+      font-size: 0.85rem;
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+  }
+
+.browse-btn {
+  background: #ff6b8b;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.browse-btn:hover {
+  background: #d23c67;
+  transform: translateY(-2px);
+}
+
+.cart-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.cart-items {
+  flex: 1;
+  min-width: 300px;
+}
+
+.cart-title {
+  color: #d23c67;
+  margin-bottom: 1.5rem;
+}
+
+.cart-title span {
+  color: #666;
   font-size: 1rem;
 }
-.cart-table th {
-  border-bottom: 2px solid #ccc;
-  font-weight: 400;
-}
-.cart-table tbody tr {
-  border-bottom: 2px solid #ccc;
-}
-.cart-img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 4px;
-  background: #fff;
-  border: 1px solid #eee;
-}
-.cart-product-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.cart-icon{
-  position: relative;
 
+.cart-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: all 0.3s;
+  border: 1px solid #ffe5ec;
 }
-.cart-count{
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: #FF4136;
-  color: #fff;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 0.75em;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+
+.cart-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(210, 60, 103, 0.1);
 }
-.qty-controls {
+
+.item-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-details h3 {
+  color: #333;
+  margin-bottom: 0.3rem;
+}
+
+.item-type {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.quantity-controls {
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-.qty-controls button {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #222;
-  background: #fff;
-  font-size: 1.2em;
-  cursor: pointer;
-  border-radius: 4px;
-}
-.qty-controls input {
-  width: 32px;
-  text-align: center;
-  border: none;
-  background: #fff;
-  font-size: 1em;
+  gap: 0.5rem;
+  margin: 1rem 0;
 }
 
+.qty-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.qty-btn:hover {
+  background: #ffe5ec;
+  border-color: #ff6b8b;
+}
+
+.quantity {
+  min-width: 30px;
+  text-align: center;
+}
+
+.item-price {
+  font-weight: bold;
+  color: #d23c67;
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #ff6b8b;
+  cursor: pointer;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.remove-btn:hover {
+  color: #d23c67;
+  text-decoration: underline;
+}
+
+.order-summary {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 350px;
+  border: 1px solid #ffe5ec;
+}
+
+.order-summary h2 {
+  color: #d23c67;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #eee;
+}
+
+.summary-row.total {
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-bottom: none;
+  margin-top: 1rem;
+}
+
+.free-shipping {
+  color: #4CAF50;
+}
+
+.discount-section {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.discount-input {
+  flex: 1;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.apply-btn {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 0 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.apply-btn:hover {
+  background: #555;
+}
+
+.checkout-btn {
+  width: 100%;
+  background: #ff6b8b;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: all 0.3s;
+}
+
+.checkout-btn:hover {
+  background: #d23c67;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 139, 0.3);
+}
+
+.continue-shopping {
+  color: #666;
+  text-align: center;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.continue-shopping:hover {
+  color: #d23c67;
+}
+
+.trust-badges {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.badge i {
+  color: #ff6b8b;
+}
+
+@media (max-width: 768px) {
+  .cart-container {
+    flex-direction: column;
+  }
+  
+  .order-summary {
+    max-width: 100%;
+  }
+}
 </style>

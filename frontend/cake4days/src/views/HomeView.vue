@@ -1,4 +1,5 @@
 <template>
+
   <div class="cake-website">
     <div class="container-fluid" :style="{ backgroundImage: getHeaderBackground() }">
       <header class="top-header">
@@ -8,7 +9,7 @@
         </div>
         <div class="header-actions">
           <div class="search-container">
-            <input 
+            <input
               type="text" 
               class="search-bar" 
               placeholder="Search cakes, pet treats & more..." 
@@ -49,6 +50,13 @@
 
     <section class="hero" :style="{ backgroundImage: getHeroBackground() }">
       <div class="hero-background">
+        <div class="floating-elements">
+      <div class="floating-cake">🎂</div>
+      <div class="floating-cupcake">🧁</div>
+      <div class="floating-cookie">🍪</div>
+      <div class="floating-paw">🐾</div>
+      <div class="floating-dog">🐕</div>
+    </div>
         <div class="hero-side hero-left">
           <!-- <img src="@/assets/cake.png" alt="cake"/> -->
           
@@ -64,6 +72,7 @@
             From birthday cakes to puppy cupcakes - we've got delicious treats 
             for the whole family. Premium ingredients, made fresh daily.
           </p>
+        
           <!-- <div class="hero-side hero-right">
       <img src="@/assets/cookies.png" alt="Cookies" />
       <div class="tag tag-right">Freshly Baked</div>
@@ -80,12 +89,15 @@
           <div class="category-buttons">
             <button class="category-btn human" @click="viewCategory('human')">
               <span>🎂</span>
-              Human Cakes
+               Cakes
             </button>
-            <button class="category-btn pet" @click="viewCategory('pet')">
+            <button class="category-btn pet" @click="viewPetTreats">
               <span>🐕</span>
               Pet Treats
             </button>
+            <!-- <a href = "http://localhost:8080/PetTreats" class="category-btn pet" @click="viewPetTreats">
+              <span>🐕</span>
+              Pet Treats</a> -->
           </div>
         </div>
       </div>
@@ -134,20 +146,21 @@ export default {
     },
     viewProducts() {
       console.log('Viewing all products...');
+      this.$router.push('/products');
       
-    //   if(category === 'human'){
-    //     this.$router.push('/catalogue');
-    //   }else if (category === 'pet'){
-    //     this.$router.push('/pet-treats');
-    //   }
+      if(category === 'human'){
+        this.$router.push('/catalogue');
+      }else if (category === 'pet'){
+        this.$router.push('/PetTreats');
+      }
   },
-    viewHumanCakes() {
-      console.log(`Viewing Human cakes...`);
+    viewCakes() {
+      console.log(`Viewing cakes...`);
       this.$router.push('/catalogue');
     },
     viewPetTreats(){
       console.log('Viewing pet treats...');
-      this,this.$router.push('/pet-treats');
+      this.$router.push('/PetTreats');
     },
     getHeroBackground() {
       if (!this.backgroundImage) {
@@ -180,6 +193,16 @@ export default {
   min-height: 100vh;
   background: linear-gradient(135deg, #FAF0E6 0%, #F5E6D3 100%);
 }
+.container-fluid {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+
+}
 
 .container {
   position: relative;
@@ -207,8 +230,14 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 20px 40px;
-  position: relative;
-  z-index: 2;
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background-color: #f19bbd;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  left: 0;
+  right: auto;
 }
 
 .logo {
@@ -219,20 +248,21 @@ export default {
 }
 
 .logo-text {
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: -1px;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Pacifico', cursive;
+  color: #d23c67;
+  font-size: 2.2rem;
+  margin-bottom: 0;
+  letter-spacing: 2px;
+  text-shadow: none;
 }
 
 .logo-tagline {
-  font-size: 14px;
-  margin: 0;
-  opacity: 0.9;
-  font-weight: 300;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 400;
+  margin-top: -8px;
   letter-spacing: 1px;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .header-actions {
@@ -340,11 +370,93 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    radial-gradient(circle at 20% 80%, rgba(205, 133, 63, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(222, 184, 135, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(139, 90, 60, 0.1) 0%, transparent 30%);
+  background-image: linear-gradient(-45deg, #F9D6D5 , #F5E6D3, #F5E6D3, #DEB887, #CD853F );
+  background-size: 400% 400%;
+  animation: gradientsBG 15s ease infinite;
   pointer-events: none;
+}
+@keyframes gradientBG{
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.floating-cake,
+.floating-cupcake,
+.floating-cookie,
+.floating-paw,
+.floating-dog {
+  position: absolute;
+  font-size: 30px;
+  opacity: 0.15;
+  animation: float 15s linear infinite;
+  z-index: 1;
+  filter: drop-shadow(0 0 5px rgba(0,0,0,0.1));
+}
+.floating-cake {
+  top: 10%;
+  left: -50px;
+  animation-delay: 0s;
+  font-size: 40px;
+}
+
+.floating-cupcake {
+  top: 30%;
+  left: -50px;
+  animation-delay: 3s;
+  font-size: 35px;
+}
+
+.floating-cookie {
+  top: 50%;
+  left: -50px;
+  animation-delay: 6s;
+  font-size: 30px;
+
+}
+.floating-paw {
+  top: 70%;
+  left: -50px;
+  animation-delay: 9s;
+  font-size: 25px;
+}
+
+.floating-dog {
+  top: 85%;
+  left: -50px;
+  animation-delay: 12s;
+  font-size: 30px;
+}
+@keyframes float {
+  0% {
+    transform: translateX(-50px) translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateX(calc(100vw + 50px)) translateY(-50px) rotate(360deg);
+    opacity: 0;
+  }
 }
 
 .hero-content {
@@ -387,6 +499,12 @@ export default {
   to { transform: rotate(360deg); }
 }
 
+
+.hero {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #ffe5ec 0%, #ff6b8b 100%); /* PetTreatsView color palette */
+}
+
 .hero-title {
   font-size: 3.2rem;
   font-weight: 600;
@@ -417,10 +535,11 @@ export default {
   z-index: 2;
 }
 
+
 .cta {
   margin-top: 20px;
-  background: linear-gradient(135deg, #DEB887 0%, #CD853F 100%);
-  color: #4A4A4A;
+  background: #ff6b8b; /* Coral pink */
+  color: white;
   padding: 18px 40px;
   border: none;
   border-radius: 50px;
@@ -434,11 +553,11 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 15px 40px rgba(222, 184, 135, 0.4);
+  box-shadow: 0 15px 40px rgba(255, 107, 139, 0.2);
   position: relative;
   z-index: 2;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #ffe5ec;
 }
 
 .cta::before {
@@ -456,10 +575,10 @@ export default {
   left: 100%;
 }
 
+
 .cta:hover {
-  background: linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%);
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 25px 60px rgba(222, 184, 135, 0.5);
+  background: #d23c67; /* Dark pink hover */
+  box-shadow: 0 25px 60px rgba(255, 107, 139, 0.3);
 }
 
 .cta svg {

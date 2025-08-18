@@ -4,6 +4,10 @@ import signView from '@/views/signView.vue'
 import CatalogueView from '@/views/CatalogueView.vue'
 import CartView from '@/views/CartView.vue'
 import PetTreatsView from '@/views/PetTreatsView.vue'
+import merchView from '@/views/merchView.vue'
+import aboutView from '@/views/aboutView.vue'
+
+
 
 const routes = [
   {
@@ -12,11 +16,20 @@ const routes = [
     component: HomeView
   },
   {
+    path: '/about',
+    name: 'about',
+    component: aboutView
+  },
+  {
     path: '/PetTreats',
     name: 'PetTreats',
     component: PetTreatsView
   },
-
+ {
+    path: '/merch',
+    name: 'merch',
+    component: merchView
+  },
   {
     path: '/sign',
     name: 'sign',
@@ -32,6 +45,11 @@ const routes = [
     path: '/Cart',
     name: 'Cart',
     component: CartView
+  },
+  {
+    path: '/merch',
+    name: 'merch',
+    component: merchView
   },
   //  {
   //    path: '/about',
