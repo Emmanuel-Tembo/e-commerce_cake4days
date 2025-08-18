@@ -1,4 +1,6 @@
 <template>
+  <NavComp />
+  <NavbarComp />
   <div class="custom-order-page">
     <HeroImage />
     <main class="content-wrapper">
@@ -21,17 +23,21 @@
 
 <script>
 // No need to import Navbar, as it is in your App.vue file
+import NavComp from '@/components/NavComp.vue';
 import HeroImage from '../components/HeroImage.vue';
 import OrderForm from '../components/OrderForm.vue';
 import ProductCard from '../components/ProductCard.vue';
 import { ref } from 'vue';
+import NavbarComp from '@/components/NavbarComp.vue';
 
 export default {
   name: 'CustomOrderPage',
   components: {
     HeroImage,
     OrderForm,
-    ProductCard
+    ProductCard,
+    NavComp,
+    NavbarComp,
   },
   setup() {
     const products = ref([

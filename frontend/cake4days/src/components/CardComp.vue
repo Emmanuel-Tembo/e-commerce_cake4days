@@ -45,8 +45,14 @@ export default {
     object-fit: cover;
  }
  .card{
-    width: 400px;
-    border: 20px black solid;
-    border-radius:10px;
+   
+    
+  background: rgb(247, 242, 242);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
  }
 </style>

@@ -3,8 +3,10 @@
     <div class="container-fluid" :style="{ backgroundImage: getHeaderBackground() }">
       <header class="top-header">
         <div class="logo">
-          <h1 class="logo-text">CAKE FOR DAYS</h1>
-          <p class="logo-tagline">Cakes & Pet Treats</p>
+          <router-link to="/">
+            <h1 class="logo-text">CAKE FOR DAYS</h1>
+            <p class="logo-tagline">Cakes & Pet Treats</p>
+          </router-link>
         </div>
         <div class="header-actions">
           <div class="search-container">
