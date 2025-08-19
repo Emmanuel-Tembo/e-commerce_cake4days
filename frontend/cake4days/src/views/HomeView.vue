@@ -41,6 +41,7 @@
             </div>
 
           </section>
+    <FootComp />
 </template>
 
 <script>
@@ -49,6 +50,7 @@ import ProfileModal from '@/components/ProfileModal.vue';
 // import { mapGetters } from 'vuex';
 // import { useCartStore } from '@/store/cart';
 import NavComp from '@/components/NavComp.vue';
+import FootComp from '@/components/FootComp.vue';
 
 export default {
   name: 'CakeForDaysWebsite',
@@ -56,6 +58,7 @@ export default {
     Navbar,
     ProfileModal,
     NavComp,
+    FootComp
   },
   data() {
     return {

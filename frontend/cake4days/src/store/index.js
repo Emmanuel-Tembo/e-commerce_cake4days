@@ -1,5 +1,5 @@
-import { createStore } from 'vuex'
-import axios from 'axios'
+import { createStore } from 'vuex';
+import axios from 'axios';
 
 // Set a base URL for all API requests to make them cleaner
 axios.defaults.baseURL = 'http://localhost:9090'; 
@@ -10,7 +10,9 @@ export default createStore({
   state: {
     user: null, 
     isAuthenticated: false, 
-    isAdmin: false, 
+    isAdmin: false,
+    products: [], // ADDED: New state property to hold product data
+    searchTerm: '', // NEW: State property for the search term
   },
   getters: {
     currentUser: (state) => state.user,
@@ -26,6 +28,18 @@ export default createStore({
       state.user = null;
       state.isAuthenticated = false;
       state.isAdmin = false;
+    },
+    // ADDED: New mutation to set the products in the state
+    setProducts(state, productsPayload) {
+      state.products = productsPayload;
+    },
+    // NEW: Mutation to set the search term
+    setSearchTerm(state, term) {
+      state.searchTerm = term;
+    },
+    // NEW: Mutation to clear the search term
+    clearSearchTerm(state) {
+        state.searchTerm = '';
     },
   },
   actions: {
@@ -43,31 +57,16 @@ export default createStore({
         throw e;
       }
     },
-
     async login({ commit }, credentials) {
       try {
         const response = await axios.post('/auth/login', credentials);
-        console.log('Login successful:', response.data.message);
-        await this.dispatch('checkAuth');
-        return true; 
+        commit('setAuth', response.data.user);
+        return response.data.user;
       } catch (e) {
         console.error('Login failed:', e.response?.data?.message || e.message);
         throw e;
       }
     },
-    
-    async loginAdmin({ commit }, credentials) {
-      try {
-        const response = await axios.post('/auth/login/admin', credentials);
-        console.log('Admin login successful:', response.data.message);
-        await this.dispatch('checkAuth');
-        return true;
-      } catch (e) {
-        console.error('Admin login failed:', e.response?.data?.message || e.message);
-        throw e;
-      }
-    },
-
     async logout({ commit }) {
       try {
         await axios.post('/auth/logout');
@@ -115,6 +114,23 @@ export default createStore({
         throw e;
       }
     },
+
+    // ADDED: New action to fetch products from the backend and fix the data type
+    async fetchProducts({ commit }) {
+      try {
+        const response = await axios.get('/products/getAll');
+        // Assuming your backend returns an array of products in a 'results' property
+        const products = response.data.data.map(product => ({
+          ...product,
+          price: parseFloat(product.price) // CONVERTING PRICE TO A NUMBER
+        }));
+        
+        commit('setProducts', products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        // You can commit an empty array or handle the error state here
+        commit('setProducts', []);
+      }
+    },
   },
-  modules: {}
-})
+});

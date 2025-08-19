@@ -4,7 +4,7 @@
    <NavbarComp />
   
 
-    <!-- Cart Dropdown -->
+    
     <div v-if="showCart" class="cart-dropdown">
       <div class="cart-header">
         <h3>Shopping Cart</h3>
@@ -168,10 +168,12 @@
         </div>
       </div>
     </div>
+    <FootComp />
   </div>
 </template>
 
 <script>
+import FootComp from '@/components/FootComp.vue';
 import NavbarComp from '@/components/NavbarComp.vue';
 import NavComp from '@/components/NavComp.vue';
 import { useCartStore } from '@/store/cart';
@@ -182,6 +184,7 @@ export default {
   components: {
     NavComp,
     NavbarComp,
+    FootComp
   },
   setup(){
     const cartStore = useCartStore();
