@@ -18,9 +18,9 @@ ADD reset_token VARCHAR(255) NULL,
 ADD reset_token_expiry DATETIME NULL;
 ALTER TABLE users MODIFY reset_token_expiry BIGINT;
 
-ALTER TABLE users
-ADD reset_token VARCHAR(255) NULL,
-ADD reset_token_expiry DATETIME NULL;
+-- ALTER TABLE users
+-- ADD reset_token VARCHAR(255) NULL,
+-- ADD reset_token_expiry DATETIME NULL;
 
 ALTER TABLE users MODIFY reset_token_expiry BIGINT;
 
@@ -35,6 +35,9 @@ CREATE TABLE products (
     image_url VARCHAR(255),
     intended_audience ENUM('human', 'pet', 'POD') NOT NULL DEFAULT 'human'
 );
+
+ALTER TABLE products
+MODIFY intended_audience ENUM('human', 'pet', 'POD') NOT NULL DEFAULT 'human';
 
 -- PRODUCT VARIANTS
 CREATE TABLE product_variants (
@@ -213,6 +216,51 @@ CREATE INDEX idx_wishlists_product_id ON wishlists(product_id);
 CREATE INDEX idx_custom_order_details_order_id ON custom_order_details(order_id);
 CREATE INDEX idx_shipping_details_order_id ON shipping_details(order_id);
 
+
+-- products:
+INSERT INTO products (name, category, price, image_url, intended_audience) VALUES
+('Birthday Bone Cake', 'Dog Cakes', 300.00, 'https://www.cakesforpets.fr/cdn/shop/files/GateauOSAnniversairebleuensemble.jpg?v=1740342583&width=360', 'pet'),
+('Peanut Butter Pupcake', 'Dog Cakes', 250.00, 'https://i0.wp.com/still-busy-baking.ca/wp-content/uploads/2024/03/DSC02147-1024x684.jpg?ssl=1', 'pet'),
+('Tuna Celebration Cake', 'Cat Cakes', 350.00, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3phTn8M5Qo6c3bJvHkwkE8N5HqL6dR_DQ0Q&s', 'pet'),
+('Carrot & Honey Dog Cake', 'Dog Cakes', 500.00, 'https://www.obsessivecooking.com/wp-content/uploads/2023/05/carrot-banana-dog-fox-cake-2-1200.jpg', 'pet'),
+('Millet Seed Cake', 'Bird Cakes', 200.00, NULL, 'pet'),
+('Bacon Birthday Cake', 'Dog Cakes', 250.00, NULL, 'pet'),
+('Salmon Kitty Cake', 'Cat Cakes', 500.00, 'https://www.allrecipes.com/thmb/Os1uL1-9PAkhAC8qXPksBUQEt6k=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/AR-265170-birthday-cake-for-your-cat-DDMFS-4x3-Beauty-6aa665121db148d0ae60b741551f8fe5.jpg', 'pet'),
+('Sweet Potato Celebration', 'Dog Cakes', 480.00, 'https://www.cakesforpets.fr/cdn/shop/files/CakeetDonutsAnniversaireroseboite.jpg?v=1745331300&width=360', 'pet'),
+('Cat Training Cake', 'Training Cakes', 308.00, 'https://www.cakesforpets.fr/cdn/shop/files/friandisepoissonsaumonbetterave.jpg?v=1744831815&width=360', 'pet'),
+('Apple Cinnamon Pup Cake', 'Dog Cakes', 220.00, 'https://www.cakesforpets.fr/cdn/shop/files/friandisedemispherepouletcarotte.jpg?v=1744831742&width=360', 'pet'),
+('Catnip Dream Cake', 'Cat Cakes', 157.00, 'https://www.cakesforpets.fr/cdn/shop/files/BonbonnieresFriandises3.jpg?v=1740343109&width=360', 'pet'),
+('Fruit & Nut Bird Cake', 'Bird Cakes', 567.00, 'https://www.cakesforpets.fr/cdn/shop/files/Biscuitpommebananepourchien.jpg?v=1740589320&width=360', 'pet'),
+('Liver & Cheese Cake', 'Dog Cakes', 234.00, 'https://www.cakesforpets.fr/cdn/shop/files/friandisemadelainesaumonbetterave.jpg?v=1740345692&width=360', 'pet'),
+('Mini Training Cupcakes', 'Training Cakes', 345.00, 'https://example.com/mini-training-cupcakes.jpg', 'pet'),
+('Mackerel Party Cake', 'Cat Cakes', 187.00, 'https://www.cakesforpets.fr/cdn/shop/files/rriandisegaufreboeufcourgette.jpg?v=1740345581&width=360', 'pet'),
+('Pumpkin Spice Pup Cake', 'Dog Cakes', 345.00, 'https://www.cakesforpets.fr/cdn/shop/files/IMG_0868.jpg?v=1745321700&width=493', 'pet'),
+('Vanilla Birthday Cake', 'Dog Cakes', 250.00, 'https://www.cakesforpets.fr/cdn/shop/files/IMG_0882.jpg?v=1744744091&width=493', 'pet'),
+('Fish Fiesta Cake', 'Cat Cakes', 200.00, 'https://www.cakesforpets.fr/cdn/shop/files/pattechienrose.png?v=1742934678&width=493', 'pet'),
+('Coconut Bird Cake', 'Bird Cakes', 180.00, 'https://www.cakesforpets.fr/cdn/shop/files/Boxe_Patisseries_Donuts_Patte_de_Chien_animal.jpg?v=1745872623&width=823', 'pet'),
+('Beef & Veggie Cake', 'Dog Cakes', 125.00, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8fWgXGOGQGUOWfsgu7rxfNvw0QUUNfQmquNjZrsEvGoO5eyDB4kEzB2HB7r_SjxOcxRQ&usqp=CAU', 'pet'),
+('Chocolate Delight', 'birthday', 25.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Classic-Chocolate.jpg', 'human'),
+('Vanilla Dream', 'wedding', 30.00, 'https://tessasbakery.co.za/wp-content/uploads/2024/08/Untitled-design-3.png', 'human'),
+('Red Velvet Bliss', 'custom', 28.50, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Red-Velvet-1024x1024.jpg', 'human'),
+('Lemon Zest', 'seasonal', 22.00, 'https://tessasbakery.co.za/wp-content/uploads/2015/06/New_Lemon_Mer-1-700x700.jpg', 'human'),
+('Carrot Crunch', 'mini', 18.00, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVYxJDv7lEsZ3agTTeULKWi3P3NZ1Me4wg-g&s', 'human'),
+('Carrot Cheese', 'birthday', 26.00, NULL, 'human'),
+('Blue Velvet', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Blue-Velvet-Cakes-700x700.jpg', 'human'),
+('Chai Latte Cake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Chai_Cake-700x700.jpg', 'human'),
+('Chocolate Caramel Cake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_ChocCar-700x700.jpg', 'human'),
+('Death By Chocolate Cake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Death-by-Chocolate-700x700.jpg', 'human'),
+('Let It Go', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2017/04/4-1-700x700.png', 'human'),
+('Dusty Rose', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-DUSTYROSE-1-700x700.jpg', 'human'),
+('Blush Pink Fun-Size', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-PINK-700x700.jpg', 'human'),
+('Mini Lunchbox', 'birthday', 26.00, NULL, 'human'),
+('Pink Rose Cascade Cake', 'birthday', 26.00, 'https://ohmycake.co.za/wp-content/uploads/2024/04/Pink-rose-cascade-cake-768x768.jpg', 'human'),
+('Sprinkle Baby Gift Cake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-10.png', 'human'),
+('Oreo Mini Gift Cake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-5-1-700x700.png', 'human'),
+('Nutella Mini Gift Cake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-7-1-700x700.png', 'human'),
+('Vegan Oreo Cake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Vegan_Oreo-700x700.jpg', 'human'),
+('Orea New York Baked CheeseCake', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2024/09/Untitled-design.zip-3-1-669x669.png', 'human'),
+('Unicorn Fun Size', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-UNICORNS-700x700.jpg', 'human'),
+('Strawberry Fun Size', 'birthday', 26.00, 'https://tessasbakery.co.za/wp-content/uploads/2025/07/New-Product-Shots-Products-6.png', 'human');
 -- Insert 5 new cakes related to product_id=1 (Celebration Layer Cake)
 INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
 VALUES

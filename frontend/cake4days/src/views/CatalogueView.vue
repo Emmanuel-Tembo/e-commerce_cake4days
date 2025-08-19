@@ -5,7 +5,7 @@
   
 
     
-    <div v-if="showCart" class="cart-dropdown">
+    <!-- <div v-if="showCart" class="cart-dropdown">
       <div class="cart-header">
         <h3>Shopping Cart</h3>
         <button @click="toggleCart" class="close-cart">×</button>
@@ -36,7 +36,7 @@
           <button class="checkout-btn">Checkout</button>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Catalog Content -->
     <section class="catalog-hero">
@@ -155,7 +155,7 @@
             
             <div class="price-section">
               <span class="modal-price">${{ selectedCake.price.toFixed(2) }}</span>
-              <button class="add-to-cart" @click="addToCart(selectedCake)">
+              <button class="add-to-cart" @click="addToCart(cake)">
                 <i class="fas fa-shopping-cart"></i> Add to Cart
               </button>
             </div>

@@ -2,45 +2,44 @@
     <NavComp />
     <NavbarComp />
     <div class="container-fluid">
-        
-                <div class="cart-content">
-                    <div v-if="cartItems.length > 0">
-                        <div v-for="item in cartItems" :key="item.id" class="cart-item">
-                            <div class="cart-item-info">
-                                <h4>{{ item.name }}</h4>
-                                <p class="cart-item-type">{{ item.type }}</p>
-                                <div class="cart-item-controls">
-                                    <button @click="decreaseQuantity(item.id)" class="quantity-btn">-</button>
-                                    <span class="quantity">{{ item.quantity }}</span>
-                                    <button @click="increaseQuantity(item.id)" class="quantity-btn">+</button>
-                                </div>
-                            </div>
-                            <div class="cart-item-price">
-                                <span>${{ (item.price * item.quantity).toFixed(2) }}</span>
-                                <button @click="removeFromCart(item.id)" class="remove-btn">Remove</button>
-                            </div>
+
+        <!-- <div class="cart-content">
+            <div v-if="cartItems.length > 0">
+                <div v-for="item in cartItems" :key="item.id" class="cart-item">
+                    <div class="cart-item-info">
+                        <h4>{{ item.name }}</h4>
+                        <p class="cart-item-type">{{ item.type }}</p>
+                        <div class="cart-item-controls">
+                            <button @click="decreaseQuantity(item.id)" class="quantity-btn">-</button>
+                            <span class="quantity">{{ item.quantity }}</span>
+                            <button @click="increaseQuantity(item.id)" class="quantity-btn">+</button>
                         </div>
-                        <div class="cart-total">
-                            <strong>Total: ${{ cartTotal.toFixed(2) }}</strong>
-                        </div>
-                        <button class="checkout-btn">Checkout</button>
                     </div>
-        </div>
-        <div class="background-section"
-        :style="{
-             backgroundImage: 'url(https://www.cakesforpets.fr/cdn/shop/files/AA.jpg?v=1745007535&width=3840)', 
-      backgroundSize: 'cover', 
-      backgroundPosition: 'center', 
-      padding: '70px 0' 
-    
-        }">
-        <section class="hero-section">
-            <div class="hero-content">
-                <h1>Delicious Cakes For Your Furry Friends</h1>
-                <p>Premium quality pet cakes made with natural ingredients your pets will love</p>
-                <button class="shop-button">Shop Now</button>
+                    <div class="cart-item-price">
+                        <span>${{ (item.price * item.quantity).toFixed(2) }}</span>
+                        <button @click="removeFromCart(item.id)" class="remove-btn">Remove</button>
+                    </div>
+                </div>
+                <div class="cart-total">
+                    <strong>Total: ${{ cartTotal.toFixed(2) }}</strong>
+                </div>
+                <button class="checkout-btn">Checkout</button>
             </div>
-        </section>
+        </div> -->
+        <div class="background-section" :style="{
+            backgroundImage: 'url(https://www.cakesforpets.fr/cdn/shop/files/AA.jpg?v=1745007535&width=3840)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            padding: '70px 0'
+
+        }">
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1>Delicious Cakes For Your Furry Friends</h1>
+                    <p>Premium quality pet cakes made with natural ingredients your pets will love</p>
+                    <button class="shop-button">Shop Now</button>
+                </div>
+            </section>
         </div>
 
         <main class="main-layout">
@@ -60,7 +59,7 @@
                     <label><input type="checkbox" v-model="priceFilters" value="over650">Over R650</label>
                 </div>
             </aside>
-            
+
             <section class="product-grid">
                 <div class="grid-header">
                     <h2>Pet Cakes</h2>
@@ -70,7 +69,7 @@
                         <button @click="clearSearch" class="clear-search">Clear Search</button>
                     </div>
                 </div>
-                
+
                 <!-- Display a loading message while data is being fetched -->
                 <div v-if="isLoading" class="loading-message">
                     <p>Loading products...</p>
@@ -86,7 +85,7 @@
                             <div class="stars">
                                 <i class="fas fa-star" v-for="star in 5" :key="star"></i>
                             </div>
-                            <span class="rating-text">({{ product.reviews }})</span>     
+                            <span class="rating-text">({{ product.reviews }})</span>
                         </div>
                         <h4>{{ product.name }}</h4>
                         <p class="product-type">{{ product.type }}</p>
@@ -96,7 +95,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Display a message if no products are found after loading -->
                 <div v-else class="no-results">
                     <p>No cakes found matching your search criteria.</p>
@@ -123,25 +122,29 @@ export default {
         NavbarComp,
         FootComp
     },
-    setup(){
+    setup() {
         const cartStore = useCartStore();
-
+        
+        // Use storeToRefs to get reactive references to state properties
         const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
 
-        const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity } = cartStore;
+        // Get ALL actions directly from the store
+        const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity, addToCart } = cartStore;
+
 
         return {
-              // Expose all necessary state and actions to the template
-              cartItems,
-              totalItems,
-              subtotal,
-              isCartOpen,
-              toggleCart,
-              removeFromCart,
-              increaseQuantity,
-              decreaseQuantity,
-              cartStore, // <--- EXPOSE THE CART STORE HERE
-            };
+            // Expose all necessary state and actions to the template
+            cartItems,
+            totalItems,
+            subtotal,
+            isCartOpen,
+            toggleCart,
+            removeFromCart,
+            increaseQuantity,
+            decreaseQuantity,
+            cartStore,
+            addToCart, 
+        };
     },
 
     data() {
@@ -149,8 +152,6 @@ export default {
             selectedCategory: '',
             priceFilters: [],
             showCart: false,
-            cartItems: [],
-            // ADDED: A loading state to handle asynchronous data fetching
             isLoading: true,
         };
     },
@@ -179,7 +180,7 @@ export default {
             // Filter by search term from the Vuex store
             if (this.searchTerm) {
                 const searchLower = this.searchTerm.toLowerCase();
-                filtered = filtered.filter(product => 
+                filtered = filtered.filter(product =>
                     product.name.toLowerCase().includes(searchLower) ||
                     product.type.toLowerCase().includes(searchLower)
                 );
@@ -204,21 +205,17 @@ export default {
 
             return filtered;
         },
-        cartCount() {
-            return this.cartItems.reduce((total, item) => total + item.quantity, 0);
-        },
-        cartTotal() {
-            return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-        }
+        // cartCount() {
+        //     return this.cartItems.reduce((total, item) => total + item.quantity, 0);
+        // },
+        // cartTotal() {
+        //     return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+        // }
     },
     methods: {
         goToCart() {
             this.$router.push({ name: 'CartView' });
         },
-        // The search logic is now in the NavComp, this is not needed here
-        // performSearch() {
-        //     this.searchTerm = this.searchInput.trim();
-        // },
         filterByCategory(category) {
             this.selectedCategory = this.selectedCategory === category ? '' : category;
             this.$store.commit('clearSearchTerm'); // Clear search term when filtering by category
@@ -232,7 +229,7 @@ export default {
             this.$store.commit('clearSearchTerm');
         },
         addToCart(product) {
-            const existingItem = this.cartItems.find(item => item.id === product.id);
+            const existingItem = this.cartItems.find(item => item.product_id === product.product_id);
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
@@ -299,63 +296,64 @@ export default {
     position: sticky;
     top: 0;
     z-index: 80;
-        width: 100%;
-        left: 0;
-        right: auto;
-        margin-left: 0;
-        padding: 40px 0 0 0;
+    width: 100%;
+    left: 0;
+    right: auto;
+    margin-left: 0;
+    padding: 40px 0 0 0;
 }
 
 .header-content {
-        width: 100%;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 60px;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 60px;
 }
 
 .logo h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #e91e63;
-  margin: 0;
-  font-family: 'Dancing Script' , cursive;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 28px;
+    font-weight: 700;
+    color: #e91e63;
+    margin: 0;
+    font-family: 'Dancing Script', cursive;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .nav-links {
-  display: flex;
-  gap: 30px;
+    display: flex;
+    gap: 30px;
 }
 
 .nav-links a {
-  text-decoration: none;
-  color: #555;
-  font-weight: 500;
-  transition: color 0.3s;
-   font-size: 16px;
-  position: relative;
-  padding: 5px 0;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    transition: color 0.3s;
+    font-size: 16px;
+    position: relative;
+    padding: 5px 0;
 }
 
 .nav-links a:hover {
-  color: #d23c67;
-  font-weight: 600;
+    color: #d23c67;
+    font-weight: 600;
 }
 
 .nav-links a.active {
-  color: #d23c67;
-  font-weight: 600;
+    color: #d23c67;
+    font-weight: 600;
 }
+
 .nav-links a.active:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #e91e63;
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #e91e63;
 }
 
 .search-container {
@@ -368,80 +366,86 @@ export default {
     background: #fff;
     transition: all 0.3s;
 }
+
 .search-container:focus-within {
-  border-color: #e91e63;
-  box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.2);
+    border-color: #e91e63;
+    box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.2);
 }
+
 .search-container input {
-  border: none;
-  outline: none;
-  width: 100%;
-  padding: 5px;
-  font-size: 14px;
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
 }
 
 .search-container button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #777;
-  transition: color 0.3s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #777;
+    transition: color 0.3s;
 }
 
 .user-icon {
-  color: #555;
-  cursor: pointer;
+    color: #555;
+    cursor: pointer;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .header-content {
-    flex-wrap: wrap;
-    gap: 15px;
-  }
-  
-  .nav-links {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .search-container {
-    width: 200px;
-  }
+    .header-content {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .search-container {
+        width: 200px;
+    }
 }
+
 .pet-treats-view {
     font-family: 'Poppins', sans-serif;
-    background: #fff5f7; /* Very light pink background */
+    background: #fff5f7;
+    /* Very light pink background */
     min-height: 100vh;
 }
 
 /* .header { */
-    /* display: flex;
+/* display: flex;
     justify-content: space-between;
     align-items: center;
     background: rgba(197, 137, 146, 0.9); /* Light pink header */
-    /* padding: 1rem 2rem;
+/* padding: 1rem 2rem;
     min-height: 30px;
     position: relative;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-} */ 
+} */
 .header-background {
-  /* background-image: url('https://ohmycake.co.za/wp-content/uploads/2025/05/All-Cakes-Banner-Desktop_1920x600px.webp');
+    /* background-image: url('https://ohmycake.co.za/wp-content/uploads/2025/05/All-Cakes-Banner-Desktop_1920x600px.webp');
   background-size: cover; */
-  background-position: center;
-  background-repeat: no-repeat;
-  width: 100%;
-  min-height: 300px; /* Adjust as needed */
-  position: relative;
-  padding: 30px 0;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    min-height: 300px;
+    /* Adjust as needed */
+    position: relative;
+    padding: 30px 0;
 }
 
 .logo {
-    
+
     padding: 0.8rem 1.5rem;
     border-radius: 15px;
-    color: #181617; /* Dark pink text */
+    color: #181617;
+    /* Dark pink text */
     font-weight: bold;
     font-size: 1.2rem;
     letter-spacing: 1px;
@@ -466,7 +470,8 @@ export default {
 }
 
 .search-input:focus {
-    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.3); /* Hot pink shadow */
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.3);
+    /* Hot pink shadow */
 }
 
 .search-icon {
@@ -474,14 +479,16 @@ export default {
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
-    color: #d23c67; /* Dark pink */
+    color: #d23c67;
+    /* Dark pink */
     cursor: pointer;
     transition: color 0.3s ease;
     z-index: 10;
 }
 
 .search-icon:hover {
-    color: #ff1493; /* Deep pink */
+    color: #ff1493;
+    /* Deep pink */
 }
 
 .header-actions {
@@ -513,7 +520,8 @@ export default {
     position: absolute;
     top: -5px;
     right: -5px;
-    background: #ff6b8b; /* Coral pink */
+    background: #ff6b8b;
+    /* Coral pink */
     color: white;
     border-radius: 50%;
     width: 20px;
@@ -533,10 +541,12 @@ export default {
     max-height: 500px;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(210, 60, 103, 0.2); /* Pink shadow */
+    box-shadow: 0 10px 30px rgba(210, 60, 103, 0.2);
+    /* Pink shadow */
     z-index: 1000;
     overflow: hidden;
-    border: 1px solid #ffc0cb; /* Light pink border */
+    border: 1px solid #ffc0cb;
+    /* Light pink border */
 }
 
 .cart-header {
@@ -544,39 +554,46 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid #ffe5ec; /* Very light pink */
-    background: #fff0f5; /* Lavender blush */
+    border-bottom: 1px solid #ffe5ec;
+    /* Very light pink */
+    background: #fff0f5;
+    /* Lavender blush */
 }
 
 .cart-header h3 {
     margin: 0;
-    color: #d23c67; /* Dark pink */
+    color: #d23c67;
+    /* Dark pink */
     font-size: 1.3rem;
 }
 
 .hero-section {
     padding: 4rem 2rem;
     text-align: center;
-    
+
 }
 
 .hero-content {
     max-width: 800px;
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.7);
-    
+
     padding: 3rem;
     border-radius: 30px;
     box-shadow: 0 10px 30px rgba(210, 60, 103, 0.1);
     border: 1px solid #ffc0cb;
 }
+
 .hero-content:hover {
-    background: #eaa1b6; /* Dark pink */
+    background: #eaa1b6;
+    /* Dark pink */
     transform: translateY(-2px);
 }
+
 .hero-content h1 {
     font-size: 2.5rem;
-    color: #d23c67; /* Dark pink */
+    color: #d23c67;
+    /* Dark pink */
     margin-bottom: 1rem;
     font-weight: bold;
 }
@@ -589,7 +606,8 @@ export default {
 }
 
 .shop-button {
-    background: #ff6b8b; /* Coral pink */
+    background: #ff6b8b;
+    /* Coral pink */
     color: white;
     padding: 1rem 2.5rem;
     border: none;
@@ -602,7 +620,8 @@ export default {
 }
 
 .shop-button:hover {
-    background: #d23c67; /* Dark pink */
+    background: #d23c67;
+    /* Dark pink */
     transform: translateY(-2px);
 }
 
@@ -625,7 +644,8 @@ export default {
 }
 
 .sidebar h3 {
-    color: #d23c67; /* Dark pink */
+    color: #d23c67;
+    /* Dark pink */
     font-size: 1.3rem;
     margin-bottom: 1.5rem;
     font-weight: bold;
@@ -651,12 +671,15 @@ export default {
 }
 
 .category-list a:hover {
-    background: #fff0f5; /* Lavender blush */
-    color: #d23c67; /* Dark pink */
+    background: #fff0f5;
+    /* Lavender blush */
+    color: #d23c67;
+    /* Dark pink */
 }
 
 .price-filter h4 {
-    color: #d23c67; /* Dark pink */
+    color: #d23c67;
+    /* Dark pink */
     margin-bottom: 1rem;
     font-weight: 600;
 }
@@ -677,7 +700,8 @@ export default {
 }
 
 .grid-header h2 {
-    color: #d23c67; /* Dark pink */
+    color: #d23c67;
+    /* Dark pink */
     font-size: 2rem;
     margin-bottom: 0.5rem;
     font-weight: bold;
@@ -713,7 +737,8 @@ export default {
 
 .product-image {
     position: relative;
-    background: #fff0f5; /* Lavender blush */
+    background: #fff0f5;
+    /* Lavender blush */
     border-radius: 15px;
     height: 200px;
     display: flex;
@@ -732,7 +757,8 @@ export default {
 }
 
 .product-card h4 {
-    color: #d23c67; /* Dark pink */
+    color: #d23c67;
+    /* Dark pink */
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
     font-weight: 600;
@@ -745,13 +771,15 @@ export default {
 }
 
 .price {
-    color: #ff6b8b; /* Coral pink */
+    color: #ff6b8b;
+    /* Coral pink */
     font-size: 1.4rem;
     font-weight: bold;
 }
 
 .add-cart-btn {
-    background: #ff6b8b; /* Coral pink */
+    background: #ff6b8b;
+    /* Coral pink */
     color: white;
     border: none;
     padding: 8px 16px;
@@ -763,7 +791,8 @@ export default {
 }
 
 .add-cart-btn:hover {
-    background: #d23c67; /* Dark pink */
+    background: #d23c67;
+    /* Dark pink */
 }
 
 /* Cart item styling */
@@ -777,17 +806,20 @@ export default {
 }
 
 .remove-btn {
-    background: #ff6b8b; /* Coral pink */
+    background: #ff6b8b;
+    /* Coral pink */
     color: white;
 }
 
 .checkout-btn {
-    background: #ff6b8b; /* Coral pink */
+    background: #ff6b8b;
+    /* Coral pink */
     color: white;
 }
 
 .checkout-btn:hover {
-    background: #d23c67; /* Dark pink */
+    background: #d23c67;
+    /* Dark pink */
 }
 
 /* Responsive Design */
@@ -795,11 +827,11 @@ export default {
     .main-layout {
         flex-direction: column;
     }
-    
+
     .sidebar {
         width: 100%;
     }
-    
+
     .products-container {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     }

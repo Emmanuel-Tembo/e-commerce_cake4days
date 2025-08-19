@@ -11,8 +11,11 @@ export default createStore({
     user: null, 
     isAuthenticated: false, 
     isAdmin: false,
-    products: [], // ADDED: New state property to hold product data
-    searchTerm: '', // NEW: State property for the search term
+    products: [],
+    searchTerm: '', 
+    petProducts: [],
+    humanProducts: [],
+    podProducts: [],
   },
   getters: {
     currentUser: (state) => state.user,
@@ -67,6 +70,22 @@ export default createStore({
         throw e;
       }
     },
+
+    async loginAdmin({ commit }, credentials) {
+    try {
+      const response = await axios.post('/auth/login/admin', credentials);
+      
+      // The backend returns a complete user object on admin login
+      // so we can use the same setAuth mutation
+      commit('setAuth', response.data.user); 
+      
+      return response.data.user;
+    } catch (e) {
+      console.error('Admin login failed:', e.response?.data?.message || e.message);
+      throw e;
+    }
+  },
+
     async logout({ commit }) {
       try {
         await axios.post('/auth/logout');

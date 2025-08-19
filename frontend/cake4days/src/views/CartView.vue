@@ -68,7 +68,7 @@
           <span>R{{ cartTotal.toFixed(2) }}</span>
         </div>
         
-        <button class="checkout-btn">Proceed to Checkout</button>
+        <button class="checkout-btn" @click="$router.push('/payment/checkout')">Proceed to Checkout</button>
         
         <p class="continue-shopping" @click="$router.push('/')">
           ← Continue Shopping

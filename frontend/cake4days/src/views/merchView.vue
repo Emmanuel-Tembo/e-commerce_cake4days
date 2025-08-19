@@ -88,7 +88,7 @@
               <button @click="quantity++">+</button>
             </div>
 
-            <button class="add-to-cart" @click="addSelectedToCart">
+            <button class="add-to-cart" @click="addToCart(item)">
               Add to Cart
             </button>
           </div>
@@ -116,11 +116,10 @@ export default {
   setup(){
     const cartStore = useCartStore();
 
-    // Use storeToRefs to get reactive references to state properties
     const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
 
-    // Get actions directly from the store
-    const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity } = cartStore;
+    // Get ALL actions directly from the store, including addToCart
+    const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity, addToCart } = cartStore;
 
     return {
       // Expose all necessary state and actions to the template
@@ -132,7 +131,7 @@ export default {
       removeFromCart,
       increaseQuantity,
       decreaseQuantity,
-      cartStore, // <--- EXPOSE THE CART STORE HERE
+      addToCart,
     };
   },
   data() {
@@ -197,7 +196,6 @@ export default {
           image: 'https://m.media-amazon.com/images/I/71QN+4YrZAL._AC_UL1500_.jpg'
         }
       ],
-      cartItems: []
     }
   },
   computed: {
@@ -229,14 +227,6 @@ export default {
         });
       }
       this.showToast(`${item.name} added to cart!`);
-    },
-    addSelectedToCart() {
-      this.addToCart({
-        ...this.selectedItem,
-        selectedSize: this.selectedSize,
-        quantity: this.quantity
-      });
-      this.selectedItem = null;
     },
     handleImageError(event) {
       event.target.src = 'https://via.placeholder.com/300x300?text=Merch+Image';

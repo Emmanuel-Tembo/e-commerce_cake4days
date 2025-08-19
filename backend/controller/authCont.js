@@ -223,7 +223,15 @@ export const loginAdmin = async (req, res) => {
             maxAge: 3600000
         });
 
-        res.status(200).json({ message: 'Admin login successful' });
+        res.status(200).json({ 
+            message: 'Admin login successful', 
+            user: { 
+                userId: user.user_id, 
+                username: user.username, 
+                role: user.role,
+                email: user.email // Include email for a complete user object
+            } 
+});
     } catch (e) {
         console.error('Error during admin login: ', e);
         res.status(500).json({ message: 'Server error during login' });

@@ -14,6 +14,7 @@ import CheckoutPage from '../views/CheckoutPage.vue'
 import Dashboard from '../views/Dashboard.vue'
 import merchView from '@/views/merchView.vue'
 import aboutView from '@/views/aboutView.vue'
+import PaymenView from '@/views/paymenView.vue'
 
 
 
@@ -89,6 +90,11 @@ const routes = [
     path: '/custom-order',
     name: 'customOrder',
     component: CustomOrderPage
+  },
+  {
+    path: '/payment/checkout',
+    name: 'Payment',
+    component: PaymenView
   }
 ];
     
