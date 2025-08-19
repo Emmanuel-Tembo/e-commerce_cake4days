@@ -19,6 +19,7 @@
       </div>
     </main>
   </div>
+  <FootComp />
 </template>
 
 <script>
@@ -29,6 +30,7 @@ import OrderForm from '../components/OrderForm.vue';
 import ProductCard from '../components/ProductCard.vue';
 import { ref } from 'vue';
 import NavbarComp from '@/components/NavbarComp.vue';
+import FootComp from '@/components/FootComp.vue';
 
 export default {
   name: 'CustomOrderPage',
@@ -38,6 +40,7 @@ export default {
     ProductCard,
     NavComp,
     NavbarComp,
+    FootComp
   },
   setup() {
     const products = ref([

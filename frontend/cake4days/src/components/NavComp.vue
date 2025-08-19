@@ -49,12 +49,11 @@
 </template>
 
 <script>
-// No need to import other components here
 import { mapGetters } from 'vuex';
 import { useCartStore } from '@/store/cart';
 
 export default {
-  name: 'NavComp', // Changed to a unique, descriptive name
+  name: 'NavComp',
   data() {
     return {
       searchQuery: '',
@@ -70,7 +69,6 @@ export default {
       const cartStore = useCartStore();
       return cartStore.totalItems;
     },
-    
   },
   methods: {
     toggleCart() {
@@ -78,9 +76,26 @@ export default {
       cartStore.toggleCart();
     },
     handleSearch() {
-      if (this.searchQuery.trim()) {
-        this.$router.push({ name: 'catalogue', query: { q: this.searchQuery } });
+      const query = this.searchQuery.trim().toLowerCase();
+
+      if (query) {
+        // Commit the search term to the store
+        this.$store.commit('setSearchTerm', query);
+
+        // Check if the query is for pet treats and navigate accordingly
+        if (query.includes('pet') || query.includes('treats')) {
+          this.$router.push('/PetTreats');
+        } else {
+          // Navigate to the home page for all other searches
+          this.$router.push('/catalogue');
+        }
+      } else {
+        // If the search query is empty, just clear the search term
+        this.$store.commit('clearSearchTerm');
       }
+
+      // Clear the input field for the next search
+      this.searchQuery = '';
     },
     getHeaderBackground() {
       if (!this.headerBackgroundImage) {
@@ -90,7 +105,6 @@ export default {
     },
     HandleProfileClick() {
       if (this.isLoggedIn) {
-        // Since ProfileModal is now in the parent, emit an event to tell the parent to show it.
         this.$emit('show-profile-modal');
       } else {
         this.$router.push({ name: 'sign' });

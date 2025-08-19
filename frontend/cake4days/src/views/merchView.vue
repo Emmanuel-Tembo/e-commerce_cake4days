@@ -95,10 +95,12 @@
         </div>
       </div>
     </div>
+    <FootComp />
   </div>
 </template>
 
 <script>
+import FootComp from '@/components/FootComp.vue';
 import NavbarComp from '@/components/NavbarComp.vue';
 import NavComp from '@/components/NavComp.vue';
 
@@ -106,6 +108,7 @@ export default {
   components: {
     NavComp,
     NavbarComp,
+    FootComp
   },
   name: 'MerchPage',
   data() {
