@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../config/Db.js";
 
 // Get a custom order by its ID
 export const findCustomOrderById = async (orderId) => {

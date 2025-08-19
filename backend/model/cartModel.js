@@ -1,4 +1,4 @@
-import { pool } from '../config/db.js';
+import { pool } from '../config/Db.js';
 
 // Find a user's cart or create one if it doesn't exist
 export const findOrCreateCart = async (userId) => {

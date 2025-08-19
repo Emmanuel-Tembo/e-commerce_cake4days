@@ -4,9 +4,8 @@
   <div class="custom-order-page">
     <HeroImage />
     <main class="content-wrapper">
-      <h1 class="page-title">Create Your Dream Cake</h1>
       <OrderForm />
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-5">
+      <div class="product-grid">
         <ProductCard
           v-for="product in products"
           :key="product.id"
@@ -23,13 +22,12 @@
 </template>
 
 <script>
-// No need to import Navbar, as it is in your App.vue file
 import NavComp from '@/components/NavComp.vue';
+import NavbarComp from '@/components/NavbarComp.vue';
 import HeroImage from '../components/HeroImage.vue';
 import OrderForm from '../components/OrderForm.vue';
 import ProductCard from '../components/ProductCard.vue';
 import { ref } from 'vue';
-import NavbarComp from '@/components/NavbarComp.vue';
 import FootComp from '@/components/FootComp.vue';
 
 export default {
@@ -58,6 +56,13 @@ export default {
         image: "https://placehold.co/400x300/F5E0D5/333?text=Strawberry+Cake",
         description: "A light and fluffy cake with fresh strawberries."
       },
+      {
+        id: 3,
+        name: "Red Velvet Bliss",
+        price: 320.00,
+        image: "https://placehold.co/400x300/F5E0D5/333?text=Red+Velvet+Cake",
+        description: "A classic red velvet cake with delicious cream cheese frosting."
+      }
     ]);
 
     return {
@@ -70,34 +75,50 @@ export default {
 <style scoped>
 .custom-order-page {
   font-family: 'Poppins', sans-serif;
-  background-color: #e9deae; 
+  background-color: #f8f1e9;
   min-height: 100vh;
-  padding: 2rem;
+  padding-bottom: 2rem;
 }
 
 .content-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background: linear-gradient(#d38328, #f49d9dd5);
+  background: linear-gradient(135deg, #FFE5EC, #FFC0CB);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(255, 238, 0, 0.927);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   color: #333;
 }
 
 .page-title {
   text-align: center;
-  color: #ffeb38;
+  color: #D23C67;
   font-size: 2.5rem;
-  margin-bottom: 2rem;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(255, 0, 162, 0.899);
-  font-family: 'Poppins', cu;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: 0;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 </style>
