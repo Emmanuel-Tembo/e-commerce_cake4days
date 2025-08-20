@@ -2,17 +2,17 @@ import { createStore } from 'vuex';
 import axios from 'axios';
 
 // Set a base URL for all API requests to make them cleaner
-axios.defaults.baseURL = 'http://localhost:9090'; 
+axios.defaults.baseURL = 'http://localhost:9090';
 // Set this header so cookies are sent with every request
 axios.defaults.withCredentials = true;
 
 export default createStore({
   state: {
-    user: null, 
-    isAuthenticated: false, 
+    user: null,
+    isAuthenticated: false,
     isAdmin: false,
     products: [],
-    searchTerm: '', 
+    searchTerm: '',
     petProducts: [],
     humanProducts: [],
     podProducts: [],
@@ -42,7 +42,17 @@ export default createStore({
     },
     // NEW: Mutation to clear the search term
     clearSearchTerm(state) {
-        state.searchTerm = '';
+      state.searchTerm = '';
+    },
+    // NEW MUTATIONS for each product type
+    setPetProducts(state, products) {
+      state.petProducts = products;
+    },
+    setHumanProducts(state, products) {
+      state.humanProducts = products;
+    },
+    setPodProducts(state, products) {
+      state.podProducts = products;
     },
   },
   actions: {
@@ -54,7 +64,7 @@ export default createStore({
         // After successful registration, you might want to automatically log the user in
         // or redirect them to the login page.
         // For now, we'll just return true.
-        return true; 
+        return true;
       } catch (e) {
         console.error('Registration failed:', e.response?.data?.message || e.message);
         throw e;
@@ -72,19 +82,19 @@ export default createStore({
     },
 
     async loginAdmin({ commit }, credentials) {
-    try {
-      const response = await axios.post('/auth/login/admin', credentials);
-      
-      // The backend returns a complete user object on admin login
-      // so we can use the same setAuth mutation
-      commit('setAuth', response.data.user); 
-      
-      return response.data.user;
-    } catch (e) {
-      console.error('Admin login failed:', e.response?.data?.message || e.message);
-      throw e;
-    }
-  },
+      try {
+        const response = await axios.post('/auth/login/admin', credentials);
+
+        // The backend returns a complete user object on admin login
+        // so we can use the same setAuth mutation
+        commit('setAuth', response.data.user);
+
+        return response.data.user;
+      } catch (e) {
+        console.error('Admin login failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    },
 
     async logout({ commit }) {
       try {
@@ -120,7 +130,7 @@ export default createStore({
         throw e;
       }
     },
-    
+
     // UPDATED ACTION to send the new password and token in the request body
     async resetPassword({ commit }, payload) {
       // The payload now contains the token and newPassword
@@ -135,21 +145,79 @@ export default createStore({
     },
 
     // ADDED: New action to fetch products from the backend and fix the data type
+    // async fetchProducts({ commit }) {
+    //   try {
+    //     const response = await axios.get('/products/getAll');
+    //     // Assuming your backend returns an array of products in a 'results' property
+    //     const products = response.data.data.map(product => ({
+    //       ...product,
+    //       price: parseFloat(product.price) // CONVERTING PRICE TO A NUMBER
+    //     }));
+
+    //     commit('setProducts', products);
+    //   } catch (error) {
+    //     console.error('Error fetching products:', error);
+    //     // You can commit an empty array or handle the error state here
+    //     commit('setProducts', []);
+    //   }
     async fetchProducts({ commit }) {
       try {
         const response = await axios.get('/products/getAll');
-        // Assuming your backend returns an array of products in a 'results' property
         const products = response.data.data.map(product => ({
           ...product,
-          price: parseFloat(product.price) // CONVERTING PRICE TO A NUMBER
+          price: parseFloat(product.price)
         }));
-        
+
         commit('setProducts', products);
       } catch (error) {
         console.error('Error fetching products:', error);
-        // You can commit an empty array or handle the error state here
         commit('setProducts', []);
       }
     },
+
+    // NEW ACTION to fetch pet products
+    async fetchPetProducts({ commit }) {
+      try {
+        const response = await axios.get('/products/getPet');
+        const products = response.data.data.map(product => ({
+          ...product,
+          price: parseFloat(product.price)  
+        }));
+        commit('setPetProducts', products);
+      } catch (error) {
+        console.error('Error fetching pet products:', error);
+        commit('setPetProducts', []);
+      }
+    },
+
+    // NEW ACTION to fetch human products
+    async fetchHumanProducts({ commit }) {
+      try {
+        const response = await axios.get('/products/getHuman');
+        const products = response.data.data.map(product => ({
+          ...product,
+          price: parseFloat(product.price)
+        }));
+        commit('setHumanProducts', products);
+      } catch (error) {
+        console.error('Error fetching human products:', error);
+        commit('setHumanProducts', []);
+      }
+    },
+
+    // NEW ACTION to fetch POD products
+    async fetchPodProducts({ commit }) {
+      try {
+        const response = await axios.get('/products/getPod');
+        const products = response.data.data.map(product => ({
+          ...product,
+          price: parseFloat(product.price)
+        }));
+        commit('setPodProducts', products);
+      } catch (error) {
+        console.error('Error fetching POD products:', error);
+        commit('setPodProducts', []);
+      }
+    }
   },
 });

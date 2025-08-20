@@ -2,41 +2,6 @@
   <div class="app-container">
    <NavComp />
    <NavbarComp />
-  
-
-    
-    <!-- <div v-if="showCart" class="cart-dropdown">
-      <div class="cart-header">
-        <h3>Shopping Cart</h3>
-        <button @click="toggleCart" class="close-cart">×</button>
-      </div>
-      <div class="cart-content">
-        <div v-if="cartItems.length === 0" class="empty-cart">
-          <p>Your cart is empty</p>
-        </div>
-        <div v-else>
-          <div v-for="item in cartItems" :key="item.id" class="cart-item">
-            <div class="cart-item-info">
-              <h4>{{ item.name }}</h4>
-              <p class="cart-item-type">{{ item.type }}</p>
-              <div class="cart-item-controls">
-                <button @click="decreaseQuantity(item.id)" class="quantity-btn">-</button>
-                <span class="quantity">{{ item.quantity }}</span>
-                <button @click="increaseQuantity(item.id)" class="quantity-btn">+</button>
-              </div>
-            </div>
-            <div class="cart-item-price">
-              <span>${{ (item.price * item.quantity).toFixed(2) }}</span>
-              <button @click="removeFromCart(item.id)" class="remove-btn">Remove</button>
-            </div>
-          </div>
-          <div class="cart-total">
-            <strong>Total: ${{ cartTotal.toFixed(2) }}</strong>
-          </div>
-          <button class="checkout-btn">Checkout</button>
-        </div>
-      </div>
-    </div> -->
 
     <!-- Catalog Content -->
     <section class="catalog-hero">

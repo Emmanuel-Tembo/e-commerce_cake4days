@@ -2,30 +2,6 @@
     <NavComp />
     <NavbarComp />
     <div class="container-fluid">
-
-        <!-- <div class="cart-content">
-            <div v-if="cartItems.length > 0">
-                <div v-for="item in cartItems" :key="item.id" class="cart-item">
-                    <div class="cart-item-info">
-                        <h4>{{ item.name }}</h4>
-                        <p class="cart-item-type">{{ item.type }}</p>
-                        <div class="cart-item-controls">
-                            <button @click="decreaseQuantity(item.id)" class="quantity-btn">-</button>
-                            <span class="quantity">{{ item.quantity }}</span>
-                            <button @click="increaseQuantity(item.id)" class="quantity-btn">+</button>
-                        </div>
-                    </div>
-                    <div class="cart-item-price">
-                        <span>${{ (item.price * item.quantity).toFixed(2) }}</span>
-                        <button @click="removeFromCart(item.id)" class="remove-btn">Remove</button>
-                    </div>
-                </div>
-                <div class="cart-total">
-                    <strong>Total: ${{ cartTotal.toFixed(2) }}</strong>
-                </div>
-                <button class="checkout-btn">Checkout</button>
-            </div>
-        </div> -->
         <div class="background-section" :style="{
             backgroundImage: 'url(https://www.cakesforpets.fr/cdn/shop/files/AA.jpg?v=1745007535&width=3840)',
             backgroundSize: 'cover',
@@ -48,7 +24,7 @@
                 <ul class="category-list">
                     <li><a href="#" @click.prevent="filterByCategory('Dog Cakes')">Dog Cakes</a></li>
                     <li><a href="#" @click.prevent="filterByCategory('Cat Cakes')">Cat Cakes</a></li>
-                    <li><a href="#" @click.prevent="filterByCategory('Bird Cakes')">Bird Cakes</a></li>
+                    <!-- <li><a href="#" @click.prevent="filterByCategory('Bird Cakes')">Bird Cakes</a></li> -->
                     <li><a href="#" @click.prevent="filterByCategory('Training Cakes')">Training Cakes</a></li>
                     <li><a href="#" @click.prevent="showAllProducts">Show All</a></li>
                 </ul>
@@ -79,13 +55,13 @@
                 <div v-else-if="filteredProducts.length > 0" class="products-container">
                     <div class="product-card" v-for="product in filteredProducts" :key="product.id">
                         <div class="product-image">
-                            <img :src="product.image" :alt="product.name" @error="handleImageError">
+                            <img :src="product.image_url" :alt="product.name" @error="handleImageError">
                         </div>
                         <div class="product-rating">
                             <div class="stars">
                                 <i class="fas fa-star" v-for="star in 5" :key="star"></i>
                             </div>
-                            <span class="rating-text">({{ product.reviews }})</span>
+                            <span class="rating-text">({{ product.total_reviews }})</span>
                         </div>
                         <h4>{{ product.name }}</h4>
                         <p class="product-type">{{ product.type }}</p>
@@ -113,7 +89,7 @@ import NavbarComp from '@/components/NavbarComp.vue';
 import NavComp from '@/components/NavComp.vue';
 import { useCartStore } from '@/store/cart';
 import { storeToRefs } from 'pinia';
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
     name: 'PetTreatsView',
@@ -157,7 +133,7 @@ export default {
     },
     created() {
         // Dispatch the action and handle the promise to update the loading state
-        this.$store.dispatch('fetchProducts')
+        this.fetchPetProducts()
             .then(() => {
                 this.isLoading = false;
             })
@@ -167,15 +143,15 @@ export default {
             });
     },
     computed: {
-        ...mapState(['products', 'searchTerm']), // Added searchTerm to mapState
+        ...mapState(['petProducts', 'searchTerm']), // Added searchTerm to mapState
 
         filteredProducts() {
             // Check if products exist before filtering
-            if (!this.products) {
+            if (!this.petProducts) {
                 return [];
             }
 
-            let filtered = this.products;
+            let filtered = this.petProducts;
 
             // Filter by search term from the Vuex store
             if (this.searchTerm) {
@@ -188,16 +164,16 @@ export default {
 
             // Filter by category
             if (this.selectedCategory) {
-                filtered = filtered.filter(product => product.type === this.selectedCategory);
+                filtered = filtered.filter(fetchPetProducts => fetchPetProducts.type === this.selectedCategory);
             }
 
             // Filter by price ranges
             if (this.priceFilters.length > 0) {
-                filtered = filtered.filter(product => {
+                filtered = filtered.filter(fetchPetProducts => {
                     return this.priceFilters.some(range => {
-                        if (range === 'under300') return product.price < 300;
-                        if (range === '300to650') return product.price >= 300 && product.price <= 650;
-                        if (range === 'over650') return product.price > 650;
+                        if (range === 'under300') return fetchPetProducts.price < 300;
+                        if (range === '300to650') return fetchPetProducts.price >= 300 && fetchPetProducts.price <= 650;
+                        if (range === 'over650') return fetchPetProducts.price > 650;
                         return false;
                     });
                 });
@@ -205,14 +181,9 @@ export default {
 
             return filtered;
         },
-        // cartCount() {
-        //     return this.cartItems.reduce((total, item) => total + item.quantity, 0);
-        // },
-        // cartTotal() {
-        //     return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-        // }
     },
     methods: {
+        ...mapActions(['fetchPetProducts']),
         goToCart() {
             this.$router.push({ name: 'CartView' });
         },
@@ -239,7 +210,7 @@ export default {
                 });
             }
             // Optionally show feedback (toast, etc.)
-            this.showAddedToCartFeedback(product.name);
+            this.showAddedToCartFeedback(fetchPetProducts.name);
         },
         removeFromCart(productId) {
             const index = this.cartItems.findIndex(item => item.id === productId);

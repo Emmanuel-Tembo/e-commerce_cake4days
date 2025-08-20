@@ -12,12 +12,29 @@ export const getProducts = async () => {
 // New function to get products by intended_audience
 export const getProductsByAudience = async (audience) => {
     try {
-        let [rows] = await pool.query(`SELECT * FROM products WHERE intended_audience = ?`, [audience]);
+        const [rows] = await pool.query(
+            `
+            SELECT
+                p.*,
+                COALESCE(AVG(pr.rating), 0) AS average_rating,
+                COUNT(pr.review_id) AS total_reviews
+            FROM
+                products p
+            LEFT JOIN
+                product_reviews pr ON p.product_id = pr.product_id
+            WHERE
+                p.intended_audience = ?
+            GROUP BY
+                p.product_id;
+            `,
+            [audience]
+        );
         return rows;
     } catch (error) {
-        return error;
+        console.error("Error fetching products by audience:", error);
+        throw error;
     }
-}
+};
 
 export const Delete = async (id) => {
   try {
