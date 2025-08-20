@@ -53,7 +53,8 @@
 
                 <!-- Display products once they are loaded and not empty -->
                 <div v-else-if="filteredProducts.length > 0" class="products-container">
-                    <div class="product-card" v-for="product in filteredProducts" :key="product.id">
+                    <div class="product-card" v-for="product in filteredProducts" :key="product.product_id"
+                        @click="viewCakeDetail(product.product_id)">
                         <div class="product-image">
                             <img :src="product.image_url" :alt="product.name" @error="handleImageError">
                         </div>
@@ -67,10 +68,52 @@
                         <p class="product-type">{{ product.type }}</p>
                         <div class="product-footer">
                             <span class="price">R{{ product.price.toFixed(2) }}</span>
-                            <button class="add-cart-btn" @click="addToCart(product)">Add to Cart</button>
+                            
                         </div>
                     </div>
                 </div>
+
+                <div class="quick-view-modal" v-if="selectedTreat" @click.self="closeModal">
+    <div class="modal-content">
+        <button class="close-modal" @click="closeModal">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="modal-body">
+            <div class="modal-image">
+                <img :src="selectedTreat.image_url" :alt="selectedTreat.name">
+            </div>
+            <div class="modal-details">
+                <h2>{{ selectedTreat.name }}</h2>
+                <p class="modal-description">{{ selectedTreat.description }}</p>
+
+                <div class="modal-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-tag"></i>
+                        <span>{{ selectedTreat.category }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-user-friends"></i>
+                        <span v-if="selectedTreat.serves !== null">Serves {{ selectedTreat.serves }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span v-if="selectedTreat.preparation_time !== null">{{ selectedTreat.preparation_time }}</span>
+                    </div>
+                </div>
+
+                <div class="price-section">
+                    <span class="modal-price">R{{ selectedTreat.price.toFixed(2) }}</span>
+                    <button class="add-cart-btn" @click="addToCart(selectedTreat)">Add to Cart</button>
+                </div>
+
+                <div class="allergens" v-if="selectedTreat.allergens !== null">
+                    <h4>Allergens:</h4>
+                    <p>{{ selectedTreat.allergens }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Display a message if no products are found after loading -->
                 <div v-else class="no-results">
@@ -100,7 +143,7 @@ export default {
     },
     setup() {
         const cartStore = useCartStore();
-        
+
         // Use storeToRefs to get reactive references to state properties
         const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
 
@@ -119,7 +162,7 @@ export default {
             increaseQuantity,
             decreaseQuantity,
             cartStore,
-            addToCart, 
+            addToCart,
         };
     },
 
@@ -127,6 +170,7 @@ export default {
         return {
             selectedCategory: '',
             priceFilters: [],
+            selectedTreat: null,
             showCart: false,
             isLoading: true,
         };
@@ -187,6 +231,16 @@ export default {
         goToCart() {
             this.$router.push({ name: 'CartView' });
         },
+        viewCakeDetail(productId) {
+              // Find the product from the filteredProducts array using the product's 'id' property.
+    // The `productId` parameter is what is passed from the v-for loop.
+    this.selectedTreat = this.filteredProducts.find(product => product.product_id === productId);
+    // You can add console.log to confirm the product is being found
+    console.log('Product selected:', this.selectedTreat);
+        },
+        closeModal() {
+            this.selectedTreat = null;
+        },
         filterByCategory(category) {
             this.selectedCategory = this.selectedCategory === category ? '' : category;
             this.$store.commit('clearSearchTerm'); // Clear search term when filtering by category
@@ -210,7 +264,7 @@ export default {
                 });
             }
             // Optionally show feedback (toast, etc.)
-            this.showAddedToCartFeedback(fetchPetProducts.name);
+            this.showAddedToCartFeedback(product.name);
         },
         removeFromCart(productId) {
             const index = this.cartItems.findIndex(item => item.id === productId);
@@ -806,5 +860,166 @@ export default {
     .products-container {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     }
+}
+/* Quick View Modal */
+.quick-view-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 10px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-image {
+  height: 300px;
+  overflow: hidden;
+}
+
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-details {
+  padding: 30px;
+}
+
+.modal-details h2 {
+  color: var(--dark);
+  margin-bottom: 15px;
+}
+
+.modal-description {
+  color: var(--text);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.modal-meta {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.meta-item i {
+  color: var(--primary);
+}
+
+.price-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.modal-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.add-to-cart {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.3s;
+}
+
+.add-to-cart:hover {
+  background-color: var(--primary-dark);
+}
+
+.allergens h4 {
+  color: var(--dark);
+  margin-bottom: 5px;
+}
+
+.allergens p {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .modal-body {
+    flex-direction: row;
+  }
+  
+  .modal-image {
+    flex: 1;
+    height: auto;
+  }
+  
+  .modal-details {
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    min-width: 100%;
+  }
+  
+  .filter-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .cake-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

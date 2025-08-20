@@ -23,6 +23,7 @@ ALTER TABLE users MODIFY reset_token_expiry BIGINT;
 -- ADD reset_token_expiry DATETIME NULL;
 
 ALTER TABLE users MODIFY reset_token_expiry BIGINT;
+INSERT INTO users (user_id, username, password_hash, email) VALUES (1, 'SampleUser', 'hashed_password_placeholder', 'sampleuser@example.com');
 
 -- PRODUCTS
 CREATE TABLE products (
@@ -38,6 +39,13 @@ CREATE TABLE products (
 
 ALTER TABLE products
 MODIFY intended_audience ENUM('human', 'pet', 'POD') NOT NULL DEFAULT 'human';
+ALTER TABLE products ADD COLUMN is_on_sale BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Adds new columns for the additional product details
+ALTER TABLE products
+ADD COLUMN serves INT,
+ADD COLUMN preparation_time VARCHAR(50),
+ADD COLUMN allergens TEXT;
 
 -- PRODUCT VARIANTS
 CREATE TABLE product_variants (
@@ -270,86 +278,204 @@ VALUES
 ('Lemon Zest Celebration Cake', 'Tangy lemon flavored layered cake.', 'human', 655.00, 12, 'human'),
 ('Carrot Nut Celebration Cake', 'Moist carrot cake with walnuts and spices.', 'human', 670.00, 13, 'human');
 
--- Insert 5 new cupcakes related to product_id=2 (Gourmet Frosted Cupcakes)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Strawberry Gourmet Cupcake', 'Fluffy cupcake topped with fresh strawberry frosting.', 'human', 68.00, 80, 'human'),
-('Chocolate Gourmet Cupcake', 'Cupcake with rich chocolate frosting.', 'human', 69.00, 90, 'human'),
-('Vanilla Bean Gourmet Cupcake', 'Cupcake infused with real vanilla beans.', 'human', 67.50, 100, 'human'),
-('Salted Caramel Gourmet Cupcake', 'Cupcake topped with salted caramel frosting.', 'human', 70.00, 75, 'human'),
-('Peanut Butter Gourmet Cupcake', 'Cupcake with peanut butter frosting.', 'human', 68.50, 85, 'human');
+-- Insert the new merch products into the `products` table
+-- The 'intended_audience' for these will be 'POD'
+-- The 'is_on_sale' column will be set to TRUE (1) or FALSE (0)
+INSERT INTO products (name, description, category, price, image_url, intended_audience, is_on_sale) VALUES
+('Paw Print T-Shirt', 'Comfortable cotton t-shirt with cute paw print design', 'Apparel', 249.99, 'https://img.kwcdn.com/product/open/00db427a76f44f25a7a114ba4bc3c237-goods.jpeg?imageView2/2/w/800/q/70/format/webp', 'POD', 1),
+('Pet Lover Mug', 'Ceramic mug with "Dog Mom/Dad" text and bone design', 'Home', 149.99, 'https://dogmom.co.za/wp-content/uploads/2022/12/Dog-Mother-Coffee-Lover-Mug-Front-1.jpg.webp', 'POD', 0),
+('Pet Bandana', 'Adjustable cotton bandana for your furry friend', 'Accessories', 99.99, 'https://img.kwcdn.com/product/fancy/172814aa-b49f-4713-906f-b5f2573c5036.jpg?imageView2/2/w/800/q/70/format/webp', 'POD', 0),
+('Pet Portrait Pillow', 'Customizable pillow with your pet''s portrait', 'Home', 349.99, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQSixsYOxEeffT_pJtXGafl8ZU0hpES0MCrrm1fey_qWW_59ZIF-0CC-9sdfcTnMJdwRtNJYpjZPEDQPR-O2N6DzfdBB0qQ5j6tifsmgJH8nA41qwpfc5GpQBdRIHr12PZLL-ng88GhKg&usqp=CAc', 'POD', 1),
+('Dog Paw Socks', 'Comfy socks with cute dog paw designs', 'Apparel', 129.99, 'https://media.takealot.com/covers_images/01b1057dbeed4a1180e799aaf017ccb5/s-zoom.file', 'POD', 0),
+('Pet Memorial Keychain', 'Beautiful keychain to remember your beloved pet', 'Gifts', 79.99, 'https://d2j6dbq0eux0bg.cloudfront.net/images/49036762/4785369027.jpg', 'POD', 0),
+('Pet Memorial Keychain', 'Beautiful keychain to remember your beloved pet', 'Gifts', 79.99, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQZ3QOI84rNuhFVinX9NZkuXuGpqPK4drPNDl1QJJzRWK9iEZH9ZYsjnBXF57X-hZNVEXLUxTLpBetGhyd4UpjMy2N3qd2f-cw2py5DFITORX0LpUdEXPWNvQ&usqp=CAc', 'POD', 0),
+('Paw Print T-Shirt', 'Comfortable cotton t-shirt with cute paw print design', 'Apparel', 249.99, 'https://img.kwcdn.com/thumbnail/s/836cea6daa36cb4973136ef9fc34d118_547e7d45ef97.jpg?imageView2/2/w/800/q/70/format/webp', 'POD', 1),
+('Pet Bandana', 'Adjustable cotton bandana for your furry friend', 'Accessories', 99.99, 'https://img.ltwebstatic.com/images3_pi/2024/09/02/aa/1725259643dde33bbfa3200390b3dccc145c434aa1_thumbnail_560x.webp', 'POD', 0);
 
--- Insert 5 new macarons for product_id=3 (Assorted French Macarons)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Pistachio French Macaron', 'Delicate pistachio flavored macarons.', 'human', 35.00, 180, 'human'),
-('Raspberry French Macaron', 'Sweet raspberry filled macarons.', 'human', 35.00, 170, 'human'),
-('Chocolate French Macaron', 'Rich chocolate macarons with ganache filling.', 'human', 36.00, 160, 'human'),
-('Vanilla French Macaron', 'Classic vanilla macarons.', 'human', 34.00, 190, 'human'),
-('Lemon French Macaron', 'Tangy lemon macarons.', 'human', 34.50, 185, 'human');
+-- updates
+-- Pet Cakes
+UPDATE products SET serves = 1, preparation_time = '2 hours', allergens = 'Contains meat, wheat' WHERE product_id = 1;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains nuts, wheat' WHERE product_id = 2;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains fish' WHERE product_id = 3;
+UPDATE products SET serves = 1, preparation_time = '1.5 hours', allergens = 'Contains honey' WHERE product_id = 4;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains nuts, seeds' WHERE product_id = 5;
+UPDATE products SET serves = 1, preparation_time = '1.5 hours', allergens = 'Contains pork' WHERE product_id = 6;
+UPDATE products SET serves = 1, preparation_time = '1.5 hours', allergens = 'Contains fish' WHERE product_id = 7;
+UPDATE products SET serves = 1, preparation_time = '2 hours', allergens = 'Contains sweet potato' WHERE product_id = 8;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains fish, chicken' WHERE product_id = 9;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains apple, cinnamon' WHERE product_id = 10;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains catnip' WHERE product_id = 11;
+UPDATE products SET serves = 1, preparation_time = '2 hours', allergens = 'Contains fruit, nuts' WHERE product_id = 12;
+UPDATE products SET serves = 1, preparation_time = '1.5 hours', allergens = 'Contains liver, dairy' WHERE product_id = 13;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'None' WHERE product_id = 14;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains fish' WHERE product_id = 15;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains pumpkin' WHERE product_id = 16;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'None' WHERE product_id = 17;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains fish' WHERE product_id = 18;
+UPDATE products SET serves = 1, preparation_time = '1.5 hours', allergens = 'Contains coconut' WHERE product_id = 19;
+UPDATE products SET serves = 1, preparation_time = '1.5 hours', allergens = 'Contains beef' WHERE product_id = 20;
 
--- Insert 5 new muffins for product_id=4 (Artisan Blueberry Muffins)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Blueberry Artisan Muffin', 'Fresh blueberry muffins made with artisan techniques.', 'human', 48.00, 110, 'human'),
-('Banana Nut Artisan Muffin', 'Moist banana muffins with crunchy nuts.', 'human', 47.00, 105, 'human'),
-('Chocolate Chip Artisan Muffin', 'Muffins with chocolate chips.', 'human', 49.00, 100, 'human'),
-('Apple Cinnamon Artisan Muffin', 'Muffins with apple and cinnamon flavors.', 'human', 48.50, 95, 'human'),
-('Lemon Poppyseed Artisan Muffin', 'Tangy lemon and poppyseed muffins.', 'human', 48.75, 90, 'human');
+---
 
--- Insert 5 new scones for product_id=5 (Traditional English Scones)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Classic English Scone', 'Traditional scones perfect for tea time.', 'human', 38.50, 75, 'human'),
-('Raisin English Scone', 'Scones with plump raisins.', 'human', 39.50, 70, 'human'),
-('Cheese English Scone', 'Savory scones with cheese.', 'human', 40.00, 65, 'human'),
-('Herb English Scone', 'Scones with fresh herbs.', 'human', 39.00, 60, 'human'),
-('Cranberry English Scone', 'Scones with dried cranberries.', 'human', 40.25, 68, 'human');
+### Human Cakes
 
--- Insert 5 new dessert sampler boxes for product_id=6 (Mini Dessert Sampler Box)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Assorted Mini Dessert Box', 'Box containing an assortment of mini desserts.', 'human', 75.00, 140, 'human'),
-('Chocolate Lover Mini Box', 'Mini desserts with a chocolate focus.', 'human', 78.00, 130, 'human'),
-('Fruit Lover Mini Box', 'Mini desserts featuring fresh fruits.', 'human', 76.50, 135, 'human'),
-('Nutty Mini Dessert Box', 'Mini desserts with nuts.', 'human', 77.00, 125, 'human'),
-('Classic Mini Dessert Box', 'Selection of classic mini desserts.', 'human', 75.50, 145, 'human');
+UPDATE products SET serves = 8, preparation_time = '2 hours', allergens = 'Contains nuts, dairy' WHERE product_id = 21;
+UPDATE products SET serves = 10, preparation_time = '4 hours', allergens = 'Contains gluten, eggs, dairy' WHERE product_id = 22;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains gluten, eggs, dairy' WHERE product_id = 23;
+UPDATE products SET serves = 6, preparation_time = '1 hour', allergens = 'Contains gluten, eggs, dairy' WHERE product_id = 24;
+UPDATE products SET serves = 4, preparation_time = '1.5 hours', allergens = 'Contains nuts, gluten, eggs, dairy' WHERE product_id = 25;
+UPDATE products SET serves = 10, preparation_time = '2 hours', allergens = 'Contains dairy, eggs, gluten' WHERE product_id = 26;
+UPDATE products SET serves = 12, preparation_time = '2.5 hours', allergens = 'Contains dairy, eggs, gluten' WHERE product_id = 27;
+UPDATE products SET serves = 10, preparation_time = '2 hours', allergens = 'Contains dairy, eggs, gluten' WHERE product_id = 28;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains dairy, eggs, gluten' WHERE product_id = 29;
+UPDATE products SET serves = 15, preparation_time = '3.5 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 30;
+UPDATE products SET serves = 10, preparation_time = '2 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 31;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 32;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains gluten, dairy' WHERE product_id = 33;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains gluten, dairy' WHERE product_id = 34;
+UPDATE products SET serves = 15, preparation_time = '4 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 35;
+UPDATE products SET serves = 2, preparation_time = '1.5 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 36;
+UPDATE products SET serves = 2, preparation_time = '1.5 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 37;
+UPDATE products SET serves = 2, preparation_time = '1.5 hours', allergens = 'Contains nuts, gluten, dairy' WHERE product_id = 38;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'None (vegan)' WHERE product_id = 39;
+UPDATE products SET serves = 10, preparation_time = '4 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 40;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains gluten, dairy' WHERE product_id = 41;
+UPDATE products SET serves = 1, preparation_time = '1 hour', allergens = 'Contains gluten, dairy' WHERE product_id = 42;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 43;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 44;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 45;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains gluten, dairy' WHERE product_id = 46;
+UPDATE products SET serves = 12, preparation_time = '3 hours', allergens = 'Contains nuts, gluten, dairy' WHERE product_id = 47;
 
--- Insert 5 new dog biscuits for product_id=7 (Crunchy Peanut Dog Biscuits)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Crunchy Peanut Butter Dog Biscuit', 'Dog biscuits made with peanut butter.', 'pet', 48.00, 280, 'pet'),
-('Chicken Flavored Dog Biscuit', 'Crunchy biscuits with chicken flavor.', 'pet', 47.50, 290, 'pet'),
-('Sweet Potato Dog Biscuit', 'Crunchy sweet potato dog treats.', 'pet', 46.50, 275, 'pet'),
-('Beef Flavored Dog Biscuit', 'Dog biscuits with savory beef flavor.', 'pet', 48.50, 260, 'pet'),
-('Cheese Flavored Dog Biscuit', 'Cheesy crunchy dog treats.', 'pet', 47.00, 270, 'pet');
+-- Insert the product variants for the items that have sizes or colors
+-- Note: We are using a simple `variant_name` and a `price_adjustment` of 0.00
+-- This assumes all sizes/colors for a single product have the same price
+INSERT INTO product_variants (product_id, variant_name, price_adjustment) VALUES
+-- Variants for 'Paw Print T-Shirt'
+((SELECT product_id FROM products WHERE name = 'Paw Print T-Shirt' AND image_url LIKE '%00db427a76f44f25a7a114ba4bc3c237-goods.jpeg%' LIMIT 1), 'S', 0.00),
+((SELECT product_id FROM products WHERE name = 'Paw Print T-Shirt' AND image_url LIKE '%00db427a76f44f25a7a114ba4bc3c237-goods.jpeg%' LIMIT 1), 'M', 0.00),
+((SELECT product_id FROM products WHERE name = 'Paw Print T-Shirt' AND image_url LIKE '%00db427a76f44f25a7a114ba4bc3c237-goods.jpeg%' LIMIT 1), 'L', 0.00),
+((SELECT product_id FROM products WHERE name = 'Paw Print T-Shirt' AND image_url LIKE '%00db427a76f44f25a7a114ba4bc3c237-goods.jpeg%' LIMIT 1), 'XL', 0.00),
 
--- Insert 5 new pupcakes for product_id=8 (Pumpkin Pupcakes for Dogs)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Pumpkin Pupcake', 'Mini pumpkin-flavored cupcakes for dogs.', 'pet', 57.00, 195, 'pet'),
-('Carrot Pupcake', 'Carrot flavored mini cupcakes for dogs.', 'pet', 56.00, 190, 'pet'),
-('Sweet Potato Pupcake', 'Sweet potato flavored cupcakes.', 'pet', 56.50, 185, 'pet'),
-('Apple Cinnamon Pupcake', 'Apple cinnamon flavored cupcakes.', 'pet', 58.00, 180, 'pet'),
-('Peanut Butter Pupcake', 'Peanut butter flavored cupcakes.', 'pet', 57.50, 175, 'pet');
+-- Variants for 'Pet Bandana'
+((SELECT product_id FROM products WHERE name = 'Pet Bandana' AND image_url LIKE '%172814aa-b49f-4713-906f-b5f2573c5036.jpg%' LIMIT 1), 'Red', 0.00),
+((SELECT product_id FROM products WHERE name = 'Pet Bandana' AND image_url LIKE '%172814aa-b49f-4713-906f-b5f2573c5036.jpg%' LIMIT 1), 'Blue', 0.00),
+((SELECT product_id FROM products WHERE name = 'Pet Bandana' AND image_url LIKE '%172814aa-b49f-4713-906f-b5f2573c5036.jpg%' LIMIT 1), 'Green', 0.00),
+((SELECT product_id FROM products WHERE name = 'Pet Bandana' AND image_url LIKE '%172814aa-b49f-4713-906f-b5f2573c5036.jpg%' LIMIT 1), 'Grey', 0.00),
 
--- Insert 5 new cat treats for product_id=9 (Soft Salmon Cat Treats)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Soft Salmon Cat Treat', 'Soft salmon flavored cat treats.', 'pet', 42.00, 240, 'pet'),
-('Tuna Flavored Cat Treat', 'Tuna flavored soft cat treats.', 'pet', 41.50, 235, 'pet'),
-('Chicken Flavored Cat Treat', 'Chicken flavored treats for cats.', 'pet', 41.75, 230, 'pet'),
-('Beef Flavored Cat Treat', 'Beef flavored cat treats.', 'pet', 42.25, 225, 'pet'),
-('Cheese Flavored Cat Treat', 'Cheese flavored soft treats.', 'pet', 42.50, 220, 'pet');
+-- Variants for 'Dog Paw Socks'
+((SELECT product_id FROM products WHERE name = 'Dog Paw Socks' AND image_url LIKE '%01b1057dbeed4a1180e799aaf017ccb5/s-zoom.file%' LIMIT 1), 'S/M', 0.00),
+((SELECT product_id FROM products WHERE name = 'Dog Paw Socks' AND image_url LIKE '%01b1057dbeed4a1180e799aaf017ccb5/s-zoom.file%' LIMIT 1), 'L/XL', 0.00);
 
--- Insert 5 new cat birthday cakes for product_id=10 (Catnip Birthday Cake)
-INSERT INTO products (name, description, category, price, stock_quantity, intended_audience)
-VALUES
-('Catnip Birthday Cake', 'Special catnip birthday cake for cats.', 'pet', 85.00, 90, 'pet'),
-('Tuna Topped Cat Birthday Cake', 'Birthday cake topped with tuna flakes.', 'pet', 84.00, 85, 'pet'),
-('Salmon Topped Cat Birthday Cake', 'Birthday cake topped with salmon flakes.', 'pet', 86.00, 80, 'pet'),
-('Cheese Topped Cat Birthday Cake', 'Birthday cake topped with cheese.', 'pet', 83.50, 75, 'pet'),
-('Chicken Topped Cat Birthday Cake', 'Birthday cake topped with chicken.', 'pet', 84.50, 88, 'pet');
+-- POD
+
+
+
+-- REVIEWS:
+-- Insert review data for a mix of cakes and merch products
+-- Note: The user_id is set to 1. Ensure a user with this ID exists in your users table.
+
+-- Reviews for 'Birthday Bone Cake' (Dog Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Birthday Bone Cake' LIMIT 1), 5, 'My dog absolutely loved this cake! It was a perfect birthday treat and looked great.'),
+(1, (SELECT product_id FROM products WHERE name = 'Birthday Bone Cake' LIMIT 1), 5, 'It was a huge hit with my furry friend. The size was perfect and the bone decoration was adorable.'),
+(1, (SELECT product_id FROM products WHERE name = 'Birthday Bone Cake' LIMIT 1), 4, 'Very good, my dog enjoyed it. The cake was a bit small for the price, but the quality was great.');
+
+-- Reviews for 'Peanut Butter Pupcake' (Dog Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Peanut Butter Pupcake' LIMIT 1), 5, 'Highly recommend! My pup devoured it in minutes. Such a fun treat.'),
+(1, (SELECT product_id FROM products WHERE name = 'Peanut Butter Pupcake' LIMIT 1), 4, 'Great taste and texture, my dog was very happy. Fast shipping too!');
+
+-- Reviews for 'Tuna Celebration Cake' (Cat Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Tuna Celebration Cake' LIMIT 1), 3, 'My cat was a little hesitant at first, but eventually ate it. It smells very strongly of tuna.'),
+(1, (SELECT product_id FROM products WHERE name = 'Tuna Celebration Cake' LIMIT 1), 5, 'My picky cat loved it! This is a rare find for us. I''m so happy she enjoyed her birthday cake.'),
+(1, (SELECT product_id FROM products WHERE name = 'Tuna Celebration Cake' LIMIT 1), 4, 'Good quality and looks exactly like the picture. My cat ate the whole thing.');
+
+-- Reviews for 'Carrot & Honey Dog Cake' (Dog Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Carrot & Honey Dog Cake' LIMIT 1), 5, 'My dog has a sensitive stomach, but this cake was perfect. No issues and she loved the taste.'),
+(1, (SELECT product_id FROM products WHERE name = 'Carrot & Honey Dog Cake' LIMIT 1), 5, 'The best dog cake we have ever bought. The ingredients are simple and my dog finds them delicious.');
+
+-- Reviews for 'Salmon Kitty Cake' (Cat Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Salmon Kitty Cake' LIMIT 1), 5, 'My cat is obsessed with this cake. Will definitely be buying again for her next birthday!'),
+(1, (SELECT product_id FROM products WHERE name = 'Salmon Kitty Cake' LIMIT 1), 4, 'A solid choice for any cat lover. It was a little bit messy to serve, but my cat did not mind.');
+
+-- Reviews for 'Cat Training Cake' (Training Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Cat Training Cake' LIMIT 1), 2, 'Did not work for us. My cat showed no interest.'),
+(1, (SELECT product_id FROM products WHERE name = 'Cat Training Cake' LIMIT 1), 4, 'Great idea, works well for training sessions. The portion sizes are good.'),
+(1, (SELECT product_id FROM products WHERE name = 'Cat Training Cake' LIMIT 1), 3, 'My cat liked it, but it''s not as special as the other cakes.');
+
+-- Reviews for 'Catnip Dream Cake' (Cat Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Catnip Dream Cake' LIMIT 1), 5, 'This cake is a hit! My cat went crazy for the catnip. It was so much fun to watch.'),
+(1, (SELECT product_id FROM products WHERE name = 'Catnip Dream Cake' LIMIT 1), 5, 'Fantastic product, great price. My cat had a blast!'),
+(1, (SELECT product_id FROM products WHERE name = 'Catnip Dream Cake' LIMIT 1), 5, 'A truly great cake for a cat who loves catnip.'),
+(1, (SELECT product_id FROM products WHERE name = 'Catnip Dream Cake' LIMIT 1), 5, 'This cake is a 10/10 for my cat. I would give it 6 stars if I could.'),
+(1, (SELECT product_id FROM products WHERE name = 'Catnip Dream Cake' LIMIT 1), 5, 'It was perfect! My cat had the best time with her birthday cake.');
+
+-- Reviews for 'Liver & Cheese Cake' (Dog Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Liver & Cheese Cake' LIMIT 1), 5, 'Very popular with my dog. This cake is his favorite.'),
+(1, (SELECT product_id FROM products WHERE name = 'Liver & Cheese Cake' LIMIT 1), 5, 'My dog gobbled this up so fast! It smells strong, but he loves it.');
+
+-- Reviews for 'Pumpkin Spice Pup Cake' (Dog Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Pumpkin Spice Pup Cake' LIMIT 1), 4, 'A great seasonal treat for my dog. She really enjoyed it.'),
+(1, (SELECT product_id FROM products WHERE name = 'Pumpkin Spice Pup Cake' LIMIT 1), 4, 'Looks and smells amazing. A little on the pricey side, but worth it for a special occasion.'),
+(1, (SELECT product_id FROM products WHERE name = 'Pumpkin Spice Pup Cake' LIMIT 1), 5, 'It was a hit!');
+
+-- Reviews for 'Vanilla Birthday Cake' (Dog Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Vanilla Birthday Cake' LIMIT 1), 4, 'My dog liked it, a very classic and simple design.');
+
+-- Reviews for 'Chocolate Delight' (Human Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Chocolate Delight' LIMIT 1), 5, 'Absolutely delicious! Rich, moist, and everything you want in a chocolate cake.'),
+(1, (SELECT product_id FROM products WHERE name = 'Chocolate Delight' LIMIT 1), 5, 'The best chocolate cake I have ever tasted. It was a crowd pleaser at our party.'),
+(1, (SELECT product_id FROM products WHERE name = 'Chocolate Delight' LIMIT 1), 5, 'Moist, decadent, and oh-so-chocolaty. This is a must-buy.'),
+(1, (SELECT product_id FROM products WHERE name = 'Chocolate Delight' LIMIT 1), 5, 'I would buy this again and again. Perfect with coffee.'),
+(1, (SELECT product_id FROM products WHERE name = 'Chocolate Delight' LIMIT 1), 5, 'This cake is a work of art. The flavor is out of this world!');
+
+-- Reviews for 'Red Velvet Bliss' (Human Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Red Velvet Bliss' LIMIT 1), 5, 'The perfect red velvet cake. The cream cheese frosting is amazing.'),
+(1, (SELECT product_id FROM products WHERE name = 'Red Velvet Bliss' LIMIT 1), 5, 'Loved the delicate flavour and texture. It was a great dessert.'),
+(1, (SELECT product_id FROM products WHERE name = 'Red Velvet Bliss' LIMIT 1), 5, 'My go-to red velvet cake. Never disappointed.');
+
+-- Reviews for 'Blue Velvet' (Human Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Blue Velvet' LIMIT 1), 5, 'A visual and culinary treat! The blue color is vibrant, and the taste is fantastic.'),
+(1, (SELECT product_id FROM products WHERE name = 'Blue Velvet' LIMIT 1), 5, 'Perfect for my son''s birthday party. Everyone loved it.'),
+(1, (SELECT product_id FROM products WHERE name = 'Blue Velvet' LIMIT 1), 5, 'The flavour is amazing. I will buy it again!');
+
+-- Reviews for 'Death By Chocolate Cake' (Human Cake)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Death By Chocolate Cake' LIMIT 1), 5, 'If you love chocolate, this is the cake for you. It is so rich and so good.'),
+(1, (SELECT product_id FROM products WHERE name = 'Death By Chocolate Cake' LIMIT 1), 5, 'A chocolate lover''s dream. I couldn''t get enough of it!');
+
+-- Reviews for 'Paw Print T-Shirt' (Merch - POD)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Paw Print T-Shirt' AND intended_audience = 'POD' LIMIT 1), 5, 'Great quality t-shirt. The print is durable and the material is soft.'),
+(1, (SELECT product_id FROM products WHERE name = 'Paw Print T-Shirt' AND intended_audience = 'POD' LIMIT 1), 4, 'Comfy fit and a super cute design. I wear this all the time!');
+
+-- Reviews for 'Pet Lover Mug' (Merch - POD)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Pet Lover Mug' LIMIT 1), 5, 'My new favorite mug! Perfect for my morning coffee.'),
+(1, (SELECT product_id FROM products WHERE name = 'Pet Lover Mug' LIMIT 1), 5, 'The mug is a great size and the design is adorable. It arrived quickly and well-packaged.'),
+(1, (SELECT product_id FROM products WHERE name = 'Pet Lover Mug' LIMIT 1), 5, 'I love this mug!');
+
+-- Reviews for 'Pet Bandana' (Merch - POD)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Pet Bandana' AND image_url LIKE '%172814aa-b49f-4713-906f-b5f2573c5036.jpg%' LIMIT 1), 5, 'The bandana is high-quality and the adjustable fit is great. My dog looks so stylish now!');
+
+-- Reviews for 'Pet Portrait Pillow' (Merch - POD)
+INSERT INTO product_reviews (user_id, product_id, rating, review_text) VALUES
+(1, (SELECT product_id FROM products WHERE name = 'Pet Portrait Pillow' LIMIT 1), 5, 'I bought this as a gift, and they absolutely loved it. The portrait came out perfectly.'),
+(1, (SELECT product_id FROM products WHERE name = 'Pet Portrait Pillow' LIMIT 1), 5, 'A great custom gift. The quality is excellent and the image is very clear.');
+
 
 -- Variants for product_id 11 (Chocolate Celebration Cake)
 INSERT INTO product_variants (product_id, variant_name, price_adjustment) VALUES
@@ -430,3 +556,15 @@ INSERT INTO product_variants (product_id, variant_name, price_adjustment) VALUES
 (10, 'Box of 12', 57.00),
 (10, 'Extra Peanut Butter', 6.00),
 (10, 'Chocolate Chips', 4.00);
+
+-- POD Merchandise Insert Statements
+INSERT INTO products (name, description, category, price, image_url, intended_audience, serves, allergens, is_on_sale) VALUES
+('Paw Print T-Shirt', 'Comfortable cotton t-shirt with cute paw print design', 'Apparel', 249.99, 'https://img.kwcdn.com/product/open/00db427a76f44f25a7a114ba4bc3c237-goods.jpeg?imageView2/2/w/800/q/70/format/webp', 'POD', NULL, NULL, TRUE),
+('Pet Lover Mug', 'Ceramic mug with "Dog Mom/Dad" text and bone design', 'Home', 149.99, 'https://dogmom.co.za/wp-content/uploads/2022/12/Dog-Mother-Coffee-Lover-Mug-Front-1.jpg.webp', 'POD', NULL, NULL, FALSE),
+('Pet Bandana', 'Adjustable cotton bandana for your furry friend', 'Accessories', 99.99, 'https://img.kwcdn.com/product/fancy/172814aa-b49f-4713-906f-b5f2573c5036.jpg?imageView2/2/w/800/q/70/format/webp', 'POD', NULL, NULL, FALSE),
+('Pet Portrait Pillow', 'Customizable pillow with your pet\'s portrait', 'Home', 349.99, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQSixsYOxEeffT_pJtXGafl8ZU0hpES0MCrrm1fey_qWW_59ZIF-0CC-9sdfcTnMJdwRtNJYpjZPEDQPR-O2N6DzfdBB0qQ5j6tifsmgJH8nA41qwpfc5GpQBdRIHr12PZLL-ng88GhKg&usqp=CAc', 'POD', NULL, NULL, TRUE),
+('Dog Paw Socks', 'Comfy socks with cute dog paw designs', 'Apparel', 129.99, 'https://media.takealot.com/covers_images/01b1057dbeed4a1180e799aaf017ccb5/s-zoom.file', 'POD', NULL, NULL, FALSE),
+('Pet Memorial Keychain', 'Beautiful keychain to remember your beloved pet', 'Gifts', 79.99, 'https://d2j6dbq0eux0bg.cloudfront.net/images/49036762/4785369027.jpg', 'POD', NULL, NULL, FALSE),
+('Pet Memorial Keychain', 'Beautiful keychain to remember your beloved pet', 'Gifts', 79.99, 'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQZ3QOI84rNuhFVinX9NZkuXuGpqPK4drPNDl1QJJzRWK9iEZH9ZYsjnBXF57X-hZNVEXLUxTLpBetGhyd4UpjMy2N3qd2f-cw2py5DFITORX0LpUdEXPWNvQ&usqp=CAc', 'POD', NULL, NULL, FALSE),
+('Paw Print T-Shirt', 'Comfortable cotton t-shirt with cute paw print design', 'Apparel', 249.99, 'https://img.kwcdn.com/thumbnail/s/836cea6daa36cb4973136ef9fc34d118_547e7d45ef97.jpg?imageView2/2/w/800/q/70/format/webp', 'POD', NULL, NULL, TRUE),
+('Pet Bandana', 'Adjustable cotton bandana for your furry friend', 'Accessories', 99.99, 'https://img.ltwebstatic.com/images3_pi/2024/09/02/aa/1725259643dde33bbfa3200390b3dccc145c434aa1_thumbnail_560x.webp', 'POD', NULL, NULL, FALSE);

@@ -3,7 +3,6 @@
    <NavComp />
    <NavbarComp />
 
-    <!-- Catalog Content -->
     <section class="catalog-hero">
       <div class="hero-content">
         <h1>Our Cake Collection</h1>
@@ -52,16 +51,18 @@
     </div>
 
     <div class="container">
-      <div class="cake-grid">
+      <div v-if="isLoading" class="loading-message">
+        <p>Loading cakes...</p>
+      </div>
+      <div v-else-if="filteredCakes.length > 0" class="cake-grid">
         <div 
           class="cake-card" 
           v-for="cake in filteredCakes" 
-          :key="cake.id"
-          @click="viewCakeDetail(cake.id)"
+          :key="cake.product_id"
+          @click="viewCakeDetail(cake.product_id)"
         >
           <div class="cake-image">
-            <img :src="cake.image" :alt="cake.name">
-            <div class="cake-badge" v-if="cake.isNew">New!</div>
+            <img :src="cake.image_url" :alt="cake.name" @error="handleImageError">
           </div>
           <div class="cake-info">
             <h3>{{ cake.name }}</h3>
@@ -78,15 +79,14 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="empty-state" v-if="filteredCakes.length === 0">
-      <div class="empty-icon">
-        <i class="fas fa-cake"></i>
+      <div v-else class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-cake"></i>
+        </div>
+        <h3>No cakes match your search</h3>
+        <p>Try adjusting your filters or search term</p>
+        <button class="reset-btn" @click="resetFilters">Reset Filters</button>
       </div>
-      <h3>No cakes match your search</h3>
-      <p>Try adjusting your filters or search term</p>
-      <button class="reset-btn" @click="resetFilters">Reset Filters</button>
     </div>
 
     <div class="quick-view-modal" v-if="selectedCake" @click.self="closeModal">
@@ -97,11 +97,11 @@
         
         <div class="modal-body">
           <div class="modal-image">
-            <img :src="selectedCake.image" :alt="selectedCake.name">
+            <img :src="selectedCake.image_url" :alt="selectedCake.name">
           </div>
           <div class="modal-details">
             <h2>{{ selectedCake.name }}</h2>
-            <p class="modal-description">{{ selectedCake.fullDescription }}</p>
+            <p class="modal-description">{{ selectedCake.description }}</p>
             
             <div class="modal-meta">
               <div class="meta-item">
@@ -112,15 +112,11 @@
                 <i class="fas fa-user-friends"></i>
                 <span>Serves {{ selectedCake.serves }}</span>
               </div>
-              <div class="meta-item">
-                <i class="fas fa-clock"></i>
-                <span>{{ selectedCake.preparationTime }}</span>
               </div>
-            </div>
             
             <div class="price-section">
               <span class="modal-price">${{ selectedCake.price.toFixed(2) }}</span>
-              <button class="add-to-cart" @click="addToCart(cake)">
+              <button class="add-to-cart" @click="addToCart(selectedCake)">
                 <i class="fas fa-shopping-cart"></i> Add to Cart
               </button>
             </div>
@@ -143,6 +139,7 @@ import NavbarComp from '@/components/NavbarComp.vue';
 import NavComp from '@/components/NavComp.vue';
 import { useCartStore } from '@/store/cart';
 import { storeToRefs } from 'pinia';
+import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'CakeCatalog',
@@ -154,14 +151,11 @@ export default {
   setup(){
     const cartStore = useCartStore();
 
-    // Use storeToRefs to get reactive references to state properties
     const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
 
-    // Get actions directly from the store
     const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity } = cartStore;
 
     return {
-      // Expose all necessary state and actions to the template
       cartItems,
       totalItems,
       subtotal,
@@ -170,7 +164,7 @@ export default {
       removeFromCart,
       increaseQuantity,
       decreaseQuantity,
-      cartStore, // <--- EXPOSE THE CART STORE HERE
+      cartStore,
     };
   },
   data() {
@@ -186,52 +180,27 @@ export default {
         { value: 'seasonal', label: 'Seasonal Specials' },
         { value: 'mini', label: 'Mini Cakes' }
       ],
-      cakes: [
-          { id: 1, name: 'Chocolate Delight', category: 'birthday', price: 25.00, description: 'Rich chocolate cake with creamy frosting', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Classic-Chocolate.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains nuts, dairy' },
-        { id: 2, name: 'Vanilla Dream', category: 'wedding', price: 30.00, description: 'Classic vanilla cake with buttercream icing', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/08/Untitled-design-3.png', serves: 10, preparationTime: '3 hours', allergens: 'Contains dairy' },
-        { id: 3, name: 'Red Velvet Bliss', category: 'custom', price: 28.50, description: 'Moist red velvet cake with cream cheese frosting', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Red-Velvet-1024x1024.jpg', serves: 6, preparationTime: '1.5 hours', allergens: 'Contains gluten, dairy' },
-        { id: 4, name: 'Lemon Zest', category: 'seasonal', price: 22.00, description: 'Refreshing lemon cake with citrus glaze', image: 'https://tessasbakery.co.za/wp-content/uploads/2015/06/New_Lemon_Mer-1-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten' },
-        { id: 5, name: 'Carrot Crunch', category: 'mini', price: 18.00, description: 'Spiced carrot cake with walnuts and cream cheese frosting', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVYxJDv7lEsZ3agTTeULKWi3P3NZ1Me4wg-g&s', serves: 4, preparationTime: '1 hour', allergens: 'Contains nuts' },
-        {id: 6, name: 'carrot Cheese', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: '', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 7, name: 'Blue Velvet', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Blue-Velvet-Cakes-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 8, name: 'Chai Latte Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Chai_Cake-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 9, name: 'Chocolate Caramel Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_ChocCar-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 10, name: 'Death By Chocolate Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Death-by-Chocolate-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 11, name: 'Let It Go', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2017/04/4-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 12, name: 'Dusty Rose', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-DUSTYROSE-1-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 13, name: 'Blush Pink Fun-Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-PINK-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 14, name: 'Mini Lunchbox', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: '', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 15, name: 'Pink Rose Cascade Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://ohmycake.co.za/wp-content/uploads/2024/04/Pink-rose-cascade-cake-768x768.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 16, name: 'Sprinkle Baby Gift Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-10.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 17, name: 'Oreo Mini Gift Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-5-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 18, name: 'Nutella Mini Gift Cake ', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/07/Untitled-design.zip-7-1-700x700.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 19, name: 'Vegan Oreo Cake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/New_Vegan_Oreo-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 20, name: 'Orea New York Baked CheeseCake', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2024/09/Untitled-design.zip-3-1-669x669.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 21, name: 'Unicorn Fun Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2022/07/NEW-FUNSIZE-UNICORNS-700x700.jpg', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-        {id: 22, name: 'Strawberry Fun Size', category: 'birthday', price: 26.00, description: 'Decadent chocolate fudge cake with ganache', image: 'https://tessasbakery.co.za/wp-content/uploads/2025/07/New-Product-Shots-Products-6.png', serves: 8, preparationTime: '2 hours', allergens: 'Contains gluten, dairy' },
-    ]
+      isLoading: true,
     }
   },
   computed: {
+    ...mapState(['humanProducts']),
     filteredCakes() {
-      let cakes = this.cakes;
+      let cakes = this.humanProducts;
       
-      // Filter by search query
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
         cakes = cakes.filter(cake => 
           cake.name.toLowerCase().includes(query) ||
           cake.description.toLowerCase().includes(query) ||
-          cake.category.toLowerCase().includes(query)
+          (cake.category && cake.category.toLowerCase().includes(query))
         );
       }
       
-      // Filter by category
       if (this.selectedCategory !== 'all') {
         cakes = cakes.filter(cake => cake.category === this.selectedCategory);
       }
       
-      // Sort cakes
       switch (this.sortOption) {
         case 'price-asc':
           cakes.sort((a, b) => a.price - b.price);
@@ -240,16 +209,17 @@ export default {
           cakes.sort((a, b) => b.price - a.price);
           break;
         case 'newest':
-          cakes.sort((a, b) => b.id - a.id); // Assuming higher IDs are newer
+          cakes.sort((a, b) => b.product_id - a.product_id);
           break;
         default: // 'featured'
-          cakes.sort((a, b) => a.id - b.id);
+          cakes.sort((a, b) => a.product_id - b.product_id);
       }
       
       return cakes;
     }
   },
   methods: {
+    ...mapActions(['fetchHumanProducts']),
     applyFilters() {
       // Filters are applied reactively through computed property
     },
@@ -259,16 +229,31 @@ export default {
       this.sortOption = 'featured';
     },
     viewCakeDetail(cakeId) {
-      this.selectedCake = this.cakes.find(cake => cake.id === cakeId);
+      this.selectedCake = this.humanProducts.find(cake => cake.product_id === cakeId);
     },
     closeModal() {
       this.selectedCake = null;
     },
+    handleImageError(event) {
+        event.target.style.display = 'none';
+        const fallbackIcon = document.createElement('i');
+        fallbackIcon.className = 'fas fa-birthday-cake fallback-icon';
+        event.target.parentNode.appendChild(fallbackIcon);
+    },
     addToCart(cake) {
-      // Now this works because this.cartStore is exposed by setup()
-      this.cartStore.addToCart(cake)
+      this.cartStore.addToCart(cake);
       this.closeModal();
-    }
+    },
+  },
+  created() {
+    this.fetchHumanProducts()
+        .then(() => {
+            this.isLoading = false;
+        })
+        .catch(error => {
+            console.error("Failed to fetch human cakes:", error);
+            this.isLoading = false;
+        });
   }
 }
 </script>

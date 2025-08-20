@@ -10,13 +10,14 @@
 
       <div class="flex-1 overflow-y-auto p-6 space-y-4">
         <div v-if="cartItems.length > 0">
-          <div v-for="item in cartItems" :key="item.id" class="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-0">
-             <img :src="item.image" :alt="item.name" class="w-16 h-16 object-cover rounded" />
+          <div v-for="item in cartItems" :key="item.product_id " class="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-0">
+             <img :src="item.image_url" :alt="item.name" class="w-16 h-16 object-cover rounded" />
              <div class="flex-1">
              <h3 class="font-semibold">{{ item.name }}</h3>
              <p class="text-sm text-gray-500">R{{ item.price.toFixed(2) }}</p>
+             <span>Qty: {{ item.quantity }}</span>
            </div>
-           <button @click="removeFromCart(item.id)" class="remove-btn">
+           <button @click="removeFromCart(item.product_id )" class="remove-btn">
               Remove
             </button>
           </div>
