@@ -13,10 +13,10 @@
 
         <div class="footer-links">
           <h3>Customer Service</h3>
-          <span class="fake-link">FAQ</span>
-          <span class="fake-link">Shipping</span>
-          <span class="fake-link">Returns</span>
-          <span class="fake-link">Privacy Policy</span>
+          <router-link to="/faq">FAQ</router-link>
+          <router-link to="/shipping">Shipping</router-link>
+          <router-link to="/returns">Returns</router-link>
+          <router-link to="/privacy-policy">Privacy Policy</router-link>
         </div>
 
         <div class="footer-links">
@@ -83,9 +83,9 @@ export default {
   color: #FFDAB9;
 }
 
+
 .footer-links a,
-.footer-links p,
-.footer-links .fake-link {
+.footer-links p {
   display: block;
   color: #f5f5f5;
   font-size: 14px;
@@ -94,8 +94,8 @@ export default {
   cursor: pointer;
 }
 
-.footer-links a:hover,
-.footer-links .fake-link:hover {
+
+.footer-links a:hover {
   color: #FFDAB9;
 }
 
