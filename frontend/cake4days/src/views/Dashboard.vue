@@ -224,6 +224,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import ProductManagement from '@/components/ProductManagement.vue';
+
 
 // State management using Vue's ref
 const isSidebarOpen = ref(false);
@@ -243,12 +245,6 @@ const social = ref({
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
-};
-
-const setCurrentPage = (page) => {
-  currentPage.value = page;
-  // You would use Vue Router here to navigate
-  // router.push({ name: page });
 };
 
 // Functions to get Tailwind CSS classes for dynamic styling
