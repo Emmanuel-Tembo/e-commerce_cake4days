@@ -4,10 +4,10 @@ import { createPayment } from '../model/paymentModel.js';
 import { sendInvoiceEmail } from '../services/emailService.js';
 
 export const processMockPayment = async (req, res) => {
-    // This is the core logic you'll build upon
-    const { orderId, amount, paymentMethod, paymentDetails } = req.body;
+    // These are the details you should get from the frontend request body
+    const { orderId, amount, paymentMethod, paymentDetails, user, orderDetails } = req.body;
 
-    if (!orderId || !amount || !paymentMethod) {
+    if (!orderId || !amount || !paymentMethod || !user || !orderDetails) {
         return res.status(400).json({ success: false, message: 'Missing required payment data.' });
     }
 
@@ -15,22 +15,15 @@ export const processMockPayment = async (req, res) => {
     let message = '';
 
     // Mock payment logic
-    if (paymentMethod === 'creditCard') {
+    if (paymentMethod === 'creditCard' || paymentMethod === 'paypal' || paymentMethod === 'googlePay') {
         success = true;
-        message = 'Credit card payment successful.';
-    } else if (paymentMethod === 'paypal') {
-        success = true;
-        message = 'PayPal payment authorized.';
-    } else if (paymentMethod === 'googlePay') {
-        success = true;
-        message = 'Google Pay payment processed.';
+        message = 'Payment successful.';
     } else {
         message = 'Unknown payment method.';
     }
 
     if (success) {
         try {
-            // Use the models to update the database
             await updateOrderStatus(orderId, 'paid');
             await createPayment({
                 order_id: orderId,
@@ -40,16 +33,13 @@ export const processMockPayment = async (req, res) => {
                 payment_date: new Date()
             });
 
-            // Fetch order details for the email
-            const orderData = await findByOrderId(orderId);
-            const orderItems = await findOrderItems(orderId);
-
+            // The data needed for the email is now passed directly from the frontend
             const emailData = {
-                orderNumber: orderData.order_number,
-                userName: orderData.username,
-                userEmail: orderData.email,
-                totalAmount: orderData.total_amount,
-                items: orderItems,
+                orderNumber: orderId, // You can use orderId as a simple order number
+                userName: user.fullName,
+                userEmail: user.email,
+                totalAmount: amount,
+                items: orderDetails.cartItems, // Assumes cart items are in the payload
             };
 
             await sendInvoiceEmail(emailData);

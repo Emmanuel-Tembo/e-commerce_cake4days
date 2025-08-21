@@ -84,6 +84,10 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
+ALTER TABLE orders
+MODIFY COLUMN status ENUM('pending', 'paid', 'shipped', 'delivered', 'cancelled') NOT NULL DEFAULT 'pending';
+
+
 -- CUSTOM ORDER DETAILS
 -- This table stores the specific details only for custom orders.
 CREATE TABLE custom_order_details (

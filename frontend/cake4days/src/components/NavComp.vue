@@ -52,12 +52,16 @@
 import { mapGetters } from 'vuex';
 import { useCartStore } from '@/store/cart';
 
+
 export default {
   name: 'NavComp',
+  components: {
+  },
   data() {
     return {
       searchQuery: '',
       headerBackgroundImage: 'https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=1200&h=400&fit=crop',
+      isProfileModalVisible: false,
     }
   },
   computed: {
@@ -105,10 +109,14 @@ export default {
     },
     HandleProfileClick() {
       if (this.isLoggedIn) {
-        this.$emit('show-profile-modal');
+        // Now, we will dispatch a Vuex action to show the modal
+        this.$store.dispatch('toggleProfileModal', true);
       } else {
         this.$router.push({ name: 'sign' });
       }
+    },
+    closeProfileModal() {
+      this.isProfileModalVisible = false;
     },
   },
 };

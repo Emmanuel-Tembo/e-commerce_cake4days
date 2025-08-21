@@ -1,4 +1,4 @@
-import { pool } from '../config/db.js';
+import { pool } from '../config/Db.js';
 
 // Create a new review
 export const createReview = async (userId, productId, rating, reviewText) => {

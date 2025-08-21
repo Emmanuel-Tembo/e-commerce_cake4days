@@ -16,10 +16,12 @@ export default createStore({
     petProducts: [],
     humanProducts: [],
     podProducts: [],
+    isProfileModalVisible: false,
   },
   getters: {
     currentUser: (state) => state.user,
-    isLoggedIn: state => !!state.token, // checks if a token exists
+    isLoggedIn: state => state.isAuthenticated, // checks if a token exists
+    isProfileModalOpen: state => state.isProfileModalVisible,
   },
   mutations: {
     setAuth(state, userPayload) {
@@ -54,6 +56,9 @@ export default createStore({
     setPodProducts(state, products) {
       state.podProducts = products;
     },
+    SET_PROFILE_MODAL_VISIBILITY(state, isVisible) { // NEW mutation
+      state.isProfileModalVisible = isVisible;
+    },
   },
   actions: {
     // NEW ACTION to handle user registration
@@ -70,11 +75,16 @@ export default createStore({
         throw e;
       }
     },
+    toggleProfileModal({ commit }, isVisible) { // NEW action
+      commit('SET_PROFILE_MODAL_VISIBILITY', isVisible);
+    },
     async login({ commit }, credentials) {
       try {
-        const response = await axios.post('/auth/login', credentials);
-        commit('setAuth', response.data.user);
-        return response.data.user;
+        await axios.post('/auth/login', credentials);
+        // After successful login, immediately fetch the user's profile data
+        const profileResponse = await axios.get('/user/profile');
+        commit('setAuth', profileResponse.data);
+        return profileResponse.data;
       } catch (e) {
         console.error('Login failed:', e.response?.data?.message || e.message);
         throw e;
@@ -100,6 +110,7 @@ export default createStore({
       try {
         await axios.post('/auth/logout');
         commit('clearAuth');
+        commit('SET_PROFILE_MODAL_VISIBILITY', false); // Close modal on logout
       } catch (e) {
         console.error('Logout failed:', e);
         commit('clearAuth');
@@ -108,18 +119,19 @@ export default createStore({
 
     async checkAuth({ commit }) {
       try {
-        const response = await axios.get('/auth/protected');
-        const user = response.data.user;
+        const response = await axios.get('/user/profile'); // Using the /user/profile route
+        const user = response.data;
         if (user) {
           commit('setAuth', user);
           return user;
         }
       } catch (e) {
-        console.log('User not authenticated:', e.response?.data?.message || 'Token is invalid or expired.');
+        console.log('User not authenticated or profile not found:', e.response?.data?.message || 'Token is invalid or expired.');
         commit('clearAuth');
       }
       return null;
     },
+
     // NEW ACTION to request a password reset email
     async forgotPassword({ commit }, email) {
       try {
@@ -144,22 +156,6 @@ export default createStore({
       }
     },
 
-    // ADDED: New action to fetch products from the backend and fix the data type
-    // async fetchProducts({ commit }) {
-    //   try {
-    //     const response = await axios.get('/products/getAll');
-    //     // Assuming your backend returns an array of products in a 'results' property
-    //     const products = response.data.data.map(product => ({
-    //       ...product,
-    //       price: parseFloat(product.price) // CONVERTING PRICE TO A NUMBER
-    //     }));
-
-    //     commit('setProducts', products);
-    //   } catch (error) {
-    //     console.error('Error fetching products:', error);
-    //     // You can commit an empty array or handle the error state here
-    //     commit('setProducts', []);
-    //   }
     async fetchProducts({ commit }) {
       try {
         const response = await axios.get('/products/getAll');

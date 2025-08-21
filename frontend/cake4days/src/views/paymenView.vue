@@ -12,7 +12,7 @@
             Continue as Guest
           </button>
           <button @click="handleSignIn" class="sign-in-button">
-            Sign In (Not Implemented)
+            Sign In
           </button>
         </div>
       </div>
@@ -133,15 +133,17 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useCartStore } from '@/store/cart'; // Adjust the path to your store file
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex'; 
 
 export default {
   name: 'PaymentPage',
   setup() {
     const router = useRouter();
     const cartStore = useCartStore();
+    const store = useStore();
     const checkoutStage = ref('prompt'); // 'prompt', 'guest_details', or 'payment'
     const activePaymentMethod = ref('card');
 
@@ -170,6 +172,51 @@ export default {
       return cartStore.subtotal + shipping.value;
     });
 
+    const authenticatedUser = computed(() => store.state.isAuthenticated);
+    const userProfile = computed(() => store.state.user);
+
+    // Call checkAuth on mount to verify the user's session
+    onMounted(() => {
+      if (authenticatedUser.value) {
+        if (userProfile.value) {
+          formData.value.fullName = userProfile.value.username;
+          formData.value.email = userProfile.value.email;
+          if (userProfile.value.addresses && userProfile.value.addresses.length > 0) {
+            const defaultAddress = userProfile.value.addresses[0];
+            formData.value.shippingAddress = {
+              street: defaultAddress.street || '',
+              city: defaultAddress.city || '',
+              country: defaultAddress.country || ''
+            };
+          }
+        }
+        checkoutStage.value = 'payment';
+      }
+    });
+
+    const createOrder = async () => {
+      try {
+        const orderDetails = {
+          items: cartStore.cartItems.map(item => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          total: total.value,
+          shippingAddress: formData.value.shippingAddress,
+          // Conditionally add the user_id if the user is logged in
+          user_id: authenticatedUser.value ? userProfile.value.user_id : null,
+          email: formData.value.email // Always send the email
+        };
+
+        const response = await axios.post('/orders/create', orderDetails);
+        return response.data; // This should contain the new order_id
+      } catch (e) {
+        console.error('Order creation failed:', e.response?.data?.message || e.message);
+        throw e;
+      }
+    };
+
     const setActiveMethod = (method) => {
       activePaymentMethod.value = method;
     };
@@ -194,18 +241,42 @@ export default {
       // In a real app, you would navigate to your login/sign-up page here.
     };
 
-    const submitPayment = () => {
-      if (activePaymentMethod.value === 'card') {
-        console.log('Processing credit card payment:', paymentData.value);
-        console.log('Final order total:', total.value);
-        console.log('Customer details:', formData.value);
-      } else if (activePaymentMethod.value === 'paypal') {
-        console.log('Redirecting to PayPal for payment...');
+      
+      const submitPayment = async () => {
+      // 1. Create the order first
+      let orderId;
+      try {
+        const orderResponse = await createOrder();
+        orderId = orderResponse.orderId;
+        alert(`Order ${orderId} created successfully. Now processing payment...`);
+      } catch (error) {
+        alert('Failed to create order. Please try again.');
+        return;
       }
 
-      // Reset the cart after successful payment (or mock success)
-      cartStore.$resetCart();
-      console.log('Payment submitted! (This is a mock transaction)');
+      // 2. Prepare the payment payload with the real orderId
+      const paymentPayload = {
+        orderId: orderId,
+        amount: total.value,
+        paymentMethod: activePaymentMethod.value === 'card' ? 'creditCard' : 'paypal',
+        paymentDetails: activePaymentMethod.value === 'card' ? { ...paymentData.value } : null
+      };
+
+      try {
+        // 3. Call the action in your Pinia store to process payment
+        const result = await cartStore.processPayment(paymentPayload);
+
+        if (result.success) {
+          alert('Payment successful! Redirecting to confirmation page.');
+          // Redirect the user to a success page
+          router.push('/order-confirmation');
+          cartStore.$resetCart();
+        } else {
+          alert(`Payment failed: ${result.message}`);
+        }
+      } catch (error) {
+        alert('An unexpected error occurred during payment.');
+      }
     };
 
     return {
@@ -216,6 +287,7 @@ export default {
       total,
       activePaymentMethod,
       checkoutStage,
+      authenticatedUser,
       setActiveMethod,
       startGuestCheckout,
       continueToPayment,

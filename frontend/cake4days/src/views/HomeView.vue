@@ -291,13 +291,6 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  /* background-image:
-    radial-gradient(circle at 20% 80%, rgba(205, 133, 63, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(222, 184, 135, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(139, 90, 60, 0.1) 0%, transparent 30%);
-  background-image: linear-gradient(-45deg, #F9D6D5, #F5E6D3, #F5E6D3, #DEB887, #CD853F);
-  background-size: 400% 400%;
-  animation: gradientsBG 15s ease infinite;  */
   pointer-events: none;
 }
 

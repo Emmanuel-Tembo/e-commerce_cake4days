@@ -8,12 +8,15 @@
           <p>Email: {{ userData.email }}</p>
           <p>Role: {{ userData.role }}</p>
           </div>
+          <button @click="handleLogout" class="logout-btn">Log Out</button>
       </div>
     </div>
   </transition>
 </template>
 
 <script>
+import { useStore } from 'vuex';
+
 export default {
   props: {
     isVisible: {
@@ -25,11 +28,23 @@ export default {
       default: null,
     },
   },
-  methods: {
-    closeModal() {
-      this.$emit('close-modal');
-    },
-  },
+  setup(props, { emit }) {
+    const store = useStore();
+
+    const closeModal = () => {
+      emit('close-modal');
+    };
+
+    const handleLogout = async () => {
+      await store.dispatch('logout');
+      closeModal();
+    };
+
+    return {
+      closeModal,
+      handleLogout
+    };
+  }
 };
 </script>
 
@@ -46,6 +61,40 @@ export default {
   justify-content: flex-end; /* Pushes the modal to the right */
   align-items: center;
   z-index: 1000;
+}
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    padding-top: 50px; /* Push content down to avoid close button */
+    text-align: center;
+}
+
+.profile-details h3 {
+    font-size: 1.8rem;
+    color: #4A4A4A;
+}
+
+.profile-details p {
+    font-size: 1rem;
+    color: #7B7B7B;
+}
+
+/* New: Logout Button Styling */
+.logout-btn {
+    background-color: #E57373;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.logout-btn:hover {
+    background-color: #D32F2F;
 }
 
 /* Modal content styles */

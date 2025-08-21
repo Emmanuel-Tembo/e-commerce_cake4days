@@ -443,19 +443,8 @@ export default {
     min-height: 100vh;
 }
 
-/* .header { */
-/* display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(197, 137, 146, 0.9); /* Light pink header */
-/* padding: 1rem 2rem;
-    min-height: 30px;
-    position: relative;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-} */
 .header-background {
-    /* background-image: url('https://ohmycake.co.za/wp-content/uploads/2025/05/All-Cakes-Banner-Desktop_1920x600px.webp');
-  background-size: cover; */
+    
     background-position: center;
     background-repeat: no-repeat;
     width: 100%;
@@ -881,7 +870,8 @@ export default {
   border-radius: 10px;
   max-width: 900px;
   width: 100%;
-  max-height: 90vh;
+  /* max-height: 90vh; */
+    height: 500px;
   overflow-y: auto;
   position: relative;
 }

@@ -30,6 +30,7 @@ import reviewRoutes from './routes/reviewRoutes.js';
 import salesReportRoutes from './routes/salesReportRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 
 
@@ -42,6 +43,7 @@ app.use('/', reviewRoutes);
 app.use('/', salesReportRoutes);
 app.use('/user', profileRoutes);
 app.use('/api', paymentRoutes);
+app.use('/api', orderRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)

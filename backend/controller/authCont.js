@@ -178,7 +178,7 @@ export const login = async (req, res) => {
             maxAge: 3600000 
         });
 
-        res.status(200).json({ message: 'Login successful',token: token  });
+        res.status(200).json({ message: 'Login successful'});
     } catch (e) {
         console.error('Error during login: ', e);
         res.status(500).json({ message: 'Server error during login' });
@@ -240,7 +240,7 @@ export const loginAdmin = async (req, res) => {
 
 // NEW LOGOUT FUNCTION
 export const logout = (req, res) => {
-    res.clearCookie('auth_token');
+    res.clearCookie('auth_token', { path: '/' });
     res.status(200).json({ message: 'Logout successful' });
 };
 

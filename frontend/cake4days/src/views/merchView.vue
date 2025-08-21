@@ -42,9 +42,9 @@
               <span class="price" :class="{ 'old-price': item.is_on_sale }">R{{ item.price.toFixed(2) }}</span>
               <span v-if="item.is_on_sale" class="sale-price">R{{ (item.price * 0.8).toFixed(2) }}</span>
             </div>
-            <button class="add-to-cart" @click.stop="addToCartDirectly(item)">
+            <!-- <button class="add-to-cart" @click.stop="addToCartDirectly(item)">
               Add to Cart
-            </button>
+            </button> -->
           </div>
         </div>
       </div>

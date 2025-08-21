@@ -10,7 +10,7 @@ import AdminSignIn from '@/views/AdminSignIn.vue'
 import ResetPassword from '@/views/ResetPassword.vue'
 import CustomOrderPage from '../views/CustomOrderPage.vue'
 // import ProfilePage from '../views/ProfilePage.vue'
-import CheckoutPage from '../views/CheckoutPage.vue'
+// import CheckoutPage from '../views/CheckoutPage.vue'
 import Dashboard from '../views/Dashboard.vue'
 import merchView from '@/views/merchView.vue'
 import aboutView from '@/views/aboutView.vue'
@@ -75,11 +75,11 @@ const routes = [
     name: 'resetPassword',
     component: ResetPassword
   },
-  {
-    path: '/checkout',
-    name: 'Checkout',
-    component: CheckoutPage
-  },
+  // {
+  //   path: '/checkout',
+  //   name: 'Checkout',
+  //   component: CheckoutPage
+  // },
   {
     path: '/admin/dashboard',
     name: 'Dashboard',

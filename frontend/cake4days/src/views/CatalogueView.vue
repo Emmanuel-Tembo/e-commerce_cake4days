@@ -73,9 +73,6 @@
                 <i class="fas fa-user-friends"></i> Serves {{ cake.serves }}
               </span>
             </div>
-            <button class="add-to-cart-btn" @click.stop="addToCart(cake)">
-              Add to Cart
-            </button>
           </div>
         </div>
       </div>
@@ -116,9 +113,9 @@
             
             <div class="price-section">
               <span class="modal-price">${{ selectedCake.price.toFixed(2) }}</span>
-              <button class="add-to-cart" @click="addToCart(selectedCake)">
-                <i class="fas fa-shopping-cart"></i> Add to Cart
-              </button>
+              <button class="add-to-cart-btn" @click.stop="addToCart(selectedCake)">
+              Add to Cart
+            </button>
             </div>
             
             <div class="allergens" v-if="selectedCake.allergens">
@@ -789,7 +786,7 @@ export default {
   border-radius: 10px;
   max-width: 900px;
   width: 100%;
-  max-height: 90vh;
+  height: 500px;
   overflow-y: auto;
   position: relative;
 }

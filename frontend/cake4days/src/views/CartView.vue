@@ -19,20 +19,20 @@
         <h2 class="cart-title">Your Cart <span>({{ cartItems.length }})</span></h2>
         
         <div v-for="item in cartItems" :key="item.id" class="cart-item">
-          <img :src="item.image" :alt="item.name" class="item-image" />
+          <img :src="item.image_url" :alt="item.name" class="item-image" />
           
           <div class="item-details">
             <h3>{{ item.name }}</h3>
             <p class="item-type">{{ item.type }}</p>
             
             <div class="quantity-controls">
-              <button @click="decreaseQuantity(item.id)" class="qty-btn">−</button>
+              <button @click="decreaseQuantity(item.product_id)" class="qty-btn">−</button>
               <span class="quantity">{{ item.quantity }}</span>
-              <button @click="increaseQuantity(item.id)" class="qty-btn">+</button>
+              <button @click="increaseQuantity(item.product_id)" class="qty-btn">+</button>
             </div>
             
             <p class="item-price">R{{ (item.price * item.quantity).toFixed(2) }}</p>
-            <button @click="removeFromCart(item.id)" class="remove-btn">
+            <button @click="removeFromCart(item.product_id)" class="remove-btn">
               Remove
             </button>
           </div>

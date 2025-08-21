@@ -1,4 +1,4 @@
-import {pool} from '../config/db.js'
+import {pool} from '../config/Db.js'
 
 export const findUserbyName = async (username) => {
     const [rows] = await pool.query('SELECT * FROM users WHERE username = ?',[username]);
@@ -17,12 +17,6 @@ export const createUser = async (username, email, Hashpassword,role) => {
     );
     return result.insertId;
 };
-     /**
- * Inserts a new user into the database.
- * The 'result.insertId' property returns the ID of the newly created row.
- * This is especially useful for tables with an AUTO_INCREMENT primary key,
- * as it allows you to get the unique identifier for the new record.
- */
 
 export const updateUserPassword = async (userId, hashedPassword) => {
     await pool.query(
