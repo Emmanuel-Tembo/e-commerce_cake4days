@@ -123,8 +123,8 @@
           </div>
 
           <div v-else-if="activePaymentMethod === 'paypal'" class="payment-form-container paypal-container">
-            <p>You will be redirected to PayPal to complete your purchase.</p>
-            <button class="submit-button" @click="submitPayment">Pay with PayPal</button>
+            <p>This method is in development</p>
+            <button class="submit-button" @click="submitPayment">Coming soon...</button>
           </div>
         </div>
       </div>
@@ -137,6 +137,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useCartStore } from '@/store/cart'; // Adjust the path to your store file
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex'; 
+import axios from 'axios';
 
 export default {
   name: 'PaymentPage',
@@ -175,47 +176,69 @@ export default {
     const authenticatedUser = computed(() => store.state.isAuthenticated);
     const userProfile = computed(() => store.state.user);
 
+    const hasSavedAddress = ref(false);
+
     // Call checkAuth on mount to verify the user's session
-    onMounted(() => {
-      if (authenticatedUser.value) {
-        if (userProfile.value) {
-          formData.value.fullName = userProfile.value.username;
-          formData.value.email = userProfile.value.email;
-          if (userProfile.value.addresses && userProfile.value.addresses.length > 0) {
+    onMounted(async () => {
+    // Dispatch action to get the latest user data
+    await store.dispatch('checkAuth'); 
+
+    // Check if the user is authenticated
+    if (authenticatedUser.value && userProfile.value) {
+        // Check if the user has at least one saved address
+        if (userProfile.value.addresses && userProfile.value.addresses.length > 0) {
             const defaultAddress = userProfile.value.addresses[0];
+            // Populate the formData with the saved address
+            formData.value.fullName = userProfile.value.username;
+            formData.value.email = userProfile.value.email;
             formData.value.shippingAddress = {
-              street: defaultAddress.street || '',
-              city: defaultAddress.city || '',
-              country: defaultAddress.country || ''
+                street: defaultAddress.street || '',
+                city: defaultAddress.city || '',
+                country: defaultAddress.country || ''
             };
-          }
+            // Set the stage to payment
+            checkoutStage.value = 'payment';
+            // Flag that the user has a saved address
+            hasSavedAddress.value = true;
+        } else {
+            // If the user has no saved address, force them to fill it out
+            checkoutStage.value = 'guest_details';
+            hasSavedAddress.value = false;
         }
-        checkoutStage.value = 'payment';
-      }
-    });
+    }
+});
 
     const createOrder = async () => {
-      try {
+    try {
         const orderDetails = {
-          items: cartStore.cartItems.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            price: item.price
-          })),
-          total: total.value,
-          shippingAddress: formData.value.shippingAddress,
-          // Conditionally add the user_id if the user is logged in
-          user_id: authenticatedUser.value ? userProfile.value.user_id : null,
-          email: formData.value.email // Always send the email
+            // The backend's createOrder controller expects a property named 'shippingDetails'
+            shippingDetails: {
+                fullName: formData.value.fullName,
+                email: formData.value.email,
+                streetAddress: formData.value.shippingAddress.street,
+                city: formData.value.shippingAddress.city,
+                country: formData.value.shippingAddress.country,
+                // Make sure to add any other required fields from your model here
+            },
+            // The backend expects a property named 'cartItems'
+            cartItems: cartStore.cartItems.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                price: item.price,
+                name: item.name
+            })),
+            // The backend expects a property named 'totalAmount'
+            totalAmount: total.value,
         };
 
-        const response = await axios.post('/orders/create', orderDetails);
+        // Correct the URL to match the backend route
+        const response = await axios.post('/api/orders', orderDetails);
         return response.data; // This should contain the new order_id
-      } catch (e) {
+    } catch (e) {
         console.error('Order creation failed:', e.response?.data?.message || e.message);
         throw e;
-      }
-    };
+    }
+};
 
     const setActiveMethod = (method) => {
       activePaymentMethod.value = method;
@@ -226,13 +249,13 @@ export default {
     };
 
     const continueToPayment = () => {
-      // Basic validation check
-      if (formData.value.fullName && formData.value.email && formData.value.shippingAddress.street) {
+    // Basic validation check
+    if (formData.value.fullName && formData.value.email && formData.value.shippingAddress.street) {
         checkoutStage.value = 'payment';
-      } else {
+    } else {
         alert('Please fill in all shipping details to continue.');
-      }
-    };
+    }
+};
 
     const handleSignIn = () => {
       // Placeholder for your sign-in logic
@@ -243,6 +266,11 @@ export default {
 
       
       const submitPayment = async () => {
+
+        if (cartStore.cartItems.length === 0) {
+    alert("Your cart is empty. Please add products before checking out.");
+    return; // Stop the function here
+  }
       // 1. Create the order first
       let orderId;
       try {
@@ -256,11 +284,24 @@ export default {
 
       // 2. Prepare the payment payload with the real orderId
       const paymentPayload = {
-        orderId: orderId,
-        amount: total.value,
-        paymentMethod: activePaymentMethod.value === 'card' ? 'creditCard' : 'paypal',
-        paymentDetails: activePaymentMethod.value === 'card' ? { ...paymentData.value } : null
-      };
+    orderId: orderId, // The ID you just got from the createOrder response
+    amount: total.value,
+    paymentMethod: activePaymentMethod.value === 'card' ? 'creditCard' : 'paypal',
+    // The paymentDetails key is not used in your backend, so you can leave it out.
+    // The 'user' and 'orderDetails' properties are also required by your backend's mock payment controller.
+    user: {
+        fullName: formData.value.fullName,
+        email: formData.value.email
+    },
+    orderDetails: {
+        cartItems: cartStore.cartItems.map(item => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+            name: item.name
+        }))
+    }
+  };
 
       try {
         // 3. Call the action in your Pinia store to process payment

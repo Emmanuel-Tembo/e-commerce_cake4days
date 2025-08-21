@@ -2,6 +2,7 @@ import express from 'express'
 import { config } from 'dotenv'
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
+import { identifyUser } from './middleware/guestAuthMiddleware.js';
 
 
 config()
@@ -33,7 +34,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 
 
-
+app.use('/api', identifyUser, orderRoutes);
 app.use('/auth',authRoutes);
 app.use('/products',Products);
 app.use('/', customOrderRoutes);
@@ -43,7 +44,7 @@ app.use('/', reviewRoutes);
 app.use('/', salesReportRoutes);
 app.use('/user', profileRoutes);
 app.use('/api', paymentRoutes);
-app.use('/api', orderRoutes)
+// app.use('/api', orderRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)

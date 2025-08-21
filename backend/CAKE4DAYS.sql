@@ -87,6 +87,13 @@ CREATE TABLE order_items (
 ALTER TABLE orders
 MODIFY COLUMN status ENUM('pending', 'paid', 'shipped', 'delivered', 'cancelled') NOT NULL DEFAULT 'pending';
 
+ALTER TABLE orders
+DROP COLUMN shipping_id;
+
+ALTER TABLE shipping_details
+ADD user_id INT,
+ADD CONSTRAINT fk_user_shipping FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE;
+
 
 -- CUSTOM ORDER DETAILS
 -- This table stores the specific details only for custom orders.

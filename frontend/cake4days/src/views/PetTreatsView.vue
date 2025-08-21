@@ -254,17 +254,8 @@ export default {
             this.$store.commit('clearSearchTerm');
         },
         addToCart(product) {
-            const existingItem = this.cartItems.find(item => item.product_id === product.product_id);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                this.cartItems.push({
-                    ...product,
-                    quantity: 1
-                });
-            }
-            // Optionally show feedback (toast, etc.)
-            this.showAddedToCartFeedback(product.name);
+            this.cartStore.addToCart(product);
+            this.closeModal();
         },
         removeFromCart(productId) {
             const index = this.cartItems.findIndex(item => item.id === productId);

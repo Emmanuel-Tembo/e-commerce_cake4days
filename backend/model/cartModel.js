@@ -44,3 +44,28 @@ export const deleteCartItem = async (cartId, cartItemId) => {
     const [result] = await pool.query('DELETE FROM cart_items WHERE cart_id = ? AND cart_item_id = ?', [cartId, cartItemId]);
     return result.affectedRows;
 };
+
+export const clearCart = async (userId) => {
+    try {
+        // Step 1: Find the user's cart_id
+        const [cartResult] = await pool.query('SELECT cart_id FROM shopping_cart WHERE user_id = ?', [userId]);
+
+        if (cartResult.length === 0) {
+            console.log("No cart found for this user, no items to clear.");
+            return;
+        }
+
+        const cartId = cartResult[0].cart_id;
+
+        // Step 2: Delete all items associated with that cart_id
+        const [result] = await pool.query('DELETE FROM cart_items WHERE cart_id = ?', [cartId]);
+        
+        console.log(`Cleared ${result.affectedRows} items from cart for user ID: ${userId}`);
+
+        return result;
+    } catch (error) {
+        console.error("Error clearing cart:", error);
+        throw error;
+    }
+};
+

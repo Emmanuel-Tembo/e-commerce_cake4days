@@ -6,6 +6,11 @@ export const findByOrderId = async (orderId) => {
     return rows[0];
 };
 
+export const getOrderIdByOrderNumber = async (orderNumber) => {
+    const [rows] = await pool.query('SELECT order_id FROM orders WHERE order_number = ?', [orderNumber]);
+    return rows[0] || null;
+};
+
 export const updateOrderStatus = async (orderId, status) => {
     await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', [status, orderId]);
 };
@@ -20,40 +25,68 @@ export const getOrdersByUserId = async (userId) => {
     return rows;
 };
 
-export const createOrder = async (userId, shippingDetails, cartItems, totalAmount) => {
-    const conn = await pool.getConnection();
-    await conn.beginTransaction();
+export const createOrder = async (userId, shippingDetails, cartItems, totalAmount, orderNumber, saveDetails) => {
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
 
     try {
-        const [orderResult] = await conn.query('INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, ?)', [userId, totalAmount, 'pending']);
+        // 1. Insert into orders table with the generated order number
+        const [orderResult] = await connection.execute(
+            'INSERT INTO orders (user_id, order_number, total_amount, status) VALUES (?, ?, ?, ?)',
+            [userId, orderNumber, totalAmount, 'pending']
+        );
         const orderId = orderResult.insertId;
 
-        // **FIXED: Map the JavaScript object keys to the correct SQL column names**
-        const shippingPayload = {
-            order_id: orderId,
-            full_name: shippingDetails.fullName, // Mapped from fullName
-            email: shippingDetails.email,
-            phone_number: shippingDetails.phoneNumber, // Mapped from phoneNumber
-            street_address: shippingDetails.streetAddress, // Mapped from streetAddress
-            city: shippingDetails.city,
-            state: shippingDetails.state,
-            zip_code: shippingDetails.zipCode, // Mapped from zipCode
-            country: shippingDetails.country,
-            delivery_method: shippingDetails.delivery_method
-        };
-        await conn.query('INSERT INTO shipping_details SET ?', shippingPayload);
+        // 2. Insert into shipping_details table, linking to the new order
+        await connection.execute(
+            'INSERT INTO shipping_details (order_id, full_name, email, phone_number, street_address, city, state, zip_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+                orderId,
+                shippingDetails.fullName,
+                shippingDetails.email,
+                shippingDetails.phoneNumber,
+                shippingDetails.streetAddress,
+                shippingDetails.city,
+                shippingDetails.state,
+                shippingDetails.zipCode,
+                shippingDetails.country,
+            ]
+        );
 
-        const orderItemPromises = cartItems.map(item => {
-            return conn.query('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)', [orderId, item.product_id, item.quantity, item.price]);
-        });
-        await Promise.all(orderItemPromises);
-
-        await conn.commit();
-        conn.release();
-        return orderId;
-    } catch (e) {
-        await conn.rollback();
-        conn.release();
-        throw e;
+        // 3. Insert into order_items table for each item
+        for (const item of cartItems) {
+            await connection.execute(
+                'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
+                [orderId, item.product_id, item.quantity, item.price]
+            );
+        }
+        
+        // 4. (NEW) Check if the user is authenticated AND chose to save details
+        if (userId && saveDetails) {
+            // This is a simplified check. You would need to check if an address already exists for the user.
+            const [existingAddress] = await connection.execute('SELECT * FROM user_addresses WHERE user_id = ?', [userId]);
+            
+            if (existingAddress.length > 0) {
+                // Update existing address
+                await connection.execute(
+                    'UPDATE user_addresses SET street_address = ?, city = ?, state = ?, zip_code = ? WHERE user_id = ?',
+                    [shippingDetails.streetAddress, shippingDetails.city, shippingDetails.state, shippingDetails.zipCode, userId]
+                );
+            } else {
+                // Insert new address
+                await connection.execute(
+                    'INSERT INTO user_addresses (user_id, street_address, city, state, zip_code, country) VALUES (?, ?, ?, ?, ?, ?)',
+                    [userId, shippingDetails.streetAddress, shippingDetails.city, shippingDetails.state, shippingDetails.zipCode, shippingDetails.country]
+                );
+            }
+        }
+        
+        await connection.commit();
+        return { orderId, orderNumber }; // Return both IDs for clarity
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
     }
 };
