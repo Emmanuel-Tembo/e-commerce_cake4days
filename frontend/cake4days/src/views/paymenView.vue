@@ -1,130 +1,178 @@
 <template>
   <div class="payment-page">
-    <div class="container">
-      <h1 class="page-title">Finalizing Your Order</h1>
-      <p class="subtitle">Just a few more steps to make your cake dreams a reality.</p>
+    <div class="container mx-auto p-8 rounded-xl shadow-lg bg-white">
+      <h1 class="page-title text-3xl font-bold text-center text-pink-600 mb-6">Finalizing Your Order</h1>
+      <p class="subtitle text-gray-600 mb-4 text-center">Just a few more steps to make your cake dreams a reality.</p>
 
       <!-- Checkout Prompt: Sign In vs. Guest -->
       <div v-if="checkoutStage === 'prompt'" class="checkout-prompt">
-        <h2>How would you like to check out?</h2>
-        <div class="prompt-buttons">
-          <button @click="startGuestCheckout" class="guest-button">
+        <h2 class="text-2xl font-semibold text-center mb-4">How would you like to check out?</h2>
+        <div class="prompt-buttons flex justify-center space-x-4">
+          <button @click="startGuestCheckout" class="guest-button px-6 py-3 rounded-full text-white font-bold transition-all duration-300 transform active:scale-95 shadow-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 focus:outline-none focus:ring-4 focus:ring-pink-300">
             Continue as Guest
           </button>
-          <button @click="handleSignIn" class="sign-in-button">
+          <button @click="handleSignIn" class="sign-in-button px-6 py-3 rounded-full text-pink-500 font-bold border-2 border-pink-500 transition-all duration-300 transform active:scale-95 shadow-lg hover:bg-pink-50 focus:outline-none focus:ring-4 focus:ring-pink-300">
             Sign In
           </button>
         </div>
       </div>
 
-      <!-- Guest Details Form -->
+      <!-- Guest Details Form & Saved Address Display -->
       <div v-else-if="checkoutStage === 'guest_details'" class="guest-details-form">
-        <h2>Enter Your Shipping Details</h2>
-        <form @submit.prevent="continueToPayment">
-          <div class="form-group">
-            <label for="fullName">Full Name</label>
-            <input type="text" id="fullName" v-model="formData.fullName" required />
+        <h2 class="text-2xl font-semibold mb-4">
+          <span v-if="authenticatedUser && hasSavedAddress">Confirm Your Shipping Details</span>
+          <span v-else>Enter Your Shipping Details</span>
+        </h2>
+        <!-- New: Display saved address if available -->
+        <div v-if="authenticatedUser && userProfile.addresses && userProfile.addresses.length > 0" class="mb-4 p-4 rounded-lg bg-gray-50 border border-gray-200">
+          <p class="text-sm text-gray-800 font-medium">Using saved address:</p>
+          <p class="text-sm text-gray-600">{{ userProfile.addresses[0].street_address }}, {{ userProfile.addresses[0].city }}</p>
+          <p class="text-sm text-gray-600">{{ userProfile.addresses[0].state }}, {{ userProfile.addresses[0].zip_code }}</p>
+          <p class="text-sm text-gray-600">{{ userProfile.addresses[0].country }}</p>
+          <p class="text-sm text-gray-600">
+            <input type="checkbox" id="useSavedAddress" v-model="useSavedAddress" />
+            <label for="useSavedAddress" class="ml-2">Use this saved address</label>
+          </p>
+        </div>
+
+        <form @submit.prevent="continueToPayment" class="space-y-4">
+          <div v-if="!useSavedAddress || !authenticatedUser" class="space-y-4">
+            <div class="form-group">
+              <label for="fullName" class="block text-gray-700 font-medium mb-1">Full Name</label>
+              <input type="text" id="fullName" v-model="formData.fullName" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+            </div>
+            <div class="form-group">
+              <label for="email" class="block text-gray-700 font-medium mb-1">Email Address</label>
+              <input type="email" id="email" v-model="formData.email" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+            </div>
+            <div class="form-group">
+              <label for="phoneNumber" class="block text-gray-700 font-medium mb-1">Phone Number</label>
+              <input type="tel" id="phoneNumber" v-model="formData.phoneNumber" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+            </div>
+            <div class="form-group">
+              <label for="street" class="block text-gray-700 font-medium mb-1">Street Address</label>
+              <input type="text" id="street" v-model="formData.shippingAddress.street" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="city" class="block text-gray-700 font-medium mb-1">City</label>
+                <input type="text" id="city" v-model="formData.shippingAddress.city" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+              </div>
+              <div class="form-group">
+                <label for="state" class="block text-gray-700 font-medium mb-1">State</label>
+                <input type="text" id="state" v-model="formData.shippingAddress.state" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="zipCode" class="block text-gray-700 font-medium mb-1">Zip Code</label>
+                <input type="text" id="zipCode" v-model="formData.shippingAddress.zipCode" class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+              </div>
+              <div class="form-group">
+                <label for="country" class="block text-gray-700 font-medium mb-1">Country</label>
+                <input type="text" id="country" v-model="formData.shippingAddress.country" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
+              </div>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" v-model="formData.email" required />
-          </div>
-          <div class="form-group">
-            <label for="street">Street Address</label>
-            <input type="text" id="street" v-model="formData.shippingAddress.street" required />
-          </div>
-          <div class="form-group">
-            <label for="city">City</label>
-            <input type="text" id="city" v-model="formData.shippingAddress.city" required />
-          </div>
-          <div class="form-group">
-            <label for="country">Country</label>
-            <input type="text" id="country" v-model="formData.shippingAddress.country" required />
-          </div>
-          <button type="submit" class="submit-button">Continue to Payment</button>
+          <button type="submit" class="submit-button w-full px-6 py-3 rounded-full text-white font-bold transition-all duration-300 transform active:scale-95 shadow-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 focus:outline-none focus:ring-4 focus:ring-pink-300">
+            Continue to Payment
+          </button>
         </form>
       </div>
 
       <!-- Payment Section -->
-      <div v-else-if="checkoutStage === 'payment'" class="payment-grid">
+      <div v-else-if="checkoutStage === 'payment'" class="payment-grid grid md:grid-cols-2 gap-8">
         <!-- Order Summary Section -->
-        <div class="summary-section">
-          <h2>Order Summary</h2>
-          <div class="summary-details">
-            <div class="summary-item" v-for="item in cartStore.cartItems" :key="item.id">
-              <span>{{ item.name }} (x{{ item.quantity }})</span>
-              <span>R{{ (item.price * item.quantity).toFixed(2) }}</span>
+        <div class="summary-section p-6 rounded-xl border border-gray-200">
+          <h2 class="text-2xl font-semibold mb-4">Order Summary</h2>
+          <div class="summary-details space-y-2">
+            <div class="summary-item flex justify-between items-center" v-for="item in cartStore.cartItems" :key="item.product_id">
+              <span class="text-gray-600">{{ item.name }} (x{{ item.quantity }})</span>
+              <span class="font-semibold text-gray-800">R{{ (item.price * item.quantity).toFixed(2) }}</span>
             </div>
-            <div class="summary-item subtotal">
-              <span>Subtotal:</span>
-              <span>R{{ cartStore.subtotal.toFixed(2) }}</span>
+            <div class="summary-item subtotal flex justify-between items-center border-t border-gray-200 pt-2">
+              <span class="text-gray-600 font-medium">Subtotal:</span>
+              <span class="font-semibold text-gray-800">R{{ cartStore.subtotal.toFixed(2) }}</span>
             </div>
-            <div class="summary-item">
-              <span>Shipping:</span>
-              <span>R{{ shipping.toFixed(2) }}</span>
+            <div class="summary-item flex justify-between items-center">
+              <span class="text-gray-600 font-medium">Shipping:</span>
+              <span class="font-semibold text-gray-800">R{{ shipping.toFixed(2) }}</span>
             </div>
-            <div class="summary-item total">
+            <div class="summary-item total flex justify-between items-center border-t-2 border-pink-500 pt-2 font-bold text-lg">
               <span>Total:</span>
               <span>R{{ total.toFixed(2) }}</span>
             </div>
           </div>
-          <div class="order-details">
-            <h3>Your Details</h3>
-            <p><strong>Name:</strong> {{ formData.fullName }}</p>
-            <p><strong>Email:</strong> {{ formData.email }}</p>
-            <h3>Shipping To</h3>
-            <p>{{ formData.shippingAddress.street }}, {{ formData.shippingAddress.city }}</p>
-            <p>{{ formData.shippingAddress.country }}</p>
+          <div class="order-details mt-6 p-4 rounded-lg bg-gray-50 border border-gray-200">
+            <h3 class="text-lg font-semibold mb-2">Your Details</h3>
+            <p class="text-sm text-gray-600"><strong>Name:</strong> {{ formData.fullName }}</p>
+            <p class="text-sm text-gray-600"><strong>Email:</strong> {{ formData.email }}</p>
+            <h3 class="text-lg font-semibold mt-4 mb-2">Shipping To</h3>
+            <p class="text-sm text-gray-600">{{ formData.shippingAddress.street }}, {{ formData.shippingAddress.city }}</p>
+            <p class="text-sm text-gray-600">{{ formData.shippingAddress.state }}, {{ formData.shippingAddress.zipCode }}</p>
+            <p class="text-sm text-gray-600">{{ formData.shippingAddress.country }}</p>
           </div>
         </div>
 
         <!-- Payment Form Section -->
-        <div class="form-section">
-          <h2>Payment Details</h2>
+        <div class="form-section p-6 rounded-xl border border-gray-200">
+          <h2 class="text-2xl font-semibold mb-4">Payment Details</h2>
           
-          <div class="payment-tabs">
+          <div class="payment-tabs flex space-x-2 mb-4">
             <button 
-              :class="{ 'tab-button': true, 'active': activePaymentMethod === 'card' }" 
+              :class="{ 'px-4 py-2 rounded-lg font-semibold transition-colors duration-200': true, 'bg-pink-500 text-white': activePaymentMethod === 'card', 'bg-gray-200 text-gray-700': activePaymentMethod !== 'card' }"
               @click="setActiveMethod('card')">
               Credit Card
             </button>
             <button 
-              :class="{ 'tab-button': true, 'active': activePaymentMethod === 'paypal' }" 
+              :class="{ 'px-4 py-2 rounded-lg font-semibold transition-colors duration-200': true, 'bg-pink-500 text-white': activePaymentMethod === 'paypal', 'bg-gray-200 text-gray-700': activePaymentMethod !== 'paypal' }"
               @click="setActiveMethod('paypal')">
               PayPal
             </button>
           </div>
           
           <div v-if="activePaymentMethod === 'card'" class="payment-form-container">
-            <form @submit.prevent="submitPayment">
+            <form @submit.prevent="submitPayment" class="space-y-4">
               <div class="form-group">
-                <label for="cardNumber">Card Number</label>
-                <input type="text" id="cardNumber" v-model="paymentData.cardNumber" placeholder="•••• •••• •••• ••••" required />
+                <label for="cardNumber" class="block text-gray-700 font-medium mb-1">Card Number</label>
+                <input type="text" id="cardNumber" v-model="paymentData.cardNumber" placeholder="•••• •••• •••• ••••" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
               </div>
               
-              <div class="grid-2-cols">
+              <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
-                  <label for="expDate">Expiration Date</label>
-                  <input type="text" id="expDate" v-model="paymentData.expDate" placeholder="MM / YY" required />
+                  <label for="expDate" class="block text-gray-700 font-medium mb-1">Expiration Date</label>
+                  <input type="text" id="expDate" v-model="paymentData.expDate" placeholder="MM / YY" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
                 </div>
                 <div class="form-group">
-                  <label for="cvv">CVV</label>
-                  <input type="text" id="cvv" v-model="paymentData.cvv" placeholder="•••" required />
+                  <label for="cvv" class="block text-gray-700 font-medium mb-1">CVV</label>
+                  <input type="text" id="cvv" v-model="paymentData.cvv" placeholder="•••" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
                 </div>
               </div>
-  
+
               <div class="form-group">
-                <label for="cardHolderName">Cardholder Name</label>
-                <input type="text" id="cardHolderName" v-model="paymentData.cardHolderName" required />
+                <label for="cardHolderName" class="block text-gray-700 font-medium mb-1">Cardholder Name</label>
+                <input type="text" id="cardHolderName" v-model="paymentData.cardHolderName" required class="w-full px-4 py-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-pink-500" />
               </div>
-  
-              <button type="submit" class="submit-button">Pay with Card</button>
+
+              <button 
+                type="submit" 
+                :disabled="isProcessing"
+                class="submit-button w-full px-6 py-3 rounded-full text-white font-bold transition-all duration-300 transform active:scale-95 shadow-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 focus:outline-none focus:ring-4 focus:ring-pink-300">
+                {{ isProcessing ? 'Processing...' : 'Pay with Card' }}
+              </button>
             </form>
           </div>
 
           <div v-else-if="activePaymentMethod === 'paypal'" class="payment-form-container paypal-container">
-            <p>This method is in development</p>
-            <button class="submit-button" @click="submitPayment">Coming soon...</button>
+            <p class="text-center text-gray-600">This method is in development</p>
+            <button @click="submitPayment" :disabled="isProcessing" class="submit-button w-full px-6 py-3 rounded-full text-white font-bold transition-all duration-300 transform active:scale-95 shadow-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 focus:outline-none focus:ring-4 focus:ring-pink-300">
+              {{ isProcessing ? 'Processing...' : 'Coming soon...' }}
+            </button>
+          </div>
+          
+          <!-- Message box for user feedback -->
+          <div v-if="message" :class="messageClass" class="mt-6 p-4 rounded-lg font-medium transition-all duration-300">
+            {{ message }}
           </div>
         </div>
       </div>
@@ -134,10 +182,9 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue';
-import { useCartStore } from '@/store/cart'; // Adjust the path to your store file
+import { useCartStore } from '@/store/cart';
 import { useRouter } from 'vue-router';
-import { useStore } from 'vuex'; 
-import axios from 'axios';
+import { useStore } from 'vuex';
 
 export default {
   name: 'PaymentPage',
@@ -146,26 +193,37 @@ export default {
     const cartStore = useCartStore();
     const store = useStore();
     const checkoutStage = ref('prompt'); // 'prompt', 'guest_details', or 'payment'
-    const activePaymentMethod = ref('card');
+    const activePaymentMethod = ref('creditCard');
+
+    // Reactive variables for error handling and UI feedback
+    const isProcessing = ref(false);
+    const message = ref('');
+    const messageClass = ref('');
+    const useSavedAddress = ref(false);
+    const userAddresses = computed(() => store.state.userAddresses); 
 
     const formData = ref({
       fullName: '',
       email: '',
+      phoneNumber: '',
       shippingAddress: {
         street: '',
         city: '',
-        country: ''
-      }
+        state: '',
+        zipCode: '',
+        country: '',
+      },
     });
 
     const paymentData = ref({
       cardNumber: '',
       expDate: '',
       cvv: '',
-      cardHolderName: ''
+      cardHolderName: '',
     });
 
     const shipping = computed(() => {
+      // Free shipping for orders over R500, otherwise R75
       return cartStore.subtotal > 500 ? 50.00 : 75.00;
     });
 
@@ -173,72 +231,55 @@ export default {
       return cartStore.subtotal + shipping.value;
     });
 
+    // Computed properties from Vuex store
     const authenticatedUser = computed(() => store.state.isAuthenticated);
     const userProfile = computed(() => store.state.user);
-
     const hasSavedAddress = ref(false);
 
-    // Call checkAuth on mount to verify the user's session
+    // Initial setup on component mount
     onMounted(async () => {
-    // Dispatch action to get the latest user data
-    await store.dispatch('checkAuth'); 
-
-    // Check if the user is authenticated
+    // Wait for auth status to be confirmed
+    await store.dispatch('checkAuth');
+    
+    // Check if the user is authenticated and the user profile has been fetched
     if (authenticatedUser.value && userProfile.value) {
-        // Check if the user has at least one saved address
-        if (userProfile.value.addresses && userProfile.value.addresses.length > 0) {
-            const defaultAddress = userProfile.value.addresses[0];
-            // Populate the formData with the saved address
+        // Fetch addresses for the user profile
+        await store.dispatch('fetchUserAddresses');
+
+        if (userAddresses.value && userAddresses.value.length > 0) {
+            const defaultAddress = userAddresses.value[0];
+            
+            // Populate form data with the user's details
+            // The user object now contains the addresses
             formData.value.fullName = userProfile.value.username;
             formData.value.email = userProfile.value.email;
-            formData.value.shippingAddress = {
-                street: defaultAddress.street || '',
-                city: defaultAddress.city || '',
-                country: defaultAddress.country || ''
-            };
-            // Set the stage to payment
-            checkoutStage.value = 'payment';
-            // Flag that the user has a saved address
+
+            // Populate shipping address details for display purposes
+            formData.value.shippingAddress.street = defaultAddress.street_address || '';
+            formData.value.shippingAddress.city = defaultAddress.city || '';
+            formData.value.shippingAddress.state = defaultAddress.state || '';
+            formData.value.shippingAddress.zipCode = defaultAddress.zip_code || '';
+            formData.value.shippingAddress.country = defaultAddress.country || '';
+
+            // Set flags and move directly to the payment stage
             hasSavedAddress.value = true;
+            useSavedAddress.value = true;
+            checkoutStage.value = 'payment';
         } else {
-            // If the user has no saved address, force them to fill it out
+            // No saved address, but user is authenticated.
+            // Pre-populate with user details and stay on the details form.
+            formData.value.fullName = userProfile.value.username;
+            formData.value.email = userProfile.value.email;
+            formData.value.phoneNumber = userProfile.value.phone_number || '';
             checkoutStage.value = 'guest_details';
             hasSavedAddress.value = false;
         }
+    } else {
+        // User is not authenticated, show the initial prompt
+        checkoutStage.value = 'prompt';
+        hasSavedAddress.value = false;
     }
 });
-
-    const createOrder = async () => {
-    try {
-        const orderDetails = {
-            // The backend's createOrder controller expects a property named 'shippingDetails'
-            shippingDetails: {
-                fullName: formData.value.fullName,
-                email: formData.value.email,
-                streetAddress: formData.value.shippingAddress.street,
-                city: formData.value.shippingAddress.city,
-                country: formData.value.shippingAddress.country,
-                // Make sure to add any other required fields from your model here
-            },
-            // The backend expects a property named 'cartItems'
-            cartItems: cartStore.cartItems.map(item => ({
-                product_id: item.product_id,
-                quantity: item.quantity,
-                price: item.price,
-                name: item.name
-            })),
-            // The backend expects a property named 'totalAmount'
-            totalAmount: total.value,
-        };
-
-        // Correct the URL to match the backend route
-        const response = await axios.post('/api/orders', orderDetails);
-        return response.data; // This should contain the new order_id
-    } catch (e) {
-        console.error('Order creation failed:', e.response?.data?.message || e.message);
-        throw e;
-    }
-};
 
     const setActiveMethod = (method) => {
       activePaymentMethod.value = method;
@@ -249,75 +290,159 @@ export default {
     };
 
     const continueToPayment = () => {
-    // Basic validation check
-    if (formData.value.fullName && formData.value.email && formData.value.shippingAddress.street) {
+      // Basic validation check for the guest form
+      if (useSavedAddress.value || (formData.value.fullName && formData.value.email && formData.value.shippingAddress.street)) {
         checkoutStage.value = 'payment';
-    } else {
-        alert('Please fill in all shipping details to continue.');
-    }
-};
-
-    const handleSignIn = () => {
-      // Placeholder for your sign-in logic
-      console.log('Redirecting to sign-in page...');
-      router.push('/sign');
-      // In a real app, you would navigate to your login/sign-up page here.
+        message.value = '';
+      } else {
+        message.value = 'Please fill in all required shipping details to continue.';
+        messageClass.value = 'bg-yellow-100 text-yellow-700 border border-yellow-400';
+      }
     };
 
+    const handleSignIn = () => {
+      console.log('Redirecting to sign-in page...');
+      router.push('/sign');
+    };
+
+    // New function to validate credit card details
+    const validateCreditCardForm = () => {
+      const { cardNumber, expDate, cvv, cardHolderName } = paymentData.value;
       
-      const submitPayment = async () => {
+      // Card Number validation (16 digits)
+      if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
+        message.value = 'Please enter a valid 16-digit card number.';
+        return false;
+      }
+
+      // Expiration Date validation (MM/YY format and future date)
+      const [month, year] = expDate.split('/').map(s => s.trim());
+      if (!month || !year || !/^\d{2}$/.test(month) || !/^\d{2}$/.test(year)) {
+        message.value = 'Please enter the expiration date in MM/YY format.';
+        return false;
+      }
+      const fullYear = 2000 + parseInt(year, 10);
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1; // getMonth() is 0-indexed
+      if (fullYear < currentYear || (fullYear === currentYear && parseInt(month, 10) < currentMonth)) {
+        message.value = 'This card has expired.';
+        return false;
+      }
+      
+      // CVV validation (3 or 4 digits)
+      if (!/^\d{3,4}$/.test(cvv)) {
+        message.value = 'Please enter a valid 3 or 4-digit CVV.';
+        return false;
+      }
+      
+      // Cardholder Name validation (not empty)
+      if (!cardHolderName.trim()) {
+        message.value = 'Please enter the cardholder name.';
+        return false;
+      }
+
+      return true; // All validation passed
+    };
+
+    const submitPayment = async () => {
+        message.value = '';
+        messageClass.value = '';
+        isProcessing.value = true;
 
         if (cartStore.cartItems.length === 0) {
-    alert("Your cart is empty. Please add products before checking out.");
-    return; // Stop the function here
-  }
-      // 1. Create the order first
-      let orderId;
-      try {
-        const orderResponse = await createOrder();
-        orderId = orderResponse.orderId;
-        alert(`Order ${orderId} created successfully. Now processing payment...`);
-      } catch (error) {
-        alert('Failed to create order. Please try again.');
-        return;
-      }
-
-      // 2. Prepare the payment payload with the real orderId
-      const paymentPayload = {
-    orderId: orderId, // The ID you just got from the createOrder response
-    amount: total.value,
-    paymentMethod: activePaymentMethod.value === 'card' ? 'creditCard' : 'paypal',
-    // The paymentDetails key is not used in your backend, so you can leave it out.
-    // The 'user' and 'orderDetails' properties are also required by your backend's mock payment controller.
-    user: {
-        fullName: formData.value.fullName,
-        email: formData.value.email
-    },
-    orderDetails: {
-        cartItems: cartStore.cartItems.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            price: item.price,
-            name: item.name
-        }))
-    }
-  };
-
-      try {
-        // 3. Call the action in your Pinia store to process payment
-        const result = await cartStore.processPayment(paymentPayload);
-
-        if (result.success) {
-          alert('Payment successful! Redirecting to confirmation page.');
-          // Redirect the user to a success page
-          router.push('/order-confirmation');
-          cartStore.$resetCart();
-        } else {
-          alert(`Payment failed: ${result.message}`);
+            message.value = 'Your cart is empty. Please add products before checking out.';
+            messageClass.value = 'bg-yellow-100 text-yellow-700 border border-yellow-400';
+            isProcessing.value = false;
+            return;
         }
-      } catch (error) {
-        alert('An unexpected error occurred during payment.');
-      }
+
+        if (activePaymentMethod.value === 'card' && !validateCreditCardForm()) {
+            messageClass.value = 'bg-yellow-100 text-yellow-700 border border-yellow-400';
+            isProcessing.value = false;
+            return;
+        }
+
+        let payload = {};
+        let saveDetails = false;
+
+        // let payload = {};
+
+    if (authenticatedUser.value && useSavedAddress.value) {
+        // If the user is logged in AND is using a saved address,
+        // we only need to send the addressId and other basic details.
+        const defaultAddressId = userAddresses.value[0].address_id;
+         payload = {
+            addressId: defaultAddressId,
+            shippingDetails: {
+                fullName: formData.value.fullName,
+                email: formData.value.email,
+                phoneNumber: formData.value.phoneNumber,
+            },
+            paymentDetails: {
+                ...paymentData.value,
+                method: activePaymentMethod.value,
+            },
+            cartItems: cartStore.cartItems,
+            totalAmount: total.value,
+            saveDetails: false, // No need to save a new address
+        };
+    } else {
+        // Use this for both guests and authenticated users creating a new address
+        payload = {
+            shippingDetails: {
+                fullName: formData.value.fullName,
+                email: formData.value.email,
+                phoneNumber: formData.value.phoneNumber,
+                streetAddress: formData.value.shippingAddress.street,
+                city: formData.value.shippingAddress.city,
+                state: formData.value.shippingAddress.state,
+                zipCode: formData.value.shippingAddress.zipCode,
+                country: formData.value.shippingAddress.country,
+            },
+            paymentDetails: {
+                ...paymentData.value,
+                method: activePaymentMethod.value,
+            },
+            cartItems: cartStore.cartItems,
+            totalAmount: total.value,
+            saveDetails: authenticatedUser.value, // Save for logged-in users only
+        };
+    }
+        // 💡 The fix is here: Add the paymentMethod to the payload.
+        // const payload = {
+        //     shippingDetails: shippingDetails,
+        //     paymentDetails: {
+        //         ...paymentData.value,
+        //         method : activePaymentMethod.value // <-- This is the new line
+        //     },
+        //     cartItems: cartStore.cartItems,
+        //     total: total.value,
+        //     saveDetails: saveDetails,
+        // };
+
+        try {
+            const result = await cartStore.submitOrderAndPay(payload);
+
+            if (result.success) {
+                message.value = `Payment successful! Order Number: ${result.orderNumber}`;
+                messageClass.value = 'bg-green-100 text-green-700 border border-green-400';
+                console.log(`Payment successful! Order Number: ${result.orderNumber}`);
+                router.push({
+                    path: '/order-confirmation',
+                    query: { orderNumber: result.orderNumber },
+                });
+            } else {
+                message.value = `Payment failed: ${result.message}`;
+                messageClass.value = 'bg-red-100 text-red-700 border border-red-400';
+                console.error(`Payment failed: ${result.message}`);
+            }
+        } catch (error) {
+            message.value = `An unexpected error occurred during payment. Please try again.`;
+            messageClass.value = 'bg-red-100 text-red-700 border border-red-400';
+            console.error('An unexpected error occurred during payment.', error);
+        } finally {
+            isProcessing.value = false;
+        }
     };
 
     return {
@@ -329,17 +454,64 @@ export default {
       activePaymentMethod,
       checkoutStage,
       authenticatedUser,
+      userProfile,
+      hasSavedAddress,
+      isProcessing,
+      message,
+      messageClass,
+      userAddresses, 
+      useSavedAddress,
       setActiveMethod,
       startGuestCheckout,
       continueToPayment,
       handleSignIn,
-      submitPayment
+      submitPayment,
     };
   },
 };
 </script>
-
 <style scoped>
+/* Scoped styles can be added here */
+/* .payment-page {
+  padding-top: 5rem;
+  background-color: #f7fafc;
+  min-height: 100vh;
+} */
+.page-title {
+  font-family: 'Playfair Display', serif;
+}
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #a0aec0;
+  font-size: 14px;
+}
+.badge i {
+  color: #48bb78;
+}
+
+.payment-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fce4ec;
+  font-family: 'Inter', sans-serif;
+}
+
+
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 .payment-page {

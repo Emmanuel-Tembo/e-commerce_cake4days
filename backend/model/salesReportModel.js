@@ -1,4 +1,4 @@
-import { pool } from '../config/db.js';
+import { pool } from '../config/Db.js';
 
 // Get a sales report by its ID
 export const getSalesReportById = async (reportId) => {

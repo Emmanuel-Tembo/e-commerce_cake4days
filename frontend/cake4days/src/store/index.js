@@ -17,6 +17,7 @@ export default createStore({
     humanProducts: [],
     podProducts: [],
     isProfileModalVisible: false,
+    userAddresses: [],
   },
   getters: {
     currentUser: (state) => state.user,
@@ -59,6 +60,9 @@ export default createStore({
     SET_PROFILE_MODAL_VISIBILITY(state, isVisible) { // NEW mutation
       state.isProfileModalVisible = isVisible;
     },
+    setAddresses(state, addresses) {
+      state.userAddresses = addresses;
+    }
   },
   actions: {
     // NEW ACTION to handle user registration
@@ -214,6 +218,63 @@ export default createStore({
         console.error('Error fetching POD products:', error);
         commit('setPodProducts', []);
       }
-    }
+    },
+    async fetchUserAddresses({ commit }) {
+      try {
+        const response = await axios.get('/user/addresses');
+        commit('setAddresses', response.data);
+      } catch (error) {
+        console.error('Failed to fetch addresses:', error);
+        commit('setAddresses', []);
+      }
+    },
+
+    // NEW ACTION: Adds a new address
+    async addUserAddress({ dispatch }, addressData) {
+      try {
+        await axios.post('/user/addresses', addressData);
+        // Dispatching fetchUserAddresses again to get the updated list
+        dispatch('fetchUserAddresses');
+      } catch (error) {
+        console.error('Error adding address:', error);
+        throw error;
+      }
+    },
+
+    // NEW ACTION: Updates an existing address
+    async updateUserAddress({ dispatch }, { addressId, addressData }) {
+      try {
+        await axios.put(`/user/addresses/${addressId}`, addressData);
+        // Dispatching fetchUserAddresses again to get the updated list
+        dispatch('fetchUserAddresses');
+      } catch (error) {
+        console.error('Error updating address:', error);
+        throw error;
+      }
+    },
+
+    // NEW ACTION: Deletes an address
+    async deleteUserAddress({ dispatch }, addressId) {
+      try {
+        await axios.delete(`/user/addresses/${addressId}`);
+        // Dispatching fetchUserAddresses again to get the updated list
+        dispatch('fetchUserAddresses');
+      } catch (error) {
+        console.error('Error deleting address:', error);
+        throw error;
+      }
+    },
+    async submitCustomOrder({ commit }, orderData) {
+        try {
+            // Send the form data to the backend API
+            const response = await axios.post('/custom-orders', orderData);
+            console.log('Custom order submitted successfully:', response.data);
+            return response.data; // Return the response data for the component to use
+        } catch (error) {
+            console.error('Error submitting custom order:', error.response?.data?.message || error.message);
+            throw error;
+        }
+    },
   },
+  
 });

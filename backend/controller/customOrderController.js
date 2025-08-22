@@ -1,4 +1,6 @@
+// controllers/customOrderController.js
 import * as customOrderModel from '../model/customOrderModel.js';
+import { sendCustomOrderConfirmationEmail } from '../services/emailService.js';
 
 // Get all custom orders (Admin only)
 export const getCustomOrders = async (req, res) => {
@@ -33,31 +35,37 @@ export const getCustomOrderById = async (req, res) => {
 // Create a custom order (User only)
 // This function will handle creating a new custom order
 export const createCustomOrder = async (req, res) => {
-    // This is the data the user sends from the frontend
-    const { full_name, ...orderData } = req.body;
-    
+    // Corrected destructuring to use `fullName`
+    const { fullName, ...orderData } = req.body; 
+
     // The `user_id` comes from the verified JWT, not the request body
     const userIdFromToken = req.user.userId;
 
-    if (!full_name) {
+    if (!fullName) {
         return res.status(400).json({ message: 'Full name is required to create a custom order.' });
     }
-    
+
     // We combine the data from the request body with the secure user ID from the token
     const finalOrderData = {
         user_id: userIdFromToken, // Use the ID from the JWT
-        full_name,
+        fullName, // Use the corrected `fullName` variable
         ...orderData
     };
-    
+
     try {
         const orderId = await customOrderModel.createCustomOrder(finalOrderData);
+        await sendCustomOrderConfirmationEmail({
+            userEmail: finalOrderData.email,
+            userName: finalOrderData.fullName,
+            orderId: orderId,
+            ...finalOrderData
+        });
         res.status(201).json({ message: 'Custom order created successfully!', orderId });
     } catch (e) {
         console.error('Error creating custom order:', e);
         res.status(500).json({ message: 'Server error creating custom order.' });
     }
-};98
+};
 
 // Delete a custom order (Admin or User's own)
 export const deleteCustomOrder = async (req, res) => {
@@ -67,7 +75,7 @@ export const deleteCustomOrder = async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Order not found.' });
         }
-        
+
         // Admin or the user who owns the order can delete it
         if (req.user.role === 'admin' || order.user_id === req.user.userId) {
             const affectedRows = await customOrderModel.deleteCustomOrder(id);
@@ -75,7 +83,7 @@ export const deleteCustomOrder = async (req, res) => {
                 return res.status(200).json({ message: 'Custom order deleted successfully.' });
             }
         }
-        
+
         // If the user is not an admin and doesn't own the order
         return res.status(403).json({ message: 'Access denied: You can only delete your own orders.' });
     } catch (e) {

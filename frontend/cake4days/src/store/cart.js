@@ -29,6 +29,7 @@ export const useCartStore = defineStore('cart', {
       this.isCartOpen = !this.isCartOpen;
     },
     addToCart(product) {
+      
       const existingItem = this.cartItems.find(item => item.product_id === product.product_id);
       if (existingItem) {
         existingItem.quantity++;
@@ -67,18 +68,23 @@ export const useCartStore = defineStore('cart', {
       // 6. Clear the cart from local storage on reset
       localStorage.removeItem('cartItems');
     },
-    async processPayment(payload) {
-      try {
-        const response = await axios.post('/api/payments/process', payload);
-        console.log('Payment response:', response.data);
-        if (response.data.success) {
-          this.$resetCart(); // Clear the cart on successful payment
+    async submitOrderAndPay(payload) {
+            try {
+                // The backend call now sends the complete payload.
+                const response = await axios.post('/api/orders', payload);
+                
+                // If the backend call is successful, clear the frontend cart
+                if (response.status === 201) {
+                    this.$resetCart(); 
+                    return { success: true, message: 'Order created and paid successfully!', orderNumber: response.data.orderNumber };
+                }
+
+                return response.data;
+            } catch (error) {
+                console.error('Order submission failed:', error.response?.data?.message || error.message);
+                // Return an object indicating failure.
+                return { success: false, message: error.response?.data?.message || error.message };
+            }
         }
-        return response.data;
-      } catch (error) {
-        console.error('Payment processing failed:', error.response?.data?.message || error.message);
-        return { success: false, message: error.response?.data?.message || error.message };
-      }
-    }
-  },
+    },
 });

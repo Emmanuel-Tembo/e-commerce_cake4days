@@ -15,6 +15,7 @@ import Dashboard from '../views/Dashboard.vue'
 import merchView from '@/views/merchView.vue'
 import aboutView from '@/views/aboutView.vue'
 import PaymenView from '@/views/paymenView.vue'
+import OrderConfirm from '@/views/orderConfirm.vue'
 
 
 
@@ -44,6 +45,11 @@ const routes = [
     path: '/sign',
     name: 'sign',
     component: signView
+  },
+  {
+    path: '/order-confirmation',
+    name: 'order confirmation',
+    component: OrderConfirm
   },
   {
     path: '/catalogue',

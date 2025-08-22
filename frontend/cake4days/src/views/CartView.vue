@@ -5,7 +5,7 @@
     <!-- Empty Cart State -->
     <div v-if="cartItems.length === 0" class="empty-cart">
       <img src="https://www.cakesforpets.fr/cdn/shop/files/CakeetDonutsAnniversaireroseboite.jpg?v=1745331300&width=360" 
-           alt="Empty cart" class="empty-cart-image" />
+            alt="Empty cart" class="empty-cart-image" />
       <h3>Your cart is empty!</h3>
       <p>Looks like you haven't added any tasty treats yet</p>
       <button @click="$router.push('/')" class="browse-btn">
@@ -63,6 +63,11 @@
           <button @click="applyDiscount" class="apply-btn">Apply</button>
         </div>
         
+        <!-- Message box for discount feedback -->
+        <div v-if="discountMessage" :class="discountMessageClass" class="mt-2 p-3 rounded-lg text-sm">
+            {{ discountMessage }}
+        </div>
+
         <div class="summary-row total">
           <span>Total</span>
           <span>R{{ cartTotal.toFixed(2) }}</span>
@@ -107,31 +112,37 @@ export default {
     const { increaseQuantity, decreaseQuantity, removeFromCart } = cartStore;
 
     const discountCode = ref('');
-        const discountApplied = ref(false);
+    const discountApplied = ref(false);
+    const discountMessage = ref('');
+    const discountMessageClass = ref('');
 
-        const applyDiscount = () => {
-             // Your discount logic here
-             if (discountCode.value === 'PETLOVE20') {
-                 discountApplied.value = true;
-                 alert('20% discount applied!');
-             } else {
-                 alert('Invalid discount code');
-             }
-        };
+    const applyDiscount = () => {
+        // Your discount logic here
+        if (discountCode.value === 'PETLOVE20') {
+            discountApplied.value = true;
+            discountMessage.value = '20% discount applied!';
+            discountMessageClass.value = 'bg-green-100 text-green-700 border border-green-400';
+        } else {
+            discountMessage.value = 'Invalid discount code';
+            discountMessageClass.value = 'bg-red-100 text-red-700 border border-red-400';
+        }
+    };
 
-        return {
-            // Expose Pinia state and actions to the template
-            cartItems,
-            cartTotal: subtotal, // Use the subtotal getter as cartTotal
-            increaseQuantity,
-            decreaseQuantity,
-            removeFromCart,
+    return {
+        // Expose Pinia state and actions to the template
+        cartItems,
+        cartTotal: subtotal, // Use the subtotal getter as cartTotal
+        increaseQuantity,
+        decreaseQuantity,
+        removeFromCart,
 
-            // Expose local state and methods
-            discountCode,
-            applyDiscount,
-            discountApplied
-        };
+        // Expose local state and methods
+        discountCode,
+        applyDiscount,
+        discountApplied,
+        discountMessage,
+        discountMessageClass,
+    };
   },
 }
 </script>

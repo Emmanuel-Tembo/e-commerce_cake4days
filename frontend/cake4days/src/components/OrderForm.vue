@@ -75,6 +75,16 @@
             <label for="eventDate">Date of Event</label>
             <input type="date" id="eventDate" v-model="formData.eventDate" required />
           </div>
+
+          <div class="form-group">
+            <label for="servings">Number of Servings</label>
+            <input type="number" id="servings" v-model.number="formData.servings" min="1" placeholder="e.g., 10" />
+          </div>
+
+          <div class="form-group">
+            <label for="dietary">Dietary Requirements (e.g., vegan, gluten-free)</label>
+            <input type="text" id="dietary" v-model="formData.dietaryRequirements" />
+          </div>
           
           <div class="form-group">
             <label for="cakeType">Type of Cake</label>
@@ -118,10 +128,12 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
   name: 'OrderForm',
   setup() {
+    const store = useStore();
     // Reactive data for the form inputs
     const formData = ref({
       fullName: '',
@@ -138,6 +150,8 @@ export default {
       files: [],
       occasion: '',
       eventDate: '',
+      servings: null,
+      dietaryRequirements: '',
       cakeType: '',
       flavors: [],
       budget: ''
@@ -162,8 +176,45 @@ export default {
     };
 
     // Method to handle form submission
-    const submitOrder = () => {
-      console.log('Form Submitted!', formData.value);
+    const submitOrder = async () => {
+      try {
+        // Create a payload that matches your backend API's expected format
+         const payload = {
+      fullName: formData.value.fullName,
+      email: formData.value.email,
+      phone: formData.value.phone,
+      shippingAddress: {
+        street: formData.value.shippingAddress.street,
+        city: formData.value.shippingAddress.city,
+        state: formData.value.shippingAddress.state,
+        zip: formData.value.shippingAddress.zip,
+        country: formData.value.shippingAddress.country,
+      },
+      description: formData.value.description,
+      
+      // Update these keys to match your email service's expectations
+      occasion: formData.value.occasion,
+      eventDate: formData.value.eventDate,
+      servings: formData.value.servings,
+      dietaryRequirements: formData.value.dietaryRequirements,
+      budget: formData.value.budget,
+      cakeType: formData.value.cakeType,
+      flavors: formData.value.flavors,
+      special_requests: formData.value.description, // Keep this as special_requests for now if your model requires it
+    };
+        // Dispatch the new Vuex action
+        await store.dispatch('submitCustomOrder', payload);
+
+        // Notify the user of success
+        alert('Your custom order has been submitted! We will contact you within 24 hours.');
+
+        // Optionally, reset the form
+        resetForm();
+
+      } catch (error) {
+        alert('Failed to submit your order. Please try again.');
+        console.error('Submission error:', error);
+      }
     };
 
     onMounted(() => {
@@ -188,6 +239,29 @@ export default {
         observer.disconnect();
       }
     });
+    const resetForm = () => {
+        formData.value = {
+            fullName: '',
+            email: '',
+            phone: '',
+            shippingAddress: {
+                street: '',
+                city: '',
+                state: '',
+                zip: '',
+                country: ''
+            },
+            description: '',
+            files: [],
+            occasion: '',
+            eventDate: '',
+            servings: null,
+            dietaryRequirements: '',
+            cakeType: '',
+            flavors: [],
+            budget: ''
+        };
+    };
 
     return {
       formData,
