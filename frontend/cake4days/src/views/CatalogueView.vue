@@ -222,7 +222,7 @@ export default {
       
       if (this.selectedCategory !== 'all') {
         // CORRECTED: Changed cake.category to cake.type
-        cakes = cakes.filter(cake => cake.type === this.selectedCategory);
+        cakes = cakes.filter(cake => cake.category === this.selectedCategory);
       }
       
       switch (this.sortOption) {

@@ -45,12 +45,10 @@
                     </div>
                 </div>
 
-                <!-- Display a loading message while data is being fetched -->
                 <div v-if="isLoading" class="loading-message">
                     <p>Loading products...</p>
                 </div>
 
-                <!-- Display products once they are loaded and not empty -->
                 <div v-else-if="filteredProducts.length > 0" class="products-container">
                     <div class="product-card" v-for="product in filteredProducts" :key="product.product_id"
                         @click="viewCakeDetail(product.product_id)">
@@ -143,15 +141,12 @@ export default {
     setup() {
         const cartStore = useCartStore();
 
-        // Use storeToRefs to get reactive references to state properties
         const { cartItems, totalItems, subtotal, isCartOpen } = storeToRefs(cartStore);
 
-        // Get ALL actions directly from the store
         const { toggleCart, removeFromCart, increaseQuantity, decreaseQuantity, addToCart } = cartStore;
 
 
         return {
-            // Expose all necessary state and actions to the template
             cartItems,
             totalItems,
             subtotal,
@@ -175,7 +170,6 @@ export default {
         };
     },
     created() {
-        // Dispatch the action and handle the promise to update the loading state
         this.fetchPetProducts()
             .then(() => {
                 this.isLoading = false;
@@ -186,60 +180,53 @@ export default {
             });
     },
     computed: {
-        ...mapState(['petProducts', 'searchTerm']), // Added searchTerm to mapState
+    ...mapState(['petProducts', 'searchTerm']),
 
-        filteredProducts() {
-            // Check if products exist before filtering
-            if (!this.petProducts) {
-                return [];
-            }
+    filteredProducts() {
+        if (!this.petProducts) {
+            return [];
+        }
 
-            let filtered = this.petProducts;
+        let filtered = this.petProducts;
 
-        // Safely get the search term
         const searchLower = (this.searchTerm || '').toLowerCase();
 
-        // Filter by search term from the Vuex store
         if (searchLower) {
             filtered = filtered.filter(product => {
-                // Safely access product properties before calling toLowerCase()
                 const productName = product.name ? product.name.toLowerCase() : '';
-                const productType = product.type ? product.type.toLowerCase() : '';
+                const productCategory = product.category ? product.category.toLowerCase() : ''; 
 
-                return productName.includes(searchLower) || productType.includes(searchLower);
+                return productName.includes(searchLower) || productCategory.includes(searchLower);
             });
         }
 
-            // Filter by category
-            if (this.selectedCategory) {
-                filtered = filtered.filter(fetchPetProducts => fetchPetProducts.type === this.selectedCategory);
-            }
+        if (this.selectedCategory) {
+            filtered = filtered.filter(product => product.category === this.selectedCategory);
+        }
 
-            // Filter by price ranges
-            if (this.priceFilters.length > 0) {
-                filtered = filtered.filter(fetchPetProducts => {
-                    return this.priceFilters.some(range => {
-                        if (range === 'under300') return fetchPetProducts.price < 300;
-                        if (range === '300to650') return fetchPetProducts.price >= 300 && fetchPetProducts.price <= 650;
-                        if (range === 'over650') return fetchPetProducts.price > 650;
-                        return false;
-                    });
+        if (this.priceFilters.length > 0) {
+            filtered = filtered.filter(product => {
+                return this.priceFilters.some(range => {
+                    if (range === 'under300') return product.price < 300;
+                    if (range === '300to650') return product.price >= 300 && product.price <= 650;
+                    if (range === 'over650') return product.price > 650;
+                    return false;
                 });
-            }
+            });
+        }
 
-            return filtered;
-        },
+        return filtered;
     },
+},
     methods: {
         ...mapActions(['fetchPetProducts']),
         goToCart() {
             this.$router.push({ name: 'CartView' });
         },
         viewCakeDetail(productId) {
-              // Find the product from the filteredProducts array using the product's 'id' property.
-    // The `productId` parameter is what is passed from the v-for loop.
+
     this.selectedTreat = this.filteredProducts.find(product => product.product_id === productId);
-    // You can add console.log to confirm the product is being found
+
     console.log('Product selected:', this.selectedTreat);
         },
         closeModal() {
@@ -247,7 +234,7 @@ export default {
         },
         filterByCategory(category) {
             this.selectedCategory = this.selectedCategory === category ? '' : category;
-            this.$store.commit('clearSearchTerm'); // Clear search term when filtering by category
+            this.$store.commit('clearSearchTerm'); 
         },
         showAllProducts() {
             this.selectedCategory = '';
@@ -285,20 +272,18 @@ export default {
             this.showCart = !this.showCart;
         },
         showAddedToCartFeedback(productName) {
-            // You could add a toast notification here
+
             console.log(`Added ${productName} to cart!`);
         },
         handleImageError(event) {
-            // Fallback to cake icon if image fails to load
             event.target.style.display = 'none';
-            event.target.nextElementSibling?.remove(); // Remove any existing fallback
+            event.target.nextElementSibling?.remove(); 
             const fallbackIcon = document.createElement('i');
             fallbackIcon.className = 'fas fa-birthday-cake fallback-icon';
             event.target.parentNode.appendChild(fallbackIcon);
         }
     },
     watch: {
-        // Watch for changes in the search term from the store and reset other filters
         searchTerm(newTerm, oldTerm) {
             if (newTerm) {
                 this.selectedCategory = '';
@@ -310,14 +295,12 @@ export default {
 </script>
 
 <style scoped>
-/* Main Page Layout */
 .container-fluid {
   font-family: 'Poppins', sans-serif;
-  background-color: #f7f3f0; /* Soft, light background */
-  padding-top: 60px; /* Add padding for sticky header */
+  background-color: #f7f3f0;
+  padding-top: 60px;
 }
 
-/* Background & Hero Section */
 .background-section {
   position: relative;
   background-size: cover;
@@ -332,7 +315,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3); /* Dark overlay */
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .hero-section {
