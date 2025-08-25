@@ -51,86 +51,86 @@ export default {
 
 <style scoped>
 .confirmation-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 2rem;
-  background-color: #f4f7f6;
-  font-family: 'Arial', sans-serif;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f2e8; /* Soft, warm beige background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #333;
 }
 
 .card {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 3rem 2rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 100%;
-  max-width: 500px;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    border: 1px solid #795548; /* Brown outline */
 }
 
 .icon-container {
-  margin-bottom: 1.5rem;
+    background-color: #c2b280; /* Beige color for the circle */
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px;
 }
 
 .check-icon {
-  width: 80px;
-  height: 80px;
-  color: #4CAF50;
-  stroke: #4CAF50;
-  stroke-width: 3px;
-  animation: scale-in 0.5s ease-out;
-}
-
-@keyframes scale-in {
-  from {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+    color: #fff; /* White checkmark */
+    width: 40px;
+    height: 40px;
 }
 
 .title {
-  font-size: 2.25rem;
-  color: #333;
-  margin-bottom: 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #795548; /* Brown heading */
+    margin-bottom: 10px;
 }
 
 .message {
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 2rem;
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 30px;
 }
 
 .order-details {
-  border-top: 1px solid #eee;
-  padding-top: 1.5rem;
-  margin-top: 1.5rem;
+    background-color: #f8f3eb; /* Lighter beige for details section */
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
 }
 
 .order-number {
-  font-size: 1.5rem;
-  color: #333;
-  font-weight: bold;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4b352a; /* Darker brown */
 }
 
 .back-button {
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 2rem;
+    background-color: #c2b280; /* Beige button */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .back-button:hover {
-  background-color: #0056b3;
+    background-color: #795548; /* Brown hover */
 }
 </style>

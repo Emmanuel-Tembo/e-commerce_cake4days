@@ -18,10 +18,10 @@ export const addAddress = async (userId, addressData) => {
         'INSERT INTO user_addresses (user_id, street_address, city, state, zip_code, country, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [
             userId,
-            addressData.streetAddress,
+            addressData.street_address,
             addressData.city,
             addressData.state,
-            addressData.zipCode,
+            addressData.zip_code,
             addressData.country,
             addressData.is_default
         ]
@@ -39,10 +39,10 @@ export const updateAddress = async (userId, addressId, addressData) => {
     const [result] = await pool.query(
         'UPDATE user_addresses SET street_address = ?, city = ?, state = ?, zip_code = ?, country = ?, is_default = ? WHERE user_id = ? AND address_id = ?',
         [
-            addressData.streetAddress,
+            addressData.street_address,
             addressData.city,
             addressData.state,
-            addressData.zipCode,
+            addressData.zip_code,
             addressData.country,
             addressData.is_default,
             userId,

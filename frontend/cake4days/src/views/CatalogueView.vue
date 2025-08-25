@@ -16,6 +16,7 @@
       </div>
     </section>
 
+    <!-- The search and filter controls remain unchanged. -->
     <div class="catalog-controls">
       <div class="container">
         <div class="filter-section">
@@ -71,10 +72,15 @@
             <img :src="cake.image_url" :alt="cake.name" @error="handleImageError">
           </div>
           <div class="cake-info">
+            <div class="product-rating">
+                            <div class="stars">
+                                <i class="fas fa-star" v-for="star in 5" :key="star"></i>
+                            </div>
+                            <span class="rating-text">({{ cake.total_reviews }})</span>
+                        </div>
             <h3>{{ cake.name }}</h3>
-            <p class="cake-description">{{ cake.description }}</p>
             <div class="cake-meta">
-              <span class="price">${{ cake.price.toFixed(2) }}</span>
+              <span class="price">R{{ cake.price.toFixed(2) }}</span>
               <span class="serves" v-if="cake.serves">
                 <i class="fas fa-user-friends"></i> Serves {{ cake.serves }}
               </span>
@@ -92,6 +98,7 @@
       </div>
     </div>
 
+    <!-- Quick View Modal remains unchanged -->
     <div class="quick-view-modal" v-if="selectedCake" @click.self="closeModal">
       <div class="modal-content">
         <button class="close-modal" @click="closeModal">
@@ -109,7 +116,7 @@
             <div class="modal-meta">
               <div class="meta-item">
                 <i class="fas fa-tag"></i>
-                <span>{{ selectedCake.category }}</span>
+                <span>{{ selectedCake.type }}</span>
               </div>
               <div class="meta-item">
                 <i class="fas fa-user-friends"></i>
@@ -118,7 +125,7 @@
               </div>
             
             <div class="price-section">
-              <span class="modal-price">${{ selectedCake.price.toFixed(2) }}</span>
+              <span class="modal-price">R{{ selectedCake.price.toFixed(2) }}</span>
               <button class="add-to-cart-btn" @click.stop="addToCart(selectedCake)">
               Add to Cart
             </button>
@@ -172,10 +179,11 @@ export default {
   },
   data() {
     return {
-      searchQuery: '',
+      // searchQuery: '',
       selectedCategory: 'all',
       sortOption: 'featured',
       selectedCake: null,
+      isLoading: true, // Add a loading state
       categories: [
         { value: 'birthday', label: 'Birthday Cakes' },
         { value: 'wedding', label: 'Wedding Cakes' },
@@ -186,13 +194,25 @@ export default {
       isLoading: true,
     }
   },
+  created() {
+    // When the component is created, dispatch an action to fetch the products.
+    // This now matches the PetTreatsView component.
+    this.$store.dispatch('fetchProducts')
+      .then(() => {
+        this.isLoading = false; // Set loading to false when data arrives
+      })
+      .catch(error => {
+        console.error("Failed to fetch products:", error);
+        this.isLoading = false; // Also stop loading on error
+      });
+  },
   computed: {
-    ...mapState(['humanProducts']),
+    ...mapState(['humanProducts','searchTerm']),
     filteredCakes() {
       let cakes = this.humanProducts;
       
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
+      if (this.searchTerm) {
+        const query = this.searchTerm.toLowerCase();
         cakes = cakes.filter(cake => 
           cake.name.toLowerCase().includes(query) ||
           cake.description.toLowerCase().includes(query) ||
@@ -201,7 +221,8 @@ export default {
       }
       
       if (this.selectedCategory !== 'all') {
-        cakes = cakes.filter(cake => cake.category === this.selectedCategory);
+        // CORRECTED: Changed cake.category to cake.type
+        cakes = cakes.filter(cake => cake.type === this.selectedCategory);
       }
       
       switch (this.sortOption) {
@@ -224,10 +245,12 @@ export default {
   methods: {
     ...mapActions(['fetchHumanProducts']),
     applyFilters() {
-      // Filters are applied reactively through computed property
+      // This method is kept for clarity, but the filtering is reactive
+      // and happens automatically in the 'filteredCakes' computed property.
     },
     resetFilters() {
-      this.searchQuery = '';
+      // this.searchQuery = '';
+      this.$store.commit('clearSearchTerm');
       this.selectedCategory = 'all';
       this.sortOption = 'featured';
     },
@@ -257,7 +280,15 @@ export default {
             console.error("Failed to fetch human cakes:", error);
             this.isLoading = false;
         });
-  }
+  },
+   watch: {
+    searchTerm(newTerm, oldTerm) {
+      if (newTerm) {
+        this.selectedCategory = 'all';
+        this.sortOption = 'featured';
+      }
+    }
+}
 }
 </script>
 
@@ -412,6 +443,7 @@ export default {
   cursor: pointer;
   overflow: hidden;
   border: 1px solid #795548; /* Brown outline around the card */
+  text-align: center;
 }
 
 .cake-card:hover {
@@ -469,6 +501,14 @@ export default {
   font-size: 1.5rem;
   font-weight: 700;
   color: #4b352a; /* Darker brown for price */
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 15px 0;
 }
 
 .serves {

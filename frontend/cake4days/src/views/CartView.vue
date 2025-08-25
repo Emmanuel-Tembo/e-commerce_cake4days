@@ -48,11 +48,6 @@
           <span>R{{ cartTotal.toFixed(2) }}</span>
         </div>
         
-        <div class="summary-row">
-          <span>Shipping</span>
-          <span class="free-shipping">Free 🎉</span>
-        </div>
-        
         <div class="discount-section">
           <input 
             type="text" 
@@ -82,7 +77,7 @@
         <div class="trust-badges">
           <div class="badge">
             <i class="fas fa-truck"></i>
-            <span>Free Shipping</span>
+            <span>Fast Shipping</span>
           </div>
           <div class="badge">
             <i class="fas fa-lock"></i>

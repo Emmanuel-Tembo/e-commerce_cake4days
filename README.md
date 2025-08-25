@@ -1,18 +1,19 @@
 # Cake4Days E-Commerce Website
 
-Welcome to Cake4Days! This is a full-stack e-commerce platform for ordering cakes and treats.
+Welcome to Cake4Days! This is a full-stack e-commerce platform for ordering cakes and treats online, featuring user authentication, product catalog, shopping cart, order management, custom orders, wishlist, reviews, admin dashboard, payment integration, and more.
 
 ---
 
 ## Table of Contents
 
 - [Project Structure](#project-structure)
-- [Features](#features)
+- [Key Features](#key-features)
+- [Technical Overview](#technical-overview)
+- [Payment System Overview](#payment-system-overview)
 - [Getting Started](#getting-started)
   - [Backend Setup](#backend-setup)
   - [Frontend Setup](#frontend-setup)
 - [Dependencies](#dependencies)
-- [Usage](#usage)
 - [Configuration](#configuration)
 - [Environment Variables](#environment-variables)
 - [Nodemailer Setup](#nodemailer-setup)
@@ -30,14 +31,57 @@ e-commerce_cake4days/
 
 ---
 
-## Features
+## Key Features
 
-- User authentication & profiles
-- Product catalogue & search
-- Shopping cart & wishlist
-- Order placement & custom orders
-- Admin dashboard
-- Payment integration
+- **User Authentication & Profiles:** Registration, login, and profile management.
+- **Product Catalogue & Search:** Browse, search, and filter products.
+- **Shopping Cart & Wishlist:** Add, remove, and update items; save favorites.
+- **Order Placement & Custom Orders:** Place standard or custom cake orders.
+- **Order Management:** View order history and confirmations.
+- **Admin Dashboard:** Manage products, orders, and view sales reports.
+- **Payment Integration:** Secure payment processing and order status updates.
+- **User Address Management:** Save and manage shipping addresses.
+- **Reviews:** Submit and view product reviews.
+- **Informational Pages:** FAQ, Privacy Policy, Returns, Shipping Info, etc.
+
+---
+
+## Technical Overview
+
+### Frontend
+
+- **Framework:** Vue.js 3
+- **State Management:** Vuex
+- **Routing:** Vue Router
+- **PWA Support:** Service Worker
+- **Component-based UI:** Custom Vue components
+- **Main Payment View:** `src/views/paymenView.vue` handles payment UI and API calls
+
+### Backend
+
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MySQL
+- **ORM/DB Connection:** Custom DB config (`config/Db.js`)
+- **Authentication:** Custom middleware
+- **Email Service:** Nodemailer for notifications
+
+---
+
+## Payment System Overview
+
+- **Frontend:**  
+  - Users enter payment details in `paymenView.vue`.
+  - Payment info is sent to backend via API.
+  - UI displays payment status and confirmation.
+
+- **Backend:**  
+  - `paymentController.js` processes payments and interacts with payment gateways.
+  - Payment data is stored in the `payments` table (see `CAKE4DAYS.sql`).
+  - Order status is updated after payment.
+
+- **Database:**  
+  - `payments` table tracks transactions, status, and links to orders and users.
 
 ---
 
@@ -49,15 +93,12 @@ e-commerce_cake4days/
    ```
    cd backend
    ```
-
 2. **Install dependencies:**
    ```
    npm install
    ```
-
 3. **Configure environment variables:**
-   - Copy `.env.example` to `.env` and fill in your database and secret keys. See [Environment Variables](#environment-variables) below.
-
+   - Copy `.env.example` to `.env` and fill in your database and secret keys. See [Environment Variables](#environment-variables).
 4. **Start backend server:**
    ```
    npm start
@@ -72,12 +113,10 @@ e-commerce_cake4days/
    ```
    cd frontend
    ```
-
 2. **Install dependencies:**
    ```
    npm install
    ```
-
 3. **Run the development server:**
    ```
    npm run serve
@@ -105,16 +144,8 @@ e-commerce_cake4days/
 - vue-router
 - vuex
 - axios
+- register-service-worker
 - (see `frontend/package.json` for full list)
-
----
-
-## Usage
-
-1. Start the backend server.
-2. Start the frontend server.
-3. Open your browser and go to [http://localhost:8080](http://localhost:8080).
-4. Register or sign in to start shopping!
 
 ---
 
@@ -170,9 +201,3 @@ To enable email features (like password reset, order confirmations):
 ---
 
 ## License
-
-MIT
-
----
-
-For more details, see the individual `README.md` files 

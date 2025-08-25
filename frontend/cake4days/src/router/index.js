@@ -16,10 +16,13 @@ import merchView from '@/views/merchView.vue'
 import aboutView from '@/views/aboutView.vue'
 import PaymenView from '@/views/paymenView.vue'
 import OrderConfirm from '@/views/orderConfirm.vue'
+import ReturnsView from '@/views/ReturnsView.vue'
+import ShippingView from '@/views/ShippingView.vue'
+import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
+import FaqView from '@/views/FaqView.vue'
 
 
 
-// This array defines all your routes
 const routes = [
   {
     path: '/',
@@ -101,7 +104,27 @@ const routes = [
     path: '/payment/checkout',
     name: 'Payment',
     component: PaymenView
-  }
+  },
+  {
+    path: '/returns',
+    name: 'returns',
+    component: ReturnsView
+  },
+  {
+    path: '/shipping',
+    name: 'shipping',
+    component: ShippingView
+  },
+  {
+    path: '/privacy-policy',
+    name: 'privacyPolicy',
+    component: PrivacyPolicyView
+  },
+  {
+    path: '/faq',
+    name: 'faq',
+    component: FaqView
+  },
 ];
     
 

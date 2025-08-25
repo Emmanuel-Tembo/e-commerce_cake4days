@@ -36,7 +36,24 @@ export const getCustomOrderById = async (req, res) => {
 // This function will handle creating a new custom order
 export const createCustomOrder = async (req, res) => {
     // Corrected destructuring to use `fullName`
-    const { fullName, ...orderData } = req.body; 
+    const { 
+        fullName, 
+        email, 
+        phone, 
+        streetAddress, 
+        city, 
+        state, 
+        zipCode, 
+        country, 
+        event_type, 
+        event_date, 
+        number_of_servings, 
+        budget_range, 
+        dietary_requirements, 
+        cake_type, 
+        preferred_flavours, 
+        special_requests 
+    } = req.body; 
 
     // The `user_id` comes from the verified JWT, not the request body
     const userIdFromToken = req.user.userId;
@@ -47,9 +64,23 @@ export const createCustomOrder = async (req, res) => {
 
     // We combine the data from the request body with the secure user ID from the token
     const finalOrderData = {
-        user_id: userIdFromToken, // Use the ID from the JWT
-        fullName, // Use the corrected `fullName` variable
-        ...orderData
+        user_id: userIdFromToken,
+        fullName, 
+        email, 
+        phone, 
+        streetAddress, 
+        city, 
+        state, 
+        zipCode, 
+        country, 
+        event_type, 
+        event_date, 
+        number_of_servings, 
+        budget_range, 
+        dietary_requirements, 
+        cake_type, 
+        preferred_flavours, 
+        special_requests
     };
 
     try {
@@ -58,7 +89,14 @@ export const createCustomOrder = async (req, res) => {
             userEmail: finalOrderData.email,
             userName: finalOrderData.fullName,
             orderId: orderId,
-            ...finalOrderData
+            occasion: finalOrderData.event_type,
+            eventDate: finalOrderData.event_date,
+            servings: finalOrderData.number_of_servings,
+            dietaryRequirements: finalOrderData.dietary_requirements,
+            cakeType: finalOrderData.cake_type,
+            flavors: finalOrderData.preferred_flavours,
+            budget: finalOrderData.budget_range,
+            description: finalOrderData.special_requests
         });
         res.status(201).json({ message: 'Custom order created successfully!', orderId });
     } catch (e) {

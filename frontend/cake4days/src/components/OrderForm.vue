@@ -180,27 +180,27 @@ export default {
       try {
         // Create a payload that matches your backend API's expected format
          const payload = {
+      // Your user details match
       fullName: formData.value.fullName,
       email: formData.value.email,
       phone: formData.value.phone,
-      shippingAddress: {
-        street: formData.value.shippingAddress.street,
-        city: formData.value.shippingAddress.city,
-        state: formData.value.shippingAddress.state,
-        zip: formData.value.shippingAddress.zip,
-        country: formData.value.shippingAddress.country,
-      },
-      description: formData.value.description,
       
-      // Update these keys to match your email service's expectations
-      occasion: formData.value.occasion,
-      eventDate: formData.value.eventDate,
-      servings: formData.value.servings,
-      dietaryRequirements: formData.value.dietaryRequirements,
-      budget: formData.value.budget,
-      cakeType: formData.value.cakeType,
-      flavors: formData.value.flavors,
-      special_requests: formData.value.description, // Keep this as special_requests for now if your model requires it
+      // Map shippingAddress keys to match the database schema
+      streetAddress: formData.value.shippingAddress.street, // Renamed from 'street'
+      city: formData.value.shippingAddress.city,
+      state: formData.value.shippingAddress.state,
+      zipCode: formData.value.shippingAddress.zip, // Renamed from 'zip'
+      country: formData.value.shippingAddress.country,
+      
+      // Map other details to match the model and email service
+      event_type: formData.value.occasion, // Renamed from 'occasion'
+      event_date: formData.value.eventDate, // Renamed from 'eventDate'
+      number_of_servings: formData.value.servings, // Renamed from 'servings'
+      dietary_requirements: formData.value.dietaryRequirements, // Renamed from 'dietaryRequirements'
+      cake_type: formData.value.cakeType, // Renamed from 'cakeType'
+      preferred_flavours: formData.value.flavors, // Renamed from 'flavors'
+      budget_range: formData.value.budget, // Renamed from 'budget'
+      special_requests: formData.value.description, // Renamed from 'description'
     };
         // Dispatch the new Vuex action
         await store.dispatch('submitCustomOrder', payload);

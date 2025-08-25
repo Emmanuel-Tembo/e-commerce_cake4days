@@ -196,14 +196,19 @@ export default {
 
             let filtered = this.petProducts;
 
-            // Filter by search term from the Vuex store
-            if (this.searchTerm) {
-                const searchLower = this.searchTerm.toLowerCase();
-                filtered = filtered.filter(product =>
-                    product.name.toLowerCase().includes(searchLower) ||
-                    product.type.toLowerCase().includes(searchLower)
-                );
-            }
+        // Safely get the search term
+        const searchLower = (this.searchTerm || '').toLowerCase();
+
+        // Filter by search term from the Vuex store
+        if (searchLower) {
+            filtered = filtered.filter(product => {
+                // Safely access product properties before calling toLowerCase()
+                const productName = product.name ? product.name.toLowerCase() : '';
+                const productType = product.type ? product.type.toLowerCase() : '';
+
+                return productName.includes(searchLower) || productType.includes(searchLower);
+            });
+        }
 
             // Filter by category
             if (this.selectedCategory) {

@@ -80,7 +80,7 @@ export default {
       cartStore.toggleCart();
     },
     handleSearch() {
-      const query = this.searchQuery.trim().toLowerCase();
+      const query = (this.searchQuery ?? '').trim().toLowerCase();
 
       if (query) {
         // Commit the search term to the store
