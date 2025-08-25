@@ -1,12 +1,12 @@
 import { pool } from "../config/db.js"
 
 export const getProducts = async () => {
-  try {
-    let [rows] = await pool.query(`SELECT * FROM products`)
-    return rows
-  } catch (error) {
-    return error
-  }
+    try {
+        let [rows] = await pool.query(`SELECT * FROM products`)
+        return rows
+    } catch (error) {
+        return error
+    }
 }
 
 // New function to get products by intended_audience
@@ -37,25 +37,34 @@ export const getProductsByAudience = async (audience) => {
 };
 
 export const Delete = async (id) => {
-  try {
-    await pool.query(`DELETE FROM products WHERE product_id = ?;`,[id])
-  } catch (error) {
-    throw error
-  }
-} 
-
-export const Create = async (name,description,category,price,stock_quantity,intended_audience)=>{
-  try {
-    await pool.query(`INSERT INTO products (name,description,category,price,stock_quantity,intended_audience) VALUES (?,?,?,?,?,?);`,[name,description,category,price,stock_quantity,intended_audience])
-  } catch (error) {
-    throw error
-  }
+    try {
+        await pool.query(`DELETE FROM products WHERE product_id = ?;`, [id])
+    }
+    catch (error) {
+        throw error
+    }
 }
 
-export const Update = async(name,description,category,price,stock_quantity,intended_audience,id)=>{
-  try {
-    await pool.query(`UPDATE products SET name = ?,description = ?,category = ?,price = ?,stock_quantity = ?,intended_audience = ? WHERE product_id =?;`,[name,description,category,price,stock_quantity,intended_audience,id])
-  } catch (error) {
-    throw error
-  }
+// UPDATED: Create function now includes all fields from your schema.
+export const Create = async (name, description, category, price, stock_quantity, image_url,intended_audience, is_on_sale,serves, preparation_time,allergens) => {
+    try {
+        await pool.query(
+            `INSERT INTO products (name, description, category, price, stock_quantity, image_url,intended_audience,is_on_sale,serves,preparation_time,allergens) VALUES (?,?,?,?,?,?,?,?,?,?,?);`, 
+            [name, description, category, price, stock_quantity, image_url,intended_audience, is_on_sale,serves,preparation_time,allergens]
+        );
+    } catch (error) {
+        throw error;
+    }
+}
+
+// UPDATED: Update function now includes all fields and the product ID.
+export const Update = async (name, description, category, price, stock_quantity, is_available, image_url, flavour_profile, allergens, serves, preparation_time_days, intended_audience, is_on_sale, id) => {
+    try {
+        await pool.query(
+            `UPDATE products SET name = ?, description = ?, category = ?, price = ?, stock_quantity = ?, is_available = ?, image_url = ?, flavour_profile = ?, allergens = ?, serves = ?, preparation_time_days = ?, intended_audience = ?, is_on_sale = ? WHERE product_id = ?;`,
+            [name, description, category, price, stock_quantity, is_available, image_url, flavour_profile, allergens, serves, preparation_time_days, intended_audience, is_on_sale, id]
+        );
+    } catch (error) {
+        throw error;
+    }
 }

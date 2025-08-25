@@ -26,9 +26,7 @@ import authRoutes from './routes/authRoutes.js'
 import Products from './routes/Products.js'
 import customOrderRoutes from './routes/customOrderRoutes.js'; 
 import cartRoutes from './routes/cartRoutes.js';
-import wishlistRoutes from './routes/wishlistRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
-import salesReportRoutes from './routes/salesReportRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -39,9 +37,7 @@ app.use('/auth',authRoutes);
 app.use('/products',Products);
 app.use('/', customOrderRoutes);
 app.use('/', cartRoutes);
-app.use('/', wishlistRoutes);
 app.use('/', reviewRoutes);
-app.use('/', salesReportRoutes);
 app.use('/user', profileRoutes);
 app.use('/api', paymentRoutes);
 // app.use('/api', orderRoutes)

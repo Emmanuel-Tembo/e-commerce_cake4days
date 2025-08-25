@@ -175,6 +175,43 @@ export default createStore({
       }
     },
 
+    async createProduct({ dispatch }, newProductData) {
+      try {
+        await axios.post('/products/create', newProductData);
+        alert('Product created successfully!');
+        // Refresh products after successful creation
+        dispatch('fetchProducts');
+      } catch (error) {
+        console.error('Error creating product:', error);
+        alert('Failed to create product.');
+      }
+    },
+
+    async updateProduct({ dispatch }, updatedProductData) {
+      try {
+        const { product_id, ...data } = updatedProductData;
+        await axios.put(`/products/update/${product_id}`, data);
+        alert('Product updated successfully!');
+        // Refresh products after successful update
+        dispatch('fetchProducts');
+      } catch (error) {
+        console.error('Error updating product:', error);
+        alert('Failed to update product.');
+      }
+    },
+
+    // NEW ACTION to delete a product
+    async deleteProduct({ dispatch }, productId) {
+      try {
+        await axios.delete(`/products/delete/${productId}`);
+        alert('Product deleted successfully!');
+        // Refresh products after successful deletion
+        dispatch('fetchProducts');
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product.');
+      }
+    },
     // NEW ACTION to fetch pet products
     async fetchPetProducts({ commit }) {
       try {
