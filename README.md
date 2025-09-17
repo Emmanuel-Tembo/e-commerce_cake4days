@@ -87,6 +87,12 @@ e-commerce_cake4days/
 
 ## Getting Started
 
+Git clone the url
+
+```bash
+git clone https://github.com/Emmanuel-Tembo/e-commerce_cake4days.git
+```
+
 ### Backend Setup
 
 1. **Navigate to backend folder:**
