@@ -9,12 +9,19 @@ config()
 const app = express()
 const PORT = process.env.PORT || 9090
  
-// Configure CORS to allow your frontend's origin and credentials
-// This is the fix for your CORS error.
+const allowedOrigins = ['http://localhost:8082', 'http://localhost:8080'];
+
 const corsOptions = {
-    origin: 'http://localhost:8080',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 app.use(cookieParser());
@@ -40,7 +47,7 @@ app.use('/', cartRoutes);
 app.use('/', reviewRoutes);
 app.use('/user', profileRoutes);
 app.use('/api', paymentRoutes);
-// app.use('/api', orderRoutes)
+
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)
