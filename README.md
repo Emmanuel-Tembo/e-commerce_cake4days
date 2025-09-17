@@ -107,7 +107,7 @@ git clone https://github.com/Emmanuel-Tembo/e-commerce_cake4days.git
    - Copy `.env.example` to `.env` and fill in your database and secret keys. See [Environment Variables](#environment-variables).
 4. **Start backend server:**
    ```
-   npm start
+   nodemon index.js
    ```
    The backend runs on [http://localhost:5000](http://localhost:5000) by default.
 
@@ -119,11 +119,15 @@ git clone https://github.com/Emmanuel-Tembo/e-commerce_cake4days.git
    ```
    cd frontend
    ```
-2. **Install dependencies:**
+2. **Navigate to frontend folder:**
+   ```
+   cd cake4days
+   ```
+3. **Install dependencies:**
    ```
    npm install
    ```
-3. **Run the development server:**
+4. **Run the development server:**
    ```
    npm run serve
    ```
