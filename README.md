@@ -1,6 +1,6 @@
 # Cake4Days E-Commerce Website
 
-Welcome to Cake4Days! This is a full-stack e-commerce platform for ordering cakes and treats online, featuring user authentication, product catalog, shopping cart, order management, custom orders, wishlist, reviews, admin dashboard, payment integration, and more.
+Welcome to Cake4Days! This is a full-stack e-commerce platform for ordering cakes and treats online, featuring user authentication, product catalog, shopping cart, custom orders, payment integration and more.
 
 ---
 
