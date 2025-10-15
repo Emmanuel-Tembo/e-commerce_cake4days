@@ -9,7 +9,7 @@ config()
 const app = express()
 const PORT = process.env.PORT || 9090
  
-const allowedOrigins = ['http://localhost:8082', 'http://localhost:8080'];
+const allowedOrigins = ['https://module3frontend.vercel.app', 'http://localhost:8080'];
 
 const corsOptions = {
     origin: function (origin, callback) {
