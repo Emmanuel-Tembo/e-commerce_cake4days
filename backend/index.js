@@ -8,21 +8,7 @@ import { identifyUser } from './middleware/guestAuthMiddleware.js';
 config()
 const app = express()
 const PORT = process.env.PORT || 9090
- 
-const allowedOrigins = ['https://module3frontend.vercel.app', 'http://localhost:8080'];
-
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
