@@ -1,6 +1,6 @@
 // src/routes/profileRoutes.js
 import express from 'express';
-import * as profileCont from '../controller/profileCont.js'
+import * as profileCont from '../controller/ProfileCont.js'
 import { authenticateToken } from '../middleware/authMiddleware.js'; // You'll create this middleware
 const router = express.Router();
 import * as userAddressCont from '../controller/userAddressController.js';
